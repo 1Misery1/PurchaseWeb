@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Portal - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Supplier Portal</p>
+            </div>
+            <div class="supplier-info">
+                <div class="supplier-details">
+                    <span class="company-name">🏢 The North Face Ltd.</span>
+                    <span class="contact-person">Contact: Sarah Johnson</span>
+                    <span class="service-area">📍 Serving 5 UK Stores</span>
+                </div>
+                <div class="nav-actions">
+                    <a href="#" class="notification-btn">📧 Messages <span class="badge">2</span></a>
+                    <a href="#" class="notification-btn">🔔 Notifications <span class="badge">5</span></a>
+                    <button class="btn-logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- Left Sidebar Navigation -->
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <a href="#dashboard" class="menu-item active">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                
+                <div class="menu-section">
+                    <a href="#orders" class="menu-item">
+                        <span class="icon">📋</span>
+                        <span>Purchase Orders</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="#orders-active">• Active Orders</a>
+                        <a href="#orders-pending">• Pending Review</a>
+                        <a href="#orders-history">• Order History</a>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <a href="#shipments" class="menu-item">
+                        <span class="icon">📦</span>
+                        <span>Shipment Management</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="#shipments-ready">• Ready to Ship</a>
+                        <a href="#shipments-transit">• In Transit</a>
+                        <a href="#shipments-delivered">• Delivered</a>
+                    </div>
+                </div>
+
+                <div class="menu-section">
+                    <a href="#products" class="menu-item">
+                        <span class="icon">📦</span>
+                        <span>Product Catalog</span>
+                    </a>
+                    <div class="submenu">
+                        <a href="#products-catalog">• Product List</a>
+                        <a href="#products-prices">• Price Management</a>
+                        <a href="#products-add">• Add Product</a>
+                    </div>
+                </div>
+
+                <a href="#payments" class="menu-item">
+                    <span class="icon">💰</span>
+                    <span>Payments & Invoices</span>
+                </a>
+
+                <a href="#reports" class="menu-item">
+                    <span class="icon">📊</span>
+                    <span>Sales Reports</span>
+                </a>
+
+                <a href="#settings" class="menu-item">
+                    <span class="icon">⚙️</span>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="section-header">
+                    <h1>📊 Supplier Dashboard</h1>
+                    <p class="date">📅 22 Oct 2025</p>
+                </div>
+
+                <div class="welcome-message">
+                    <h2>Welcome Back, The North Face Ltd.</h2>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">📋</span>
+                            <h3>Active Purchase Orders</h3>
+                        </div>
+                        <div class="stat-value">8</div>
+                        <a href="#orders" class="stat-link">View All →</a>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon">📦</span>
+                            <h3>Awaiting Shipment</h3>
+                        </div>
+                        <div class="stat-value">3</div>
+                        <a href="#shipments-ready" class="stat-link">Process Shipment →</a>
+                    </div>
+
+                    <div class="stat-card warning">
+                        <div class="stat-header">
+                            <span class="stat-icon">💰</span>
+                            <h3>Pending Payment</h3>
+                        </div>
+                        <div class="stat-value">£12,500</div>
+                        <p class="stat-detail">2 Invoices</p>
+                    </div>
+
+                    <div class="stat-card success">
+                        <div class="stat-header">
+                            <span class="stat-icon">⭐</span>
+                            <h3>Supplier Rating</h3>
+                        </div>
+                        <div class="stat-value">4.8/5</div>
+                        <p class="stat-detail">Excellent</p>
+                    </div>
+                </div>
+
+                <!-- Recent Purchase Orders -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📋 Recent Purchase Orders</h2>
+                        <a href="#orders" class="btn btn-secondary">View All Orders</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Order No</th>
+                                    <th>Order Date</th>
+                                    <th>Expected Delivery</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>PO-00047</strong></td>
+                                    <td>12 Oct 2025</td>
+                                    <td>22 Oct 2025</td>
+                                    <td>£2,500</td>
+                                    <td><span class="status-badge pending">⏳ Pending Confirmation</span></td>
+                                    <td>
+                                        <button class="btn btn-small btn-primary">Confirm</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PO-00045</strong></td>
+                                    <td>1 Oct 2025</td>
+                                    <td>15 Oct 2025</td>
+                                    <td>£5,200</td>
+                                    <td><span class="status-badge shipped">🚚 Shipped</span></td>
+                                    <td>
+                                        <button class="btn btn-small">Track</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>PO-00043</strong></td>
+                                    <td>25 Sep 2025</td>
+                                    <td>5 Oct 2025</td>
+                                    <td>£3,800</td>
+                                    <td><span class="status-badge delivered">✅ Delivered</span></td>
+                                    <td>
+                                        <button class="btn btn-small">View</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Action Items -->
+                <div class="card alert-card">
+                    <div class="card-header">
+                        <h2>⚠️ Action Required</h2>
+                    </div>
+                    <div class="action-list">
+                        <div class="action-item">
+                            <span class="action-text">• PO-00047 Awaiting Confirmation</span>
+                            <button class="btn btn-primary btn-small">✅ Confirm</button>
+                        </div>
+                        <div class="action-item">
+                            <span class="action-text">• PO-00046 Ready to Ship</span>
+                            <button class="btn btn-primary btn-small">📦 Update Shipping Info</button>
+                        </div>
+                        <div class="action-item">
+                            <span class="action-text">• 5 Products Need Price Update</span>
+                            <button class="btn btn-primary btn-small">💰 Update Prices</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sales Performance and Top Products -->
+                <div class="grid-2col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>📈 Sales Performance</h2>
+                        </div>
+                        <div class="performance-stats">
+                            <div class="perf-item">
+                                <span class="perf-label">This Month:</span>
+                                <span class="perf-value">£45,000</span>
+                            </div>
+                            <div class="perf-item">
+                                <span class="perf-label">Last Month:</span>
+                                <span class="perf-value">£38,500</span>
+                            </div>
+                            <div class="perf-item success">
+                                <span class="perf-label">Growth:</span>
+                                <span class="perf-value">↑ 16.9%</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-block">View Detailed Report</button>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>📦 Top Products</h2>
+                        </div>
+                        <ol class="top-products-list">
+                            <li>North Face Tent</li>
+                            <li>Sleeping Bag Pro</li>
+                            <li>Elite Backpack</li>
+                            <li>Rain Jacket</li>
+                            <li>Camping Stove</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Purchase Order Management Section -->
+            <section id="orders" class="content-section">
+                <div class="section-header">
+                    <h1>📋 Purchase Order Management</h1>
+                </div>
+
+                <!-- Filters and Search -->
+                <div class="filters-bar">
+                    <select class="filter-select">
+                        <option>All Status</option>
+                        <option>Pending Confirmation</option>
+                        <option>Confirmed</option>
+                        <option>Shipped</option>
+                        <option>Delivered</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Time</option>
+                        <option>This Month</option>
+                        <option>Last Month</option>
+                        <option>This Quarter</option>
+                    </select>
+                    <input type="text" placeholder="Search order number..." class="search-input">
+                    <button class="btn btn-primary">🔍 Search</button>
+                </div>
+
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active">Active Orders</button>
+                    <button class="tab">Pending</button>
+                    <button class="tab">Shipped</button>
+                    <button class="tab">Delivered</button>
+                    <button class="tab">All</button>
+                </div>
+
+                <!-- Order Detail Cards -->
+                <div class="orders-list">
+                    <!-- Order 1 -->
+                    <div class="order-card urgent">
+                        <div class="order-header">
+                            <div>
+                                <h3>PO-00047 - Pending Confirmation</h3>
+                                <span class="urgent-badge">⏳ Action Required</span>
+                            </div>
+                        </div>
+                        <div class="order-info">
+                            <p><strong>Order Date:</strong> 12 Oct 2025</p>
+                            <p><strong>Expected Delivery:</strong> 22 Oct 2025</p>
+                        </div>
+                        <div class="order-items-section">
+                            <h4>Ordered Products:</h4>
+                            <table class="mini-table">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Product</th>
+                                        <th>Quantity</th>
+                                        <th>Unit Price</th>
+                                        <th>Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>TNT001</td>
+                                        <td>North Face Tent</td>
+                                        <td>20</td>
+                                        <td>£300.00</td>
+                                        <td>£6,000</td>
+                                    </tr>
+                                    <tr>
+                                        <td>SBG002</td>
+                                        <td>Sleeping Bag Pro</td>
+                                        <td>15</td>
+                                        <td>£180.00</td>
+                                        <td>£2,700</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="order-total">
+                            <strong>总金额: £8,700.00</strong>
+                        </div>
+                        <div class="delivery-address">
+                            <p><strong>送货地址:</strong></p>
+                            <p>Summit Gear - Edinburgh Branch<br>
+                            123 Princes Street, Edinburgh, EH2 4AA</p>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-primary">✅ Confirm Order</button>
+                            <button class="btn btn-danger">❌ Reject</button>
+                            <button class="btn btn-secondary">💬 联系采购方</button>
+                        </div>
+                    </div>
+
+                    <!-- Order 2 -->
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <h3>PO-00045 - Shipped</h3>
+                                <span class="status-badge shipped">🚚 In Transit</span>
+                            </div>
+                        </div>
+                        <div class="order-info">
+                            <p><strong>Order Date:</strong> 2025-10-01</p>
+                            <p><strong>发货期:</strong> 2025-10-08</p>
+                            <p><strong>Estimated Arrival:</strong> 2025-10-15</p>
+                        </div>
+                        <div class="tracking-info">
+                            <p><strong>Tracking Number:</strong> TNF-2025-78945</p>
+                            <p><strong>Carrier:</strong> DHL Express</p>
+                            <p><strong>状态:</strong> In Transit → Edinburgh</p>
+                        </div>
+                        <div class="order-total">
+                            <strong>总金额: £5,200.00</strong>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn btn-secondary">📋 View Details</button>
+                            <button class="btn btn-secondary">🚚 追踪物流</button>
+                            <button class="btn btn-secondary">📄 查看发票</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Product目录管理 Section -->
+            <section id="products" class="content-section">
+                <div class="section-header">
+                    <h1>📦 Product目录管理</h1>
+                    <button class="btn btn-primary">➕ 添加新Product</button>
+                </div>
+
+                <!-- Search和筛选 -->
+                <div class="filters-bar">
+                    <input type="text" placeholder="🔍 SearchProduct..." class="search-input">
+                    <select class="filter-select">
+                        <option>All类别</option>
+                        <option>露营装备</option>
+                        <option>攀岩装备</option>
+                        <option>服装</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>All Status</option>
+                        <option>活跃</option>
+                        <option>停产</option>
+                    </select>
+                </div>
+
+                <!-- Product列表 -->
+                <div class="products-list">
+                    <!-- Product 1 -->
+                    <div class="product-card-supplier">
+                        <div class="product-header">
+                            <h3>TNT001 - North Face Tent</h3>
+                            <span class="status-badge active">活跃</span>
+                        </div>
+                        <div class="product-details">
+                            <p><strong>类别:</strong> 露营装备 | <strong>品牌:</strong> The North Face</p>
+                            <div class="pricing-info">
+                                <p><strong>批发价:</strong> £300.00 (供给Summit Gear)</p>
+                                <p><strong>建议零售价:</strong> £450.00</p>
+                                <p><strong>库存状态:</strong> ✅ 有货</p>
+                                <p><strong>最小订货量:</strong> 10 units</p>
+                            </div>
+                            <div class="sales-info">
+                                <p><strong>This Month:</strong> 35 units | £10,500</p>
+                                <p><strong>总销售:</strong> 250 units</p>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-secondary btn-small">✏️ Edit详情</button>
+                            <button class="btn btn-secondary btn-small">💰 Update Prices</button>
+                            <button class="btn btn-secondary btn-small">📊 查看统计</button>
+                        </div>
+                    </div>
+
+                    <!-- Product 2 -->
+                    <div class="product-card-supplier">
+                        <div class="product-header">
+                            <h3>SBG002 - Sleeping Bag Professional</h3>
+                            <span class="status-badge active">活跃</span>
+                        </div>
+                        <div class="product-details">
+                            <p><strong>类别:</strong> 露营装备 | <strong>品牌:</strong> The North Face</p>
+                            <div class="pricing-info">
+                                <p><strong>批发价:</strong> £180.00</p>
+                                <p><strong>建议零售价:</strong> £280.00</p>
+                                <p><strong>库存状态:</strong> ✅ 有货</p>
+                                <p><strong>最小订货量:</strong> 15 units</p>
+                            </div>
+                            <div class="sales-info">
+                                <p><strong>This Month:</strong> 28 units | £5,040</p>
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-secondary btn-small">✏️ Edit详情</button>
+                            <button class="btn btn-secondary btn-small">💰 Update Prices</button>
+                            <button class="btn btn-secondary btn-small">📊 查看统计</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 付款和发票 Section -->
+            <section id="payments" class="content-section">
+                <div class="section-header">
+                    <h1>💰 付款和发票</h1>
+                </div>
+
+                <div class="payment-summary">
+                    <div class="summary-item">
+                        <span>付款条款:</span>
+                        <strong>Net 30 Days</strong>
+                    </div>
+                    <div class="summary-item warning">
+                        <span>未付款余额:</span>
+                        <strong>£12,500.00</strong>
+                    </div>
+                </div>
+
+                <!-- 待Payments 付款发票 Invoices -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📋 待Payments 付款发票 Invoices</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>发票号</th>
+                                    <th>采购订单</th>
+                                    <th>期</th>
+                                    <th>金额</th>
+                                    <th>到期</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>INV-2025-089</strong></td>
+                                    <td>PO-00047</td>
+                                    <td>2025-10-12</td>
+                                    <td>£2,500.00</td>
+                                    <td>2025-11-11<br><small>(20天)</small></td>
+                                    <td>
+                                        <button class="btn btn-small">📄 查看</button>
+                                        <button class="btn btn-small">📥 下载PDF</button>
+                                    </td>
+                                </tr>
+                                <tr class="warning-row">
+                                    <td><strong>INV-2025-078</strong></td>
+                                    <td>PO-00045</td>
+                                    <td>2025-10-01</td>
+                                    <td>£5,200.00</td>
+                                    <td>2025-10-31<br><small class="warning-text">⚠️ 9天</small></td>
+                                    <td>
+                                        <button class="btn btn-small">📄 查看</button>
+                                        <button class="btn btn-small">📥 下载PDF</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 付款历史 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>💳 近期付款历史</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>期</th>
+                                    <th>发票号</th>
+                                    <th>金额</th>
+                                    <th>付款方式</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025-10-05</td>
+                                    <td>INV-2025-067</td>
+                                    <td>£3,800</td>
+                                    <td>银行转账</td>
+                                    <td><span class="status-badge paid">✅ 已付</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2025-09-28</td>
+                                    <td>INV-2025-056</td>
+                                    <td>£4,200</td>
+                                    <td>银行转账</td>
+                                    <td><span class="status-badge paid">✅ 已付</span></td>
+                                </tr>
+                                <tr>
+                                    <td>2025-09-15</td>
+                                    <td>INV-2025-045</td>
+                                    <td>£2,900</td>
+                                    <td>银行转账</td>
+                                    <td><span class="status-badge paid">✅ 已付</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-secondary">📊 付款报告</button>
+                    <button class="btn btn-secondary">📧 联系财务部</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/supplier.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Catalog - Supplier Portal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .products-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .search-filter-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            min-width: 150px;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .product-image {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .product-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .product-sku {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-stock {
+            margin-bottom: 1rem;
+        }
+        
+        .stock-indicator {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .stock-indicator.high {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .stock-indicator.medium {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .stock-indicator.low {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        
+        .close-btn:hover {
+            color: var(--danger-color);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Supplier Portal</p>
+            </div>
+            <div class="supplier-info">
+                <div class="supplier-details">
+                    <span class="company-name">🏢 The North Face Ltd.</span>
+                    <span class="contact-person">联系人: Sarah Johnson</span>
+                </div>
+                <div class="nav-actions">
+                    <a href="#" class="notification-btn">📧 消息 <span class="badge">2</span></a>
+                    <a href="#" class="notification-btn">🔔 通知 <span class="badge">5</span></a>
+                    <button class="btn-logout">🚪 退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- 左侧导航菜单 -->
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="order-details.html" class="menu-item">
+                    <span class="icon">📋</span>
+                    <span>采购订单</span>
+                </a>
+
+                <a href="shipments.html" class="menu-item">
+                    <span class="icon">📦</span>
+                    <span>发货管理</span>
+                </a>
+
+                <a href="products.html" class="menu-item active">
+                    <span class="icon">📦</span>
+                    <span>产品目录</span>
+                </a>
+
+                <a href="payments.html" class="menu-item">
+                    <span class="icon">💰</span>
+                    <span>付款发票</span>
+                </a>
+
+                <a href="reports.html" class="menu-item">
+                    <span class="icon">📊</span>
+                    <span>销售报表</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main class="content-area">
+            <div class="products-header">
+                <div>
+                    <h1>📦 产品目录管理</h1>
+                    <p>管理您的产品信息和库存</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddProductModal()">➕ 添加新产品</button>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value">24</div>
+                    <div class="stat-label">总产品数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">18</div>
+                    <div class="stat-label">有货产品</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">低库存</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">£285K</div>
+                    <div class="stat-label">库存总值</div>
+                </div>
+            </div>
+
+            <!-- 搜索和筛选 -->
+            <div class="search-filter-bar">
+                <input type="text" class="search-input" placeholder="🔍 搜索Product Name或SKU..." id="searchProducts">
+                <select class="filter-select" id="categoryFilter">
+                    <option value="">所有类别</option>
+                    <option value="camping">露营装备</option>
+                    <option value="clothing">户外服装</option>
+                    <option value="footwear">鞋履</option>
+                    <option value="accessories">配件</option>
+                </select>
+                <select class="filter-select" id="stockFilter">
+                    <option value="">所有库存状态</option>
+                    <option value="high">库存充足</option>
+                    <option value="medium">库存正常</option>
+                    <option value="low">库存低</option>
+                </select>
+                <button class="btn btn-primary" onclick="applyFilters()">筛选</button>
+                <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+            </div>
+
+            <!-- 产品网格 -->
+            <div class="products-grid" id="productsGrid">
+                <!-- 产品1 -->
+                <div class="product-card" data-category="camping" data-stock="high">
+                    <div class="product-image">🏕️</div>
+                    <div class="product-name">North Face 帐篷</div>
+                    <div class="product-sku">SKU: TNT-001</div>
+                    <div class="product-price">£450.00</div>
+                    <div class="product-stock">
+                        <span class="stock-indicator high">库存充足 (45)</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-small btn-primary" onclick="editProduct(1)">✏️ Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="viewProduct(1)">👁️ 查看</button>
+                    </div>
+                </div>
+
+                <!-- 产品2 -->
+                <div class="product-card" data-category="camping" data-stock="high">
+                    <div class="product-image">🛏️</div>
+                    <div class="product-name">Sleeping Bag Pro</div>
+                    <div class="product-sku">SKU: SLP-002</div>
+                    <div class="product-price">£280.00</div>
+                    <div class="product-stock">
+                        <span class="stock-indicator high">库存充足 (32)</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-small btn-primary" onclick="editProduct(2)">✏️ Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="viewProduct(2)">👁️ 查看</button>
+                    </div>
+                </div>
+
+                <!-- 产品3 -->
+                <div class="product-card" data-category="clothing" data-stock="medium">
+                    <div class="product-image">🧥</div>
+                    <div class="product-name">Waterproof Jacket</div>
+                    <div class="product-sku">SKU: JKT-003</div>
+                    <div class="product-price">£250.00</div>
+                    <div class="product-stock">
+                        <span class="stock-indicator medium">库存正常 (18)</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-small btn-primary" onclick="editProduct(3)">✏️ Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="viewProduct(3)">👁️ 查看</button>
+                    </div>
+                </div>
+
+                <!-- 产品4 -->
+                <div class="product-card" data-category="footwear" data-stock="low">
+                    <div class="product-image">🥾</div>
+                    <div class="product-name">Hiking Boots Pro</div>
+                    <div class="product-sku">SKU: BTS-004</div>
+                    <div class="product-price">£180.00</div>
+                    <div class="product-stock">
+                        <span class="stock-indicator low">库存低 (5)</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-small btn-primary" onclick="editProduct(4)">✏️ Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="viewProduct(4)">👁️ 查看</button>
+                    </div>
+                </div>
+
+                <!-- 产品5 -->
+                <div class="product-card" data-category="accessories" data-stock="high">
+                    <div class="product-image">🎒</div>
+                    <div class="product-name">Elite Backpack</div>
+                    <div class="product-sku">SKU: BKP-005</div>
+                    <div class="product-price">£180.00</div>
+                    <div class="product-stock">
+                        <span class="stock-indicator high">库存充足 (28)</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-small btn-primary" onclick="editProduct(5)">✏️ Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="viewProduct(5)">👁️ 查看</button>
+                    </div>
+                </div>
+
+                <!-- 产品6 -->
+                <div class="product-card" data-category="camping" data-stock="low">
+                    <div class="product-image">🔦</div>
+                    <div class="product-name">LED Headlamp</div>
+                    <div class="product-sku">SKU: LMP-006</div>
+                    <div class="product-price">£45.00</div>
+                    <div class="product-stock">
+                        <span class="stock-indicator low">库存低 (8)</span>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-small btn-primary" onclick="editProduct(6)">✏️ Edit</button>
+                        <button class="btn btn-small btn-secondary" onclick="viewProduct(6)">👁️ 查看</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 添加/Edit产品模态窗口 -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">添加新产品</h2>
+                <button class="close-btn" onclick="closeProductModal()">×</button>
+            </div>
+            <form id="productForm">
+                <div class="form-group">
+                    <label>Product Name *</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>SKU *</label>
+                    <input type="text" id="productSKU" required>
+                </div>
+                <div class="form-group">
+                    <label>类别 *</label>
+                    <select id="productCategory" required>
+                        <option value="">选择类别</option>
+                        <option value="camping">露营装备</option>
+                        <option value="clothing">户外服装</option>
+                        <option value="footwear">鞋履</option>
+                        <option value="accessories">配件</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>价格 (£) *</label>
+                    <input type="number" id="productPrice" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock Qty *</label>
+                    <input type="number" id="productStock" required>
+                </div>
+                <div class="form-group">
+                    <label>产品描述</label>
+                    <textarea id="productDescription" placeholder="输入产品详细描述..."></textarea>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">💾 保存</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeProductModal()" style="flex: 1;">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/supplier.js"></script>
+    <script src="js/products.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

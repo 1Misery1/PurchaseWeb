@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/cart.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html">👤 My Account</a>
+                <a href="cart.html" class="cart-link active">🛒 Cart <span class="cart-count">3</span></a>
+            </div>
+            <div class="user-info">
+                <div class="user-profile">
+                    <span class="user-name">👤 James Wilson</span>
+                    <span class="membership-badge gold">🥇 Gold</span>
+                    <span class="points">Points: 2,450</span>
+                </div>
+                <button class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>🛒 Shopping Cart</h1>
+            <p>You have 3 items in your cart</p>
+        </div>
+
+        <div class="cart-member-notice">
+            <span class="badge gold">🥇 Gold Member Discount: 15% OFF</span>
+        </div>
+
+        <div class="cart-layout">
+            <!-- 购物车商品列表 -->
+            <div class="cart-items">
+                <!-- 购物车商品 1 -->
+                <div class="cart-item">
+                    <div class="item-image">🏕️</div>
+                    <div class="item-details">
+                        <h3>North Face Tent - 4 Person</h3>
+                        <p class="item-sku">SKU: TNT001</p>
+                        <p class="item-description">Professional 4-person camping tent, waterproof and durable</p>
+                    </div>
+                    <div class="item-price">
+                        <span class="original">£450.00</span>
+                        <span class="discounted">£382.50</span>
+                    </div>
+                    <div class="item-quantity">
+                        <label>Quantity:</label>
+                        <select onchange="updateItemQuantity(1, this.value)">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="item-discount">
+                        <span>-15%</span>
+                    </div>
+                    <div class="item-subtotal">
+                        <strong>£382.50</strong>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-icon" title="Remove" onclick="removeItem(1)">🗑️</button>
+                        <button class="btn-icon" title="Add to Wishlist">❤️</button>
+                    </div>
+                </div>
+
+                <!-- 购物车商品 2 -->
+                <div class="cart-item">
+                    <div class="item-image">🛏️</div>
+                    <div class="item-details">
+                        <h3>Sleeping Bag Pro</h3>
+                        <p class="item-sku">SKU: SBP002</p>
+                        <p class="item-description">Professional sleeping bag, warm and comfortable</p>
+                    </div>
+                    <div class="item-price">
+                        <span class="original">£280.00</span>
+                        <span class="discounted">£238.00</span>
+                    </div>
+                    <div class="item-quantity">
+                        <label>Quantity:</label>
+                        <select onchange="updateItemQuantity(3, this.value)">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="item-discount">
+                        <span>-15%</span>
+                    </div>
+                    <div class="item-subtotal">
+                        <strong>£238.00</strong>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-icon" title="Remove" onclick="removeItem(3)">🗑️</button>
+                        <button class="btn-icon" title="Add to Wishlist">❤️</button>
+                    </div>
+                </div>
+
+                <!-- 购物车商品 3 -->
+                <div class="cart-item">
+                    <div class="item-image">🔦</div>
+                    <div class="item-details">
+                        <h3>LED Headlamp Ultra</h3>
+                        <p class="item-sku">SKU: LHL004</p>
+                        <p class="item-description">High-brightness LED headlamp</p>
+                    </div>
+                    <div class="item-price">
+                        <span class="original">£45.00</span>
+                        <span class="discounted">£38.25</span>
+                    </div>
+                    <div class="item-quantity">
+                        <label>Quantity:</label>
+                        <select onchange="updateItemQuantity(4, this.value)">
+                            <option value="1">1</option>
+                            <option value="2" selected>2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                    <div class="item-discount">
+                        <span>-15%</span>
+                    </div>
+                    <div class="item-subtotal">
+                        <strong>£76.50</strong>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn-icon" title="Remove" onclick="removeItem(4)">🗑️</button>
+                        <button class="btn-icon" title="Add to Wishlist">❤️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单摘要 -->
+            <aside class="order-summary">
+                <h3>Order Summary</h3>
+                
+                <div class="summary-line">
+                    <span>Subtotal (3 items):</span>
+                    <span>£775.00</span>
+                </div>
+                
+                <div class="summary-line discount">
+                    <span>Member Discount (15%):</span>
+                    <span>-£116.25</span>
+                </div>
+
+                <!-- 积分使用 -->
+                <div class="points-section">
+                    <h4>🎁 Use Points?</h4>
+                    <p class="points-balance">You have <strong>2,450 Points</strong> (worth £24.50)</p>
+                    
+                    <div class="points-options">
+                        <label class="radio-option">
+                            <input type="radio" name="points" value="0" checked>
+                            <span>Don't use points</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="points" value="500">
+                            <span>Use 500 points (-£5.00)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="points" value="1000">
+                            <span>Use 1,000 points (-£10.00)</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="points" value="2000">
+                            <span>Use 2,000 points (-£20.00)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="summary-line points-used">
+                    <span>Points Used:</span>
+                    <span>-£0.00</span>
+                </div>
+
+                <div class="summary-divider"></div>
+
+                <div class="summary-line total">
+                    <span>Total:</span>
+                    <span>£658.75</span>
+                </div>
+
+                <div class="points-earn">
+                    <span>💰 You will earn: <strong>+658 Points</strong></span>
+                </div>
+
+                <!-- 取货选项 -->
+                <div class="delivery-options">
+                    <h4>Delivery Method</h4>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="delivery" value="collect" checked>
+                        <div>
+                            <strong>📦 Reserve & Collect</strong>
+                            <p>Choose Store: 
+                                <select>
+                                    <option>London</option>
+                                    <option>Manchester</option>
+                                    <option>Edinburgh</option>
+                                    <option>Birmingham</option>
+                                    <option>Cardiff</option>
+                                </select>
+                            </p>
+                            <small>Ready for collection in 2-4 hours</small>
+                        </div>
+                    </label>
+
+                    <label class="radio-option">
+                        <input type="radio" name="delivery" value="delivery">
+                        <div>
+                            <strong>🚚 Home Delivery (+£5.99)</strong>
+                            <small>Estimated delivery in 3-5 business days</small>
+                        </div>
+                    </label>
+                </div>
+
+                <button class="btn btn-primary btn-block btn-checkout">
+                    Proceed to Checkout →
+                </button>
+
+                <a href="products.html" class="btn btn-secondary btn-block">
+                    ← Continue Shopping
+                </a>
+            </aside>
+        </div>
+
+        <!-- 推荐商品 -->
+        <section class="recommendations">
+            <h2>🔍 You May Also Like</h2>
+            <div class="product-grid">
+                <div class="product-card-small">
+                    <div class="product-image-small">🎒</div>
+                    <h4>Elite Backpack</h4>
+                    <p class="price">£153.00</p>
+                    <button class="btn btn-small btn-primary">Add to Cart</button>
+                </div>
+                <div class="product-card-small">
+                    <div class="product-image-small">🍳</div>
+                    <h4>Camping Stove</h4>
+                    <p class="price">£106.25</p>
+                    <button class="btn btn-small btn-primary">Add to Cart</button>
+                </div>
+                <div class="product-card-small">
+                    <div class="product-image-small">⛺</div>
+                    <h4>Camping Mat</h4>
+                    <p class="price">£72.25</p>
+                    <button class="btn btn-small btn-primary">Add to Cart</button>
+                </div>
+                <div class="product-card-small">
+                    <div class="product-image-small">🔪</div>
+                    <h4>Multi-Tool Kit</h4>
+                    <p class="price">£46.75</p>
+                    <button class="btn btn-small btn-primary">Add to Cart</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Company Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Member Center</h3>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="account.html#orders">Order History</a></li>
+                        <li><a href="account.html#points">Points Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p>📧 info@summitgear.co.uk</p>
+                    <p>📞 0131 123 4567</p>
+                    <p>📍 Edinburgh, Scotland</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/cart.js"></script>
+</body>
+</html>
+
+

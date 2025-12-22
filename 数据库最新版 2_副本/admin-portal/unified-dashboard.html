@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        /* Top Navigation */
+        .top-nav {
+            background: linear-gradient(135deg, #7C3AED, #5B21B6);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand h1 {
+            font-size: 1.5rem;
+        }
+
+        .brand .role-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.85rem;
+        }
+
+        .nav-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-info .store {
+            opacity: 0.9;
+        }
+
+        .nav-info .datetime {
+            background: rgba(255,255,255,0.15);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Overview Cards */
+        .overview-section {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-card.sales { --accent: #10B981; }
+        .stat-card.orders { --accent: #3B82F6; }
+        .stat-card.customers { --accent: #8B5CF6; }
+        .stat-card.inventory { --accent: #F59E0B; }
+        .stat-card.staff { --accent: #EC4899; }
+
+        .stat-card .label {
+            font-size: 0.8rem;
+            color: #6B7280;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: #1F2937;
+        }
+
+        .stat-card .change {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .stat-card .change.positive { color: #10B981; }
+        .stat-card .change.negative { color: #EF4444; }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            background: white;
+            border-radius: 0.75rem 0.75rem 0 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #6B7280;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 150px;
+        }
+
+        .tab-btn:hover {
+            background: #f9fafb;
+            color: #7C3AED;
+        }
+
+        .tab-btn.active {
+            color: #7C3AED;
+            border-bottom-color: #7C3AED;
+            background: #faf5ff;
+        }
+
+        .tab-btn .icon {
+            font-size: 1.2rem;
+        }
+
+        .tab-btn .badge {
+            background: #EF4444;
+            color: white;
+            font-size: 0.7rem;
+            padding: 0.15rem 0.5rem;
+            border-radius: 1rem;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            background: white;
+            border-radius: 0 0 0.75rem 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content Header */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            color: #1F2937;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7C3AED, #5B21B6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.4);
+        }
+
+        .btn-secondary {
+            background: #E5E7EB;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #D1D5DB;
+        }
+
+        .btn-success {
+            background: #10B981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #EF4444;
+            color: white;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: #F9FAFB;
+        }
+
+        .data-table th {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid #E5E7EB;
+            color: #1F2937;
+        }
+
+        .data-table tbody tr:hover {
+            background: #F9FAFB;
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-success { background: #D1FAE5; color: #065F46; }
+        .badge-warning { background: #FEF3C7; color: #92400E; }
+        .badge-danger { background: #FEE2E2; color: #991B1B; }
+        .badge-info { background: #DBEAFE; color: #1E40AF; }
+        .badge-purple { background: #EDE9FE; color: #5B21B6; }
+
+        /* Sub-tabs within content */
+        .sub-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #E5E7EB;
+            overflow-x: auto;
+        }
+
+        .sub-tab {
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            cursor: pointer;
+            color: #6B7280;
+            font-weight: 500;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .sub-tab:hover {
+            color: #7C3AED;
+        }
+
+        .sub-tab.active {
+            color: #7C3AED;
+            border-bottom-color: #7C3AED;
+        }
+
+        /* Sub-panel */
+        .sub-panel {
+            display: none;
+        }
+
+        .sub-panel.active {
+            display: block;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-card {
+            background: #F9FAFB;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            border: 1px solid #E5E7EB;
+        }
+
+        .info-card h4 {
+            color: #374151;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-card .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1F2937;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            background: #E5E7EB;
+            border-radius: 999px;
+            height: 8px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.5s;
+        }
+
+        .progress-bar .fill.good { background: #10B981; }
+        .progress-bar .fill.warning { background: #F59E0B; }
+        .progress-bar .fill.danger { background: #EF4444; }
+
+        /* Alert Box */
+        .alert-box {
+            padding: 1rem 1.25rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .alert-box.warning {
+            background: #FEF3C7;
+            border: 1px solid #F59E0B;
+            color: #92400E;
+        }
+
+        .alert-box.info {
+            background: #DBEAFE;
+            border: 1px solid #3B82F6;
+            color: #1E40AF;
+        }
+
+        .alert-box .icon {
+            font-size: 1.25rem;
+        }
+
+        /* Back link */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #7C3AED;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .overview-section {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .overview-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .tab-btn {
+                padding: 0.75rem 1rem;
+            }
+
+            .tab-btn span:not(.icon) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="brand">
+            <h1>🏔️ Summit Gear & Adventures</h1>
+            <span class="role-badge">👑 Store Manager</span>
+        </div>
+        <div class="nav-info">
+            <span class="store">📍 Edinburgh Flagship Store</span>
+            <span class="datetime" id="datetime">📅 Loading...</span>
+            <button class="btn-logout" onclick="window.location.href='index.html'">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Back Link -->
+        <a href="index.html" class="back-link">← Back to Role Selection</a>
+
+        <!-- Overview Stats -->
+        <div class="overview-section">
+            <div class="stat-card sales">
+                <div class="label">💰 Today's Revenue</div>
+                <div class="value">£12,458</div>
+                <div class="change positive">↗ +15.3% vs yesterday</div>
+            </div>
+            <div class="stat-card orders">
+                <div class="label">📋 Today's Orders</div>
+                <div class="value">87</div>
+                <div class="change positive">↗ +8.2% vs yesterday</div>
+            </div>
+            <div class="stat-card customers">
+                <div class="label">👥 New Customers</div>
+                <div class="value">156</div>
+                <div class="change positive">↗ +22.5% this month</div>
+            </div>
+            <div class="stat-card inventory">
+                <div class="label">📦 Inventory Value</div>
+                <div class="value">£328K</div>
+                <div class="change negative">⚠️ 23 low stock items</div>
+            </div>
+            <div class="stat-card staff">
+                <div class="label">👔 Staff On Duty</div>
+                <div class="value">18/23</div>
+                <div class="change positive">78% attendance</div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation (Merged Admin Interfaces) -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="sales">
+                <span class="icon">💼</span>
+                <span>Sales & Orders</span>
+            </button>
+            <button class="tab-btn" data-tab="inventory">
+                <span class="icon">📦</span>
+                <span>Inventory</span>
+                <span class="badge">23</span>
+            </button>
+            <button class="tab-btn" data-tab="customers">
+                <span class="icon">👥</span>
+                <span>Customers</span>
+            </button>
+            <button class="tab-btn" data-tab="hr">
+                <span class="icon">👔</span>
+                <span>HR & Staff</span>
+            </button>
+            <button class="tab-btn" data-tab="reports">
+                <span class="icon">📊</span>
+                <span>Reports</span>
+            </button>
+        </div>
+
+        <!-- Sales & Orders Tab -->
+        <div class="tab-content active" id="tab-sales">
+            <div class="content-header">
+                <h2 class="content-title">💼 Sales & Orders Management</h2>
+                <div class="content-actions">
+                    <button class="btn btn-secondary">📥 Export</button>
+                    <button class="btn btn-primary">➕ New Order</button>
+                </div>
+            </div>
+
+            <!-- Sub-tabs -->
+            <div class="sub-tabs">
+                <button class="sub-tab active" data-subtab="orders">Today's Orders</button>
+                <button class="sub-tab" data-subtab="analytics">Sales Analytics</button>
+                <button class="sub-tab" data-subtab="returns">Returns & Refunds</button>
+            </div>
+
+            <!-- Orders Sub-panel -->
+            <div class="sub-panel active" id="subtab-orders">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Products</th>
+                            <th>Amount</th>
+                            <th>Staff</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>#SO-2024-001</strong></td>
+                            <td>James Wilson <span class="badge badge-warning">🥇 Gold</span></td>
+                            <td>North Face Tent × 1</td>
+                            <td><strong>£657.00</strong></td>
+                            <td>Tom Green</td>
+                            <td>14:30</td>
+                            <td><span class="badge badge-success">Completed</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>#SO-2024-002</strong></td>
+                            <td>Emma Thompson <span class="badge badge-info">🥈 Silver</span></td>
+                            <td>Climbing Rope × 1</td>
+                            <td><strong>£171.00</strong></td>
+                            <td>Sarah Brown</td>
+                            <td>14:15</td>
+                            <td><span class="badge badge-success">Completed</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>#SO-2024-003</strong></td>
+                            <td>Oliver Brown</td>
+                            <td>GPS Garmin × 1</td>
+                            <td><strong>£466.65</strong></td>
+                            <td>Mike Johnson</td>
+                            <td>13:58</td>
+                            <td><span class="badge badge-warning">Processing</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>#SO-2024-004</strong></td>
+                            <td>Sophie Clark</td>
+                            <td>Osprey Backpack × 1</td>
+                            <td><strong>£288.00</strong></td>
+                            <td>Tom Green</td>
+                            <td>13:42</td>
+                            <td><span class="badge badge-success">Completed</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Analytics Sub-panel -->
+            <div class="sub-panel" id="subtab-analytics">
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <h4>📈 Monthly Revenue</h4>
+                        <div class="value">£120,458</div>
+                        <p style="color: #10B981; margin-top: 0.5rem;">↗ +18.7% vs last month</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🛒 Average Order Value</h4>
+                        <div class="value">£187.50</div>
+                        <p style="color: #10B981; margin-top: 0.5rem;">↗ +5.2% vs last month</p>
+                    </div>
+                    <div class="info-card">
+                        <h4>🔄 Conversion Rate</h4>
+                        <div class="value">68.5%</div>
+                        <p style="color: #10B981; margin-top: 0.5rem;">↗ +3.1% vs last month</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Returns Sub-panel -->
+            <div class="sub-panel" id="subtab-returns">
+                <div class="alert-box info">
+                    <span class="icon">ℹ️</span>
+                    <div>
+                        <strong>Return Policy:</strong> Items can be returned within 30 days of purchase with original receipt.
+                    </div>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Return ID</th>
+                            <th>Original Order</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Reason</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>#RET-001</strong></td>
+                            <td>#SO-2024-089</td>
+                            <td>David Yang</td>
+                            <td>Hiking Boots (Size 42)</td>
+                            <td>Wrong size</td>
+                            <td>£129.00</td>
+                            <td><span class="badge badge-success">Refunded</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div class="tab-content" id="tab-inventory">
+            <div class="content-header">
+                <h2 class="content-title">📦 Inventory Management</h2>
+                <div class="content-actions">
+                    <button class="btn btn-success">📥 Stock In</button>
+                    <button class="btn btn-secondary">📋 Create PO</button>
+                    <button class="btn btn-primary">📊 View Full Inventory</button>
+                </div>
+            </div>
+
+            <!-- Low Stock Alert -->
+            <div class="alert-box warning">
+                <span class="icon">⚠️</span>
+                <div>
+                    <strong>Low Stock Alert:</strong> 23 products are below minimum stock level. Consider placing purchase orders.
+                </div>
+            </div>
+
+            <!-- Inventory Stats -->
+            <div class="cards-grid">
+                <div class="info-card">
+                    <h4>📦 Total SKUs</h4>
+                    <div class="value">1,245</div>
+                </div>
+                <div class="info-card">
+                    <h4>💰 Inventory Value</h4>
+                    <div class="value">£328,450</div>
+                </div>
+                <div class="info-card">
+                    <h4>✅ Stock Availability</h4>
+                    <div class="value">92%</div>
+                    <div class="progress-bar">
+                        <div class="fill good" style="width: 92%;"></div>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <h4>📋 Pending POs</h4>
+                    <div class="value">5</div>
+                </div>
+            </div>
+
+            <!-- Low Stock Table -->
+            <h3 style="margin: 1.5rem 0 1rem; color: #374151;">⚠️ Low Stock Items</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>SKU</th>
+                        <th>Product Name</th>
+                        <th>Current Stock</th>
+                        <th>Safety Stock</th>
+                        <th>Stock Level</th>
+                        <th>Supplier</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>GPS001</strong></td>
+                        <td>Garmin GPSMAP 66i</td>
+                        <td><span style="color: #EF4444; font-weight: bold;">0</span></td>
+                        <td>10</td>
+                        <td>
+                            <div class="progress-bar" style="width: 100px;">
+                                <div class="fill danger" style="width: 0%;"></div>
+                            </div>
+                        </td>
+                        <td>Garmin UK</td>
+                        <td><button class="btn btn-danger">Order Now</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>CLR002</strong></td>
+                        <td>Black Diamond Harness</td>
+                        <td><span style="color: #F59E0B; font-weight: bold;">5</span></td>
+                        <td>10</td>
+                        <td>
+                            <div class="progress-bar" style="width: 100px;">
+                                <div class="fill warning" style="width: 50%;"></div>
+                            </div>
+                        </td>
+                        <td>Black Diamond</td>
+                        <td><button class="btn btn-secondary">Order</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>BKP001</strong></td>
+                        <td>Osprey Atmos 65</td>
+                        <td><span style="color: #F59E0B; font-weight: bold;">7</span></td>
+                        <td>12</td>
+                        <td>
+                            <div class="progress-bar" style="width: 100px;">
+                                <div class="fill warning" style="width: 58%;"></div>
+                            </div>
+                        </td>
+                        <td>Patagonia Europe</td>
+                        <td><button class="btn btn-secondary">Order</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Customers Tab -->
+        <div class="tab-content" id="tab-customers">
+            <div class="content-header">
+                <h2 class="content-title">👥 Customer Management</h2>
+                <div class="content-actions">
+                    <button class="btn btn-secondary">📥 Export</button>
+                    <button class="btn btn-primary">➕ Add Customer</button>
+                </div>
+            </div>
+
+            <!-- Customer Stats -->
+            <div class="cards-grid">
+                <div class="info-card">
+                    <h4>👥 Total Customers</h4>
+                    <div class="value">1,323</div>
+                </div>
+                <div class="info-card">
+                    <h4>🏆 Platinum Members</h4>
+                    <div class="value">45</div>
+                </div>
+                <div class="info-card">
+                    <h4>🥇 Gold Members</h4>
+                    <div class="value">85</div>
+                </div>
+                <div class="info-card">
+                    <h4>🥈 Silver Members</h4>
+                    <div class="value">214</div>
+                </div>
+            </div>
+
+            <!-- Customer Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Customer ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Membership</th>
+                        <th>Total Spent</th>
+                        <th>Points</th>
+                        <th>Since</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>#C001</strong></td>
+                        <td>Oliver Brown</td>
+                        <td>o.brown@email.com</td>
+                        <td><span class="badge badge-purple">🏆 Platinum</span></td>
+                        <td>£6,100.00</td>
+                        <td>5,200</td>
+                        <td>Jun 2022</td>
+                        <td><button class="btn btn-secondary">View</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>#C002</strong></td>
+                        <td>James Wilson</td>
+                        <td>james.wilson@email.com</td>
+                        <td><span class="badge badge-warning">🥇 Gold</span></td>
+                        <td>£2,850.00</td>
+                        <td>2,450</td>
+                        <td>Jan 2023</td>
+                        <td><button class="btn btn-secondary">View</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>#C003</strong></td>
+                        <td>Emma Thompson</td>
+                        <td>emma.t@email.com</td>
+                        <td><span class="badge badge-info">🥈 Silver</span></td>
+                        <td>£890.00</td>
+                        <td>680</td>
+                        <td>Mar 2023</td>
+                        <td><button class="btn btn-secondary">View</button></td>
+                    </tr>
+                    <tr>
+                        <td><strong>#C004</strong></td>
+                        <td>Sophie Clark</td>
+                        <td>s.clark@email.com</td>
+                        <td><span class="badge badge-success">🥉 Bronze</span></td>
+                        <td>£150.00</td>
+                        <td>120</td>
+                        <td>Jan 2024</td>
+                        <td><button class="btn btn-secondary">View</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- HR & Staff Tab -->
+        <div class="tab-content" id="tab-hr">
+            <div class="content-header">
+                <h2 class="content-title">👔 HR & Staff Management</h2>
+                <div class="content-actions">
+                    <button class="btn btn-secondary">📅 Schedule</button>
+                    <button class="btn btn-primary">➕ Add Employee</button>
+                </div>
+            </div>
+
+            <!-- Sub-tabs -->
+            <div class="sub-tabs">
+                <button class="sub-tab active" data-subtab="staff-list">Staff List</button>
+                <button class="sub-tab" data-subtab="attendance">Today's Attendance</button>
+                <button class="sub-tab" data-subtab="performance">Performance</button>
+            </div>
+
+            <!-- Staff List Sub-panel -->
+            <div class="sub-panel active" id="subtab-staff-list">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Branch</th>
+                            <th>Email</th>
+                            <th>Hire Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>#E001</strong></td>
+                            <td>Robert MacGregor</td>
+                            <td><span class="badge badge-purple">Store Manager</span></td>
+                            <td>Edinburgh</td>
+                            <td>r.macgregor@summitgear.co.uk</td>
+                            <td>Mar 2018</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>#E002</strong></td>
+                            <td>Tom Green</td>
+                            <td><span class="badge badge-info">Sales Staff</span></td>
+                            <td>Edinburgh</td>
+                            <td>t.green@summitgear.co.uk</td>
+                            <td>May 2019</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>#E003</strong></td>
+                            <td>Lucy White</td>
+                            <td><span class="badge badge-warning">Inventory Staff</span></td>
+                            <td>Edinburgh</td>
+                            <td>l.white@summitgear.co.uk</td>
+                            <td>Aug 2019</td>
+                            <td><span class="badge badge-success">Active</span></td>
+                            <td><button class="btn btn-secondary">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Attendance Sub-panel -->
+            <div class="sub-panel" id="subtab-attendance">
+                <div class="cards-grid">
+                    <div class="info-card">
+                        <h4>✅ On Duty</h4>
+                        <div class="value" style="color: #10B981;">18</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>🏠 Day Off</h4>
+                        <div class="value" style="color: #6B7280;">4</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>🤒 Sick Leave</h4>
+                        <div class="value" style="color: #F59E0B;">1</div>
+                    </div>
+                    <div class="info-card">
+                        <h4>📊 Attendance Rate</h4>
+                        <div class="value">78%</div>
+                        <div class="progress-bar">
+                            <div class="fill good" style="width: 78%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Sub-panel -->
+            <div class="sub-panel" id="subtab-performance">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Staff</th>
+                            <th>Position</th>
+                            <th>Monthly Sales</th>
+                            <th>Orders</th>
+                            <th>Avg Order Value</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🥇 1</td>
+                            <td><strong>Tom Green</strong></td>
+                            <td>Sales Staff</td>
+                            <td>£28,450</td>
+                            <td>156</td>
+                            <td>£182.37</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>🥈 2</td>
+                            <td><strong>Sarah Brown</strong></td>
+                            <td>Sales Staff</td>
+                            <td>£24,890</td>
+                            <td>142</td>
+                            <td>£175.28</td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                        </tr>
+                        <tr>
+                            <td>🥉 3</td>
+                            <td><strong>Mike Johnson</strong></td>
+                            <td>Sales Staff</td>
+                            <td>£21,340</td>
+                            <td>128</td>
+                            <td>£166.72</td>
+                            <td>⭐⭐⭐⭐</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Reports Tab -->
+        <div class="tab-content" id="tab-reports">
+            <div class="content-header">
+                <h2 class="content-title">📊 Reports & Analytics</h2>
+                <div class="content-actions">
+                    <button class="btn btn-secondary">📥 Download All</button>
+                    <button class="btn btn-primary">📧 Email Report</button>
+                </div>
+            </div>
+
+            <div class="cards-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="info-card" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <h4>📈 Sales Report</h4>
+                    <p style="color: #6B7280; margin-bottom: 1rem;">Daily, weekly, monthly sales analysis</p>
+                    <button class="btn btn-primary" style="width: 100%;">Generate</button>
+                </div>
+                <div class="info-card" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <h4>📦 Inventory Report</h4>
+                    <p style="color: #6B7280; margin-bottom: 1rem;">Stock levels, turnover, valuation</p>
+                    <button class="btn btn-primary" style="width: 100%;">Generate</button>
+                </div>
+                <div class="info-card" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <h4>👥 Customer Report</h4>
+                    <p style="color: #6B7280; margin-bottom: 1rem;">Membership, loyalty, demographics</p>
+                    <button class="btn btn-primary" style="width: 100%;">Generate</button>
+                </div>
+                <div class="info-card" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <h4>👔 Staff Report</h4>
+                    <p style="color: #6B7280; margin-bottom: 1rem;">Performance, attendance, payroll</p>
+                    <button class="btn btn-primary" style="width: 100%;">Generate</button>
+                </div>
+                <div class="info-card" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <h4>🏭 Supplier Report</h4>
+                    <p style="color: #6B7280; margin-bottom: 1rem;">Purchase orders, delivery performance</p>
+                    <button class="btn btn-primary" style="width: 100%;">Generate</button>
+                </div>
+                <div class="info-card" style="cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='none'">
+                    <h4>📊 Custom Report</h4>
+                    <p style="color: #6B7280; margin-bottom: 1rem;">Build your own report</p>
+                    <button class="btn btn-secondary" style="width: 100%;">Configure</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update datetime
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'short', 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('datetime').textContent = '📅 ' + now.toLocaleDateString('en-GB', options);
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+
+        // Main Tab Navigation
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active from all tabs
+                document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active to clicked tab
+                this.classList.add('active');
+                const tabId = 'tab-' + this.dataset.tab;
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Sub-tab Navigation (for tabs with sub-tabs)
+        document.querySelectorAll('.sub-tab').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const parent = this.closest('.tab-content');
+                
+                // Remove active from all sub-tabs in this parent
+                parent.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+                parent.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+                
+                // Add active to clicked sub-tab
+                this.classList.add('active');
+                const subtabId = 'subtab-' + this.dataset.subtab;
+                document.getElementById(subtabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
+
