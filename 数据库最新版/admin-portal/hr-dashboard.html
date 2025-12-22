@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Management - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* 员工管理员专属样式 */
+        .hr-header {
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hr-header::before {
+            content: '👥';
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 5rem;
+            opacity: 0.2;
+        }
+        
+        .hr-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hr-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        /* HR统计卡片 */
+        .hr-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--stat-color);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card.employees { --stat-color: #3B82F6; }
+        .stat-card.attendance { --stat-color: #10B981; }
+        .stat-card.performance { --stat-color: #F59E0B; }
+        .stat-card.payroll { --stat-color: #8B5CF6; }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6B7280;
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-detail {
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+        
+        /* 员工列表表格 */
+        .employee-table-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1F2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .employee-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .employee-table thead {
+            background: #EFF6FF;
+        }
+        
+        .employee-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #1E40AF;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .employee-table td {
+            padding: 1rem;
+            border-top: 1px solid #E5E7EB;
+            color: #1F2937;
+        }
+        
+        .employee-table tbody tr:hover {
+            background: #EFF6FF;
+        }
+        
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .employee-name {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        
+        .employee-id {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        
+        .department-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .department-badge.sales {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .department-badge.inventory {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .department-badge.management {
+            background: #F3E8FF;
+            color: #6B21A8;
+        }
+        
+        .department-badge.tech {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .performance-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .performance-badge.excellent {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .performance-badge.good {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .performance-badge.average {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        /* 考勤统计 */
+        .attendance-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .attendance-calendar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .calendar-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .attendance-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .attendance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #F9FAFB;
+            border-radius: 0.5rem;
+            border-left: 4px solid var(--attendance-color);
+        }
+        
+        .attendance-item.present { --attendance-color: #10B981; }
+        .attendance-item.late { --attendance-color: #F59E0B; }
+        .attendance-item.absent { --attendance-color: #EF4444; }
+        
+        .attendance-employee {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .attendance-status {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+        
+        .attendance-status.present {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .attendance-status.late {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .attendance-status.absent {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        /* 部门分布 */
+        .department-summary {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .department-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .department-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #F9FAFB;
+            border-radius: 0.5rem;
+        }
+        
+        .department-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .department-icon {
+            font-size: 1.5rem;
+        }
+        
+        .department-name {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        
+        .department-count {
+            font-weight: bold;
+            color: #3B82F6;
+            font-size: 1.25rem;
+        }
+        
+        /* 绩效排行 */
+        .performance-ranking {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .ranking-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .ranking-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #F9FAFB;
+            border-radius: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .ranking-item:hover {
+            background: #EFF6FF;
+            transform: translateX(5px);
+        }
+        
+        .ranking-position {
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-width: 3rem;
+            text-align: center;
+        }
+        
+        .ranking-position.gold {
+            color: #F59E0B;
+        }
+        
+        .ranking-position.silver {
+            color: #9CA3AF;
+        }
+        
+        .ranking-position.bronze {
+            color: #D97706;
+        }
+        
+        .ranking-employee-info {
+            flex: 1;
+        }
+        
+        .ranking-employee-name {
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .ranking-employee-dept {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        
+        .ranking-score {
+            font-weight: bold;
+            color: #10B981;
+            font-size: 1.25rem;
+        }
+        
+        /* 快速操作 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-action-btn {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .quick-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #3B82F6;
+        }
+        
+        .quick-action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .quick-action-title {
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quick-action-desc {
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hr-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .attendance-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-ranking {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">HR Management Console</p>
+            </div>
+            <div class="nav-actions">
+                <button class="notification-btn">🔔 Notifications <span class="badge">3</span></button>
+                <div class="user-info">
+                    <span class="user-name">👥 HR Admin</span>
+                    <span class="store-info">📍 London Store - UK</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <a href="hr-dashboard.html" class="menu-item active">
+                    <span class="icon">📊</span>
+                    <span>HR Overview</span>
+                </a>
+                
+                <div class="menu-section">
+                    <div class="section-title">Staff Management</div>
+                    <a href="#employees" class="menu-item">
+                        <span class="icon">👥</span>
+                        <span>Staff List</span>
+                    </a>
+                    <a href="#add-employee" class="menu-item">
+                        <span class="icon">➕</span>
+                        <span>Add Staff</span>
+                    </a>
+                    <a href="#performance" class="menu-item">
+                        <span class="icon">📊</span>
+                        <span>Performance Review</span>
+                    </a>
+                    <a href="#schedule" class="menu-item">
+                        <span class="icon">📆</span>
+                        <span>Schedule Management</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Page Header -->
+            <div class="hr-header">
+                <h1>👥 HR Management Dashboard</h1>
+                <p class="subtitle">Staff Information · Scheduling · Performance Review</p>
+            </div>
+
+            <!-- HR Statistics Cards -->
+            <div class="hr-stats">
+                <div class="stat-card employees">
+                    <div class="stat-header">
+                        <span class="stat-icon">👥</span>
+                        <span class="stat-label">Active Staff</span>
+                    </div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-detail">+2 New · 0 Left This Month</div>
+                </div>
+
+                <div class="stat-card attendance">
+                    <div class="stat-header">
+                        <span class="stat-icon">✅</span>
+                        <span class="stat-label">Today's Attendance</span>
+                    </div>
+                    <div class="stat-value">18/23</div>
+                    <div class="stat-detail">Attendance Rate 78.3%</div>
+                </div>
+
+                <div class="stat-card performance">
+                    <div class="stat-header">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-label">Excellent Staff</span>
+                    </div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-detail">A+ Rating This Month</div>
+                </div>
+
+                <div class="stat-card payroll">
+                    <div class="stat-header">
+                        <span class="stat-icon">📊</span>
+                        <span class="stat-label">New This Month</span>
+                    </div>
+                    <div class="stat-value">2</div>
+                    <div class="stat-detail">0 Departures</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h2 style="margin-bottom: 1rem;">⚡ Quick Actions</h2>
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="alert('Add New Staff')">
+                    <div class="quick-action-icon">➕</div>
+                    <div class="quick-action-title">Add Staff</div>
+                    <div class="quick-action-desc">Register new staff</div>
+                </div>
+
+                <div class="quick-action-btn" onclick="alert('Schedule Management')">
+                    <div class="quick-action-icon">📆</div>
+                    <div class="quick-action-title">Schedule Management</div>
+                    <div class="quick-action-desc">Arrange staff shifts</div>
+                </div>
+
+                <div class="quick-action-btn" onclick="alert('Performance Review')">
+                    <div class="quick-action-icon">📊</div>
+                    <div class="quick-action-title">Performance Review</div>
+                    <div class="quick-action-desc">Evaluate staff performance</div>
+                </div>
+
+                <div class="quick-action-btn" onclick="alert('Staff Details')">
+                    <div class="quick-action-icon">👤</div>
+                    <div class="quick-action-title">Staff Details</div>
+                    <div class="quick-action-desc">View staff information</div>
+                </div>
+            </div>
+
+            <!-- Today's On-Duty Staff -->
+            <div class="attendance-section">
+                <div class="attendance-calendar" style="grid-column: 1 / -1;">
+                    <h3 class="calendar-header">
+                        <span>👥</span>
+                        <span>Today's On-Duty Staff</span>
+                    </h3>
+                    <div class="attendance-list">
+                        <div class="attendance-item present">
+                            <div class="attendance-employee">
+                                <div class="employee-avatar">T</div>
+                                <div>
+                                    <div class="employee-name">Tom Green</div>
+                                    <div class="employee-id">Staff ID: EMP-001</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="attendance-status present">On Duty</span>
+                            </div>
+                        </div>
+
+                        <div class="attendance-item present">
+                            <div class="attendance-employee">
+                                <div class="employee-avatar">S</div>
+                                <div>
+                                    <div class="employee-name">Sarah Johnson</div>
+                                    <div class="employee-id">Staff ID: EMP-002</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="attendance-status present">On Duty</span>
+                            </div>
+                        </div>
+
+                        <div class="attendance-item present">
+                            <div class="attendance-employee">
+                                <div class="employee-avatar">M</div>
+                                <div>
+                                    <div class="employee-name">Mike Davis</div>
+                                    <div class="employee-id">Staff ID: EMP-003</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="attendance-status present">On Duty</span>
+                            </div>
+                        </div>
+
+                        <div class="attendance-item absent">
+                            <div class="attendance-employee">
+                                <div class="employee-avatar">E</div>
+                                <div>
+                                    <div class="employee-name">Emma Taylor</div>
+                                    <div class="employee-id">Staff ID: EMP-004</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="attendance-status absent">On Leave</span>
+                            </div>
+                        </div>
+
+                        <div class="attendance-item present">
+                            <div class="attendance-employee">
+                                <div class="employee-avatar">J</div>
+                                <div>
+                                    <div class="employee-name">James Smith</div>
+                                    <div class="employee-id">Staff ID: EMP-005</div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="attendance-status present">On Duty</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff List -->
+            <div class="employee-table-container">
+                <div class="table-header">
+                    <h3 class="table-title">
+                        <span>👥</span>
+                        <span>Staff List</span>
+                    </h3>
+                    <div class="table-actions">
+                        <button class="btn btn-small btn-secondary">Export Excel</button>
+                        <button class="btn btn-small btn-primary">Add Staff</button>
+                    </div>
+                </div>
+                <table class="employee-table">
+                    <thead>
+                        <tr>
+                            <th>Staff Information</th>
+                            <th>Hire Date</th>
+                            <th>Performance Rating</th>
+                            <th>Work Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">T</div>
+                                    <div>
+                                        <div class="employee-name">Tom Green</div>
+                                        <div class="employee-id">EMP-001</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>2023-01-15</td>
+                            <td><span class="performance-badge excellent">⭐ Excellent</span></td>
+                            <td><span class="badge badge-success">On Duty</span></td>
+                            <td><button class="btn btn-small btn-secondary">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">S</div>
+                                    <div>
+                                        <div class="employee-name">Sarah Johnson</div>
+                                        <div class="employee-id">EMP-002</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>2023-03-20</td>
+                            <td><span class="performance-badge good">✓ Good</span></td>
+                            <td><span class="badge badge-success">On Duty</span></td>
+                            <td><button class="btn btn-small btn-secondary">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">M</div>
+                                    <div>
+                                        <div class="employee-name">Mike Davis</div>
+                                        <div class="employee-id">EMP-003</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>2022-11-10</td>
+                            <td><span class="performance-badge excellent">⭐ Excellent</span></td>
+                            <td><span class="badge badge-success">On Duty</span></td>
+                            <td><button class="btn btn-small btn-secondary">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">E</div>
+                                    <div>
+                                        <div class="employee-name">Emma Taylor</div>
+                                        <div class="employee-id">EMP-004</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>2024-02-01</td>
+                            <td><span class="performance-badge average">- Average</span></td>
+                            <td><span class="badge badge-secondary">On Leave</span></td>
+                            <td><button class="btn btn-small btn-secondary">Details</button></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="employee-info">
+                                    <div class="employee-avatar">J</div>
+                                    <div>
+                                        <div class="employee-name">James Smith</div>
+                                        <div class="employee-id">EMP-005</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>2023-06-15</td>
+                            <td><span class="performance-badge good">✓ Good</span></td>
+                            <td><span class="badge badge-success">On Duty</span></td>
+                            <td><button class="btn btn-small btn-secondary">Details</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- This Month's Outstanding Staff -->
+            <h2 style="margin-bottom: 1rem;">🏆 This Month's Outstanding Staff</h2>
+            <div class="performance-ranking">
+                <!-- Outstanding Staff Leaderboard -->
+                <div class="ranking-card" style="grid-column: 1 / -1;">
+                    <h3 class="ranking-header">
+                        <span>⭐</span>
+                        <span>Top Performers This Month</span>
+                    </h3>
+                    <div class="ranking-list">
+                        <div class="ranking-item">
+                            <span class="ranking-position gold">🥇</span>
+                            <div class="ranking-employee-info">
+                                <div class="ranking-employee-name">Tom Green</div>
+                                <div class="ranking-employee-dept">Staff ID: EMP-001</div>
+                            </div>
+                            <div class="ranking-score">A+</div>
+                        </div>
+
+                        <div class="ranking-item">
+                            <span class="ranking-position silver">🥈</span>
+                            <div class="ranking-employee-info">
+                                <div class="ranking-employee-name">Sarah Johnson</div>
+                                <div class="ranking-employee-dept">Staff ID: EMP-002</div>
+                            </div>
+                            <div class="ranking-score">A</div>
+                        </div>
+
+                        <div class="ranking-item">
+                            <span class="ranking-position bronze">🥉</span>
+                            <div class="ranking-employee-info">
+                                <div class="ranking-employee-name">Mike Davis</div>
+                                <div class="ranking-employee-dept">Staff ID: EMP-003</div>
+                            </div>
+                            <div class="ranking-score">A</div>
+                        </div>
+
+                        <div class="ranking-item">
+                            <span class="ranking-position">#4</span>
+                            <div class="ranking-employee-info">
+                                <div class="ranking-employee-name">Oliver Brown</div>
+                                <div class="ranking-employee-dept">Staff ID: EMP-008</div>
+                            </div>
+                            <div class="ranking-score">B+</div>
+                        </div>
+
+                        <div class="ranking-item">
+                            <span class="ranking-position">#5</span>
+                            <div class="ranking-employee-info">
+                                <div class="ranking-employee-name">James Smith</div>
+                                <div class="ranking-employee-dept">Staff ID: EMP-005</div>
+                            </div>
+                            <div class="ranking-score">B+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        // Real-time attendance data update
+        setInterval(() => {
+            const attendanceValue = document.querySelector('.stat-card.attendance .stat-value');
+            if (attendanceValue && Math.random() > 0.8) {
+                const [current, total] = attendanceValue.textContent.split('/');
+                const newCurrent = Math.min(parseInt(current) + 1, parseInt(total));
+                attendanceValue.textContent = `${newCurrent}/${total}`;
+            }
+        }, 20000);
+    </script>
+</body>
+</html>

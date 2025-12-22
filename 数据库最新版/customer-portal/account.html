@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/account.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html" class="active">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">2</span></a>
+            </div>
+            <div class="user-info">
+                <div class="user-profile">
+                    <span class="user-name">👤 James Wilson</span>
+                    <span class="membership-badge gold">🥇 Gold</span>
+                    <span class="points">Points: 2,450</span>
+                </div>
+                <button class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>👤 My Account - James Wilson</h1>
+        </div>
+
+        <div class="account-layout">
+            <!-- 侧边栏菜单 -->
+            <aside class="account-sidebar">
+                <h3>📋 Menu</h3>
+                <nav class="account-menu">
+                    <a href="#overview" class="active">Overview</a>
+                    <a href="#orders">Order History</a>
+                    <a href="#membership">Membership</a>
+                    <a href="#points">Points Management</a>
+                    <a href="#profile">Profile</a>
+                    <a href="#addresses">Addresses</a>
+                    <a href="#password">Change Password</a>
+                </nav>
+            </aside>
+
+            <!-- 主要内容区 -->
+            <div class="account-content">
+                <!-- 账户概览 -->
+                <section id="overview" class="content-section active">
+                    <h2>📊 Account Overview</h2>
+                    <p class="welcome-text">Welcome back, James! 👋</p>
+
+                    <div class="stats-grid">
+                        <div class="stat-card gold-card">
+                            <div class="stat-icon">🥇</div>
+                            <div class="stat-info">
+                                <h3>Gold Member</h3>
+                                <p>15% Discount</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">💰</div>
+                            <div class="stat-info">
+                                <h3>2,450 Points</h3>
+                                <p>Worth £24.50</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">📦</div>
+                            <div class="stat-info">
+                                <h3>24 Orders</h3>
+                                <p>This Year</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">🛍️</div>
+                            <div class="stat-info">
+                                <h3>£12,450</h3>
+                                <p>Spent This Year</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-cards">
+                        <div class="info-card">
+                            <h4>🎉 Membership Info</h4>
+                            <p><strong>Member Level:</strong> Gold Member</p>
+                            <p><strong>Joined:</strong> January 2023</p>
+                            <p><strong>Last Order:</strong> 15 October 2025</p>
+                        </div>
+
+                        <div class="info-card success-card">
+                            <h4>🎯 Next Level Benefits</h4>
+                            <p>You're already at the highest level!</p>
+                            <p>Continue enjoying Gold Member exclusive benefits</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Order History -->
+                <section id="orders" class="content-section">
+                    <h2>📦 Order History</h2>
+                    
+                    <div class="filter-bar">
+                        <select>
+                            <option>All Orders</option>
+                            <option>Completed</option>
+                            <option>Returned</option>
+                        </select>
+                        <select>
+                            <option>Last 6 Months</option>
+                            <option>Last Year</option>
+                            <option>All Time</option>
+                        </select>
+                        <input type="text" placeholder="Search orders...">
+                    </div>
+
+                    <div class="orders-list">
+                        <!-- Order 1 -->
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <h3>Order #SO-00123</h3>
+                                    <p class="order-date">15 October 2025</p>
+                                </div>
+                                <span class="status-badge completed">✅ Completed</span>
+                            </div>
+                            <div class="order-info">
+                                <p><strong>Items:</strong> 3 | <strong>Total:</strong> £765.00 | <strong>Earned Points:</strong> +765</p>
+                            </div>
+                            <div class="order-items">
+                                <p>• North Face Tent (1x) - £382.50</p>
+                                <p>• Climbing Rope Pro (2x) - £130.00</p>
+                                <p>• GPS Garmin (1x) - £252.50</p>
+                            </div>
+                            <div class="order-footer">
+                                <p><strong>Collection Point:</strong> Edinburgh Stores</p>
+                                <div class="order-actions">
+                                    <button class="btn btn-small">👁️ View Details</button>
+                                    <button class="btn btn-small">📄 Download Invoice</button>
+                                    <button class="btn btn-small btn-primary">🔁 Buy Again</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order 2 -->
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <h3>Order #SO-00098</h3>
+                                    <p class="order-date">1 October 2025</p>
+                                </div>
+                                <span class="status-badge completed">✅ Completed</span>
+                            </div>
+                            <div class="order-info">
+                                <p><strong>Items:</strong> 2 | <strong>Total:</strong> £320.50 | <strong>Earned Points:</strong> +320</p>
+                            </div>
+                            <div class="order-items">
+                                <p>• Sleeping Bag (1x) - £238.00</p>
+                                <p>• LED Headlamp (2x) - £82.50</p>
+                            </div>
+                            <div class="order-footer">
+                                <p><strong>Collection Point:</strong> Edinburgh Stores</p>
+                                <div class="order-actions">
+                                    <button class="btn btn-small">👁️ View Details</button>
+                                    <button class="btn btn-small">📄 Download Invoice</button>
+                                    <button class="btn btn-small btn-primary">🔁 Buy Again</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order 3 -->
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div>
+                                    <h3>Order #SO-00067</h3>
+                                    <p class="order-date">15 September 2025</p>
+                                </div>
+                                <span class="status-badge completed">✅ Completed</span>
+                            </div>
+                            <div class="order-info">
+                                <p><strong>Items:</strong> 1 | <strong>Total:</strong> £425.00 | <strong>Earned Points:</strong> +425</p>
+                            </div>
+                            <div class="order-items">
+                                <p>• Elite Backpack (1x) - £425.00</p>
+                            </div>
+                            <div class="order-footer">
+                                <p><strong>Collection Point:</strong> Glasgow Stores</p>
+                                <div class="order-actions">
+                                    <button class="btn btn-small">👁️ View Details</button>
+                                    <button class="btn btn-small">📄 Download Invoice</button>
+                                    <button class="btn btn-small btn-primary">🔁 Buy Again</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pagination">
+                        <button class="btn" disabled>← Previous</button>
+                        <span>Page 1 of 4</span>
+                        <button class="btn btn-primary">Next →</button>
+                    </div>
+                </section>
+
+                <!-- 会员信息 -->
+                <section id="membership" class="content-section">
+                    <h2>🥇 Membership Details</h2>
+
+                    <div class="membership-card">
+                        <div class="membership-header">
+                            <h3>🥇 Gold Member</h3>
+                        </div>
+                        <div class="membership-details">
+                            <p><strong>Member Since:</strong> January 2023</p>
+                            <p><strong>Current Discount:</strong> 15% off all products</p>
+                            <p><strong>Annual Spending:</strong> £12,450</p>
+                        </div>
+                    </div>
+
+                    <div class="benefits-card">
+                        <h3>🎁 Your Exclusive Benefits</h3>
+                        <ul class="benefits-list">
+                            <li>✅ 15% off all products</li>
+                            <li>✅ 每消费 £1 获得 1 Points</li>
+                            <li>✅ 新品优先购买权</li>
+                            <li>✅ 优先客户支持</li>
+                            <li>✅ 延长退货期限（60天）</li>
+                            <li>✅ Birthday Reward (500 Points)</li>
+                            <li>✅ 免费取货与退货</li>
+                        </ul>
+                    </div>
+
+                    <div class="tiers-info">
+                        <h3>📊 会员等级说明</h3>
+                        
+                        <div class="tier-card">
+                            <h4>普通会员</h4>
+                            <p><strong>要求:</strong> 首次消费满 £100</p>
+                            <p><strong>Discount:</strong> 5% OFF</p>
+                            <p><strong>Points:</strong> 每 £1 = 1 Points</p>
+                        </div>
+
+                        <div class="tier-card">
+                            <h4>🥈 银卡会员</h4>
+                            <p><strong>要求:</strong> Annual Spending £500+</p>
+                            <p><strong>Discount:</strong> 10% OFF</p>
+                            <p><strong>Points:</strong> 每 £1 = 1 Points</p>
+                        </div>
+
+                        <div class="tier-card active">
+                            <h4>🥇 Gold Member (当前等级)</h4>
+                            <p><strong>要求:</strong> Annual Spending £1,500+</p>
+                            <p><strong>Discount:</strong> 15% OFF</p>
+                            <p><strong>Points:</strong> 每 £1 = 1 Points</p>
+                            <p><strong>额外Benefit</strong></p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Points Management -->
+                <section id="points" class="content-section">
+                    <h2>💰 Points Management</h2>
+
+                    <div class="points-balance-card">
+                        <h3>Your Points Balance</h3>
+                        <div class="points-balance">
+                            <span class="points-amount">2,450</span>
+                            <span class="points-value">Points (worth £24.50)</span>
+                        </div>
+                        <p class="points-info">100 Points = £1.00 shopping discount</p>
+                    </div>
+
+                    <div class="points-redeem">
+                        <h3>🎁 兑换Points</h3>
+                        <div class="redeem-options">
+                            <button class="redeem-btn">500 Points = £5 Discount</button>
+                            <button class="redeem-btn">1,000 Points = £10 Discount</button>
+                            <button class="redeem-btn">2,000 Points = £20 Discount</button>
+                            <button class="redeem-btn">自定义金额</button>
+                        </div>
+                        <p class="note">Points将在结账时应用</p>
+                    </div>
+
+                    <div class="points-history">
+                        <h3>📊 Points History</h3>
+                        <table class="points-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>交易</th>
+                                    <th>Points变化</th>
+                                    <th>余额</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2025-10-15</td>
+                                    <td>Order #SO-00123<br><small>购买获得</small></td>
+                                    <td class="positive">+765</td>
+                                    <td>2,450</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-10-01</td>
+                                    <td>Order #SO-00098<br><small>购买获得</small></td>
+                                    <td class="positive">+320</td>
+                                    <td>1,685</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-09-20</td>
+                                    <td>Points Redemption<br><small>Used for Discount</small></td>
+                                    <td class="negative">-500</td>
+                                    <td>1,365</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-09-15</td>
+                                    <td>Order #SO-00067<br><small>购买获得</small></td>
+                                    <td class="positive">+425</td>
+                                    <td>1,865</td>
+                                </tr>
+                                <tr>
+                                    <td>2025-08-20</td>
+                                    <td>Birthday Reward<br><small>Gold MemberBenefit</small></td>
+                                    <td class="positive">+500</td>
+                                    <td>1,440</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="points-note">
+                        <p>💡 提示: Points在2年不活动后过期</p>
+                        <button class="btn btn-secondary">📥 下载Points对账单</button>
+                    </div>
+                </section>
+
+                <!-- 个人资料 -->
+                <section id="profile" class="content-section">
+                    <h2>✏️ 个人资料</h2>
+
+                    <form class="profile-form">
+                        <div class="form-section">
+                            <h3>个人信息</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>名字</label>
+                                    <input type="text" value="John">
+                                </div>
+                                <div class="form-group">
+                                    <label>姓氏</label>
+                                    <input type="text" value="Doe">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>电子邮箱</label>
+                                <input type="email" value="john.doe@email.com">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" checked> 接收促销邮件
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>电话</label>
+                                <input type="tel" value="07700 900123">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" checked> 接收Order短信通知
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>地址信息</h3>
+                            <div class="form-group">
+                                <label>地址</label>
+                                <input type="text" value="123 Main Street">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>城市</label>
+                                    <input type="text" value="Edinburgh">
+                                </div>
+                                <div class="form-group">
+                                    <label>邮编</label>
+                                    <input type="text" value="EH1 1AA">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3>偏好设置</h3>
+                            <div class="form-group">
+                                <label>首选Stores</label>
+                                <select>
+                                    <option selected>Edinburgh</option>
+                                    <option>Glasgow</option>
+                                    <option>Aberdeen</option>
+                                    <option>Inverness</option>
+                                    <option>Dundee</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>兴趣 (帮助我们推荐Products)</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" checked> 露营
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" checked> 徒步
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" checked> 攀岩
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"> 骑行
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"> 越野跑
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"> 冬季运动
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" checked> 背包旅行
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">✅ 保存更改</button>
+                            <button type="button" class="btn btn-secondary">❌ 取消</button>
+                        </div>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Company Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Member Center</h3>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="account.html#orders">Order History</a></li>
+                        <li><a href="account.html#points">Points Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p>📧 info@summitgear.co.uk</p>
+                    <p>📞 0131 123 4567</p>
+                    <p>📍 Edinburgh, Scotland</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/account.js"></script>
+</body>
+</html>
+

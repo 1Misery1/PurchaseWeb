@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summit Gear & Adventures - Customer Portal</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="active">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">2</span></a>
+            </div>
+            <div class="user-info">
+                <div class="user-profile">
+                    <span class="user-name">👤 James Wilson</span>
+                    <span class="membership-badge gold">🥇 Gold</span>
+                    <span class="points">Points: 2,450</span>
+                </div>
+                <button class="btn-logout">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+        <div class="hero-content">
+            <h2>Welcome to Summit Gear & Adventures!</h2>
+            <p>Gear Up, Explore Beyond - Your Premium Outdoor Equipment Partner</p>
+            <div class="hero-buttons">
+                <a href="products.html" class="btn btn-primary">🛒 Shop Now</a>
+                <a href="stores.html" class="btn btn-secondary">📍 Find Stores</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Member Welcome Info -->
+    <section class="welcome-section">
+        <div class="container">
+            <div class="welcome-card">
+                <h3>Welcome back, James! 🥇 You are a Gold Member</h3>
+                <p>You have <strong>2,450 Points</strong> (worth £24.50)</p>
+                <a href="account.html#points" class="link">View Points Details →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="container">
+        <!-- Hot Deals and Recommendations -->
+        <div class="content-grid">
+            <!-- This Week's Hot Deals -->
+            <section class="deals-section">
+                <h2>🔥 This Week's Hot Deals</h2>
+                <div class="product-grid">
+                    <div class="product-card">
+                        <div class="product-image">🏕️</div>
+                        <h3>North Face Tent</h3>
+                        <div class="price-info">
+                            <span class="original-price">£450.00</span>
+                            <span class="discounted-price">£382.50</span>
+                        </div>
+                        <div class="discount-badge">Save 15% (Gold)</div>
+                        <div class="rating">⭐⭐⭐⭐⭐ (125)</div>
+                        <div class="stock-status in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-block" onclick="addToCart(1)">🛒 Add to Cart</button>
+                            <a href="product-detail.html?id=1" class="btn btn-secondary btn-block">👁️ View Details</a>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-image">🧗</div>
+                        <h3>Climbing Rope Pro</h3>
+                        <div class="price-info">
+                            <span class="original-price">£65.00</span>
+                            <span class="discounted-price">£55.25</span>
+                        </div>
+                        <div class="discount-badge">Save 15% (Gold)</div>
+                        <div class="rating">⭐⭐⭐⭐⭐ (98)</div>
+                        <div class="stock-status in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-block" onclick="addToCart(2)">🛒 Add to Cart</button>
+                            <a href="product-detail.html?id=2" class="btn btn-secondary btn-block">👁️ View Details</a>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-image">🛏️</div>
+                        <h3>Sleeping Bag Pro</h3>
+                        <div class="price-info">
+                            <span class="original-price">£280.00</span>
+                            <span class="discounted-price">£238.00</span>
+                        </div>
+                        <div class="discount-badge">Save 15% (Gold)</div>
+                        <div class="rating">⭐⭐⭐⭐½ (87)</div>
+                        <div class="stock-status in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-block" onclick="addToCart(3)">🛒 Add to Cart</button>
+                            <a href="product-detail.html?id=3" class="btn btn-secondary btn-block">👁️ View Details</a>
+                        </div>
+                    </div>
+
+                    <div class="product-card">
+                        <div class="product-image">🔦</div>
+                        <h3>LED Headlamp</h3>
+                        <div class="price-info">
+                            <span class="original-price">£45.00</span>
+                            <span class="discounted-price">£38.25</span>
+                        </div>
+                        <div class="discount-badge">Save 15% (Gold)</div>
+                        <div class="rating">⭐⭐⭐⭐⭐ (156)</div>
+                        <div class="stock-status in-stock">✅ In Stock</div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-block" onclick="addToCart(4)">🛒 Add to Cart</button>
+                            <a href="product-detail.html?id=4" class="btn btn-secondary btn-block">👁️ View Details</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommended for You -->
+            <section class="recommendations-section">
+                <h2>🎯 Recommended for You</h2>
+                <div class="product-list">
+                    <div class="product-list-item">
+                        <div class="product-image-small">🎒</div>
+                        <div class="product-info">
+                            <h4>Elite Backpack</h4>
+                            <p class="price">£180.00</p>
+                            <p class="description">Perfect for hiking</p>
+                        </div>
+                        <a href="product-detail.html?id=5" class="btn btn-small">View</a>
+                    </div>
+                    <div class="product-list-item">
+                        <div class="product-image-small">🍳</div>
+                        <div class="product-info">
+                            <h4>Camping Stove</h4>
+                            <p class="price">£125.00</p>
+                            <p class="description">Essential for outdoor cooking</p>
+                        </div>
+                        <a href="product-detail.html?id=6" class="btn btn-small">View</a>
+                    </div>
+                    <div class="product-list-item">
+                        <div class="product-image-small">📱</div>
+                        <div class="product-info">
+                            <h4>GPS Garmin</h4>
+                            <p class="price">£299.00</p>
+                            <p class="description">Professional navigation device</p>
+                        </div>
+                        <a href="product-detail.html?id=7" class="btn btn-small">View</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Shop by Category -->
+        <section class="categories-section">
+            <h2>📦 Shop by Category</h2>
+            <div class="category-grid">
+                <a href="products.html?category=camping" class="category-card">
+                    <div class="category-icon">🏕️</div>
+                    <h3>Camping Gear</h3>
+                </a>
+                <a href="products.html?category=climbing" class="category-card">
+                    <div class="category-icon">🧗</div>
+                    <h3>Climbing Gear</h3>
+                </a>
+                <a href="products.html?category=clothing" class="category-card">
+                    <div class="category-icon">👕</div>
+                    <h3>Outdoor Clothing</h3>
+                </a>
+                <a href="products.html?category=footwear" class="category-card">
+                    <div class="category-icon">👟</div>
+                    <h3>Outdoor Footwear</h3>
+                </a>
+                <a href="products.html?category=electronics" class="category-card">
+                    <div class="category-icon">📱</div>
+                    <h3>Electronics</h3>
+                </a>
+                <a href="products.html?category=backpacks" class="category-card">
+                    <div class="category-icon">🎒</div>
+                    <h3>Backpacks</h3>
+                </a>
+                <a href="products.html?category=lighting" class="category-card">
+                    <div class="category-icon">🔦</div>
+                    <h3>Lighting Equipment</h3>
+                </a>
+                <a href="products.html?category=tools" class="category-card">
+                    <div class="category-icon">🔪</div>
+                    <h3>Tools & Accessories</h3>
+                </a>
+            </div>
+        </section>
+
+        <!-- Our Brands -->
+        <section class="brands-section">
+            <h2>⭐ Our Brands</h2>
+            <div class="brands-grid">
+                <div class="brand-card">The North Face</div>
+                <div class="brand-card">Black Diamond</div>
+                <div class="brand-card">MSR</div>
+                <div class="brand-card">Garmin</div>
+                <div class="brand-card">Patagonia</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Company Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Member Center</h3>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="account.html#orders">Order History</a></li>
+                        <li><a href="account.html#points">Points Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p>📧 info@summitgear.co.uk</p>
+                    <p>📞 0131 123 4567</p>
+                    <p>📍 Edinburgh, Scotland</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
+

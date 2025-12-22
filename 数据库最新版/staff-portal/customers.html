@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Management - Staff System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .customer-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-actions {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .customer-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        
+        .customer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .customer-info h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .membership-badge {
+            display: inline-block;
+            padding: 0.375rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+        
+        .membership-badge.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+        }
+        
+        .membership-badge.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            color: white;
+        }
+        
+        .membership-badge.regular {
+            background: #E5E7EB;
+            color: var(--text-primary);
+        }
+        
+        .customer-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .detail-item {
+            padding: 0.75rem;
+            background: #F3F4F6;
+            border-radius: 0.5rem;
+        }
+        
+        .detail-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .customer-actions-row {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .points-section {
+            background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .points-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="branch-info">📍 Edinburgh Branch</p>
+            </div>
+            <div class="nav-info">
+                <div class="staff-info">
+                    <span class="staff-name">👤 Tom Green (Sales员)</span>
+                    <span class="datetime">📅 2025-10-22 | 🕐 <span id="current-time">14:30</span></span>
+                </div>
+                <div class="nav-actions">
+                    <a href="index.html" class="btn btn-secondary btn-small">← 返回POS</a>
+                    <button class="btn-logout">🚪 退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="customer-actions">
+                <div>
+                    <h1>👥 Customer管理</h1>
+                    <p>查询Customer信息、管理会员和积分</p>
+                </div>
+                <div class="quick-actions">
+                    <button class="btn btn-primary" onclick="openRegisterModal()">➕ 注册新Customer</button>
+                    <button class="btn btn-secondary" onclick="scanMemberCard()">📱 扫描会员卡</button>
+                </div>
+            </div>
+
+            <!-- 搜索区域 -->
+            <div class="search-section">
+                <h3>🔍 Customer搜索</h3>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <input type="text" class="search-input" id="customerSearch" 
+                           placeholder="输入姓名、手机号、邮箱或会员卡号..." style="flex: 1;">
+                    <button class="btn btn-primary" onclick="searchCustomer()">搜索</button>
+                    <button class="btn btn-secondary" onclick="clearSearch()">清空</button>
+                </div>
+            </div>
+
+            <!-- Customer列表 -->
+            <div id="customerList">
+                <!-- Customer1 -->
+                <div class="customer-card">
+                    <div class="customer-header">
+                        <div class="customer-info">
+                            <h3>👤 John Doe</h3>
+                            <span class="membership-badge gold">🥇 金卡会员</span>
+                            <span style="color: var(--text-secondary);">会员号: G-001</span>
+                        </div>
+                        <div class="points-section" style="text-align: center; min-width: 150px;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">当前积分</div>
+                            <div class="points-value">2,450</div>
+                            <div style="font-size: 0.875rem; color: var(--success-color);">≈ £24.50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-details">
+                        <div class="detail-item">
+                            <div class="detail-label">手机号</div>
+                            <div class="detail-value">0131 123 4567</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">邮箱</div>
+                            <div class="detail-value">john@email.com</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">注册日期</div>
+                            <div class="detail-value">2023-06-15</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">总消费</div>
+                            <div class="detail-value">£8,250</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Orders</div>
+                            <div class="detail-value">32</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最后消费</div>
+                            <div class="detail-value">2025-10-15</div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-actions-row">
+                        <button class="btn btn-primary btn-small" onclick="viewPurchaseHistory('G-001')">📊 购买历史</button>
+                        <button class="btn btn-secondary btn-small" onclick="adjustPoints('G-001')">💎 调整积分</button>
+                        <button class="btn btn-secondary btn-small" onclick="editCustomer('G-001')">✏️ 编辑信息</button>
+                        <button class="btn btn-secondary btn-small" onclick="sendEmail('G-001')">📧 发送邮件</button>
+                    </div>
+                </div>
+
+                <!-- Customer2 -->
+                <div class="customer-card">
+                    <div class="customer-header">
+                        <div class="customer-info">
+                            <h3>👤 Jane Smith</h3>
+                            <span class="membership-badge silver">🥈 银卡会员</span>
+                            <span style="color: var(--text-secondary);">会员号: S-025</span>
+                        </div>
+                        <div class="points-section" style="text-align: center; min-width: 150px;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">当前积分</div>
+                            <div class="points-value">850</div>
+                            <div style="font-size: 0.875rem; color: var(--success-color);">≈ £8.50</div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-details">
+                        <div class="detail-item">
+                            <div class="detail-label">手机号</div>
+                            <div class="detail-value">0131 987 6543</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">邮箱</div>
+                            <div class="detail-value">jane@email.com</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">注册日期</div>
+                            <div class="detail-value">2024-02-20</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">总消费</div>
+                            <div class="detail-value">£3,200</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Orders</div>
+                            <div class="detail-value">15</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最后消费</div>
+                            <div class="detail-value">2025-10-12</div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-actions-row">
+                        <button class="btn btn-primary btn-small" onclick="viewPurchaseHistory('S-025')">📊 购买历史</button>
+                        <button class="btn btn-secondary btn-small" onclick="adjustPoints('S-025')">💎 调整积分</button>
+                        <button class="btn btn-secondary btn-small" onclick="editCustomer('S-025')">✏️ 编辑信息</button>
+                        <button class="btn btn-secondary btn-small" onclick="sendEmail('S-025')">📧 发送邮件</button>
+                    </div>
+                </div>
+
+                <!-- Customer3 -->
+                <div class="customer-card">
+                    <div class="customer-header">
+                        <div class="customer-info">
+                            <h3>👤 Bob Wilson</h3>
+                            <span class="membership-badge regular">普通会员</span>
+                            <span style="color: var(--text-secondary);">会员号: R-089</span>
+                        </div>
+                        <div class="points-section" style="text-align: center; min-width: 150px;">
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">当前积分</div>
+                            <div class="points-value">125</div>
+                            <div style="font-size: 0.875rem; color: var(--success-color);">≈ £1.25</div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-details">
+                        <div class="detail-item">
+                            <div class="detail-label">手机号</div>
+                            <div class="detail-value">0131 456 7890</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">邮箱</div>
+                            <div class="detail-value">bob@email.com</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">注册日期</div>
+                            <div class="detail-value">2025-09-10</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">总消费</div>
+                            <div class="detail-value">£580</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Orders</div>
+                            <div class="detail-value">3</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">最后消费</div>
+                            <div class="detail-value">2025-10-18</div>
+                        </div>
+                    </div>
+                    
+                    <div class="customer-actions-row">
+                        <button class="btn btn-primary btn-small" onclick="viewPurchaseHistory('R-089')">📊 购买历史</button>
+                        <button class="btn btn-secondary btn-small" onclick="adjustPoints('R-089')">💎 调整积分</button>
+                        <button class="btn btn-secondary btn-small" onclick="editCustomer('R-089')">✏️ 编辑信息</button>
+                        <button class="btn btn-secondary btn-small" onclick="sendEmail('R-089')">📧 发送邮件</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 注册新Customer模态窗口 -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2>➕ 注册新Customer</h2>
+                <button class="btn-close" onclick="closeRegisterModal()">×</button>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>手机号 *</label>
+                        <input type="tel" required>
+                    </div>
+                    <div class="form-group">
+                        <label>邮箱</label>
+                        <input type="email">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>会员等级</label>
+                    <select>
+                        <option value="regular">普通会员</option>
+                        <option value="silver">银卡会员</option>
+                        <option value="gold">金卡会员</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">💾 注册</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeRegisterModal()" style="flex: 1;">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/staff.js"></script>
+    <script src="js/customers.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Staff System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value.good {
+            color: var(--success-color);
+        }
+        
+        .stat-value.warning {
+            color: var(--warning-color);
+        }
+        
+        .stat-value.danger {
+            color: var(--danger-color);
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+        }
+        
+        .search-filter-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            min-width: 150px;
+        }
+        
+        .inventory-table {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .low-stock-row {
+            background: #FEF3C7;
+        }
+        
+        .out-of-stock-row {
+            background: #FEE2E2;
+        }
+        
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .stock-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .stock-badge.good {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .stock-badge.low {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .stock-badge.out {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="branch-info">📍 Edinburgh Branch</p>
+            </div>
+            <div class="nav-info">
+                <div class="staff-info">
+                    <span class="staff-name">👤 Tom Green (销售员)</span>
+                    <span class="datetime">📅 2025-10-22 | 🕐 <span id="current-time">14:30</span></span>
+                </div>
+                <div class="nav-actions">
+                    <a href="index.html" class="btn btn-secondary btn-small">← 返回POS</a>
+                    <button class="btn-logout">🚪 退出</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="inventory-header">
+                <div>
+                    <h1>📦 Inventory管理</h1>
+                    <p>Edinburgh分店 - 实时Inventory查询和管理</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-secondary" onclick="requestStockTransfer()">🔄 申请调拨</button>
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ 打印报表</button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value good">156</div>
+                    <div class="stat-label">Inventory充足</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value warning">23</div>
+                    <div class="stat-label">Inventory低</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value danger">8</div>
+                    <div class="stat-label">Out of Stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">£328K</div>
+                    <div class="stat-label">Inventory总值</div>
+                </div>
+            </div>
+
+            <!-- 搜索和筛选 -->
+            <div class="search-filter-bar">
+                <div class="filters">
+                    <input type="text" class="search-input" placeholder="🔍 搜索Product Name或SKU..." id="searchInventory">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">所有类别</option>
+                        <option value="camping">露营装备</option>
+                        <option value="climbing">攀岩装备</option>
+                        <option value="clothing">户外服装</option>
+                        <option value="electronics">电子设备</option>
+                    </select>
+                    <select class="filter-select" id="stockFilter">
+                        <option value="">所有Status</option>
+                        <option value="good">Inventory充足</option>
+                        <option value="low">Inventory低</option>
+                        <option value="out">Out of Stock</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="applyFilters()">筛选</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+                </div>
+            </div>
+
+            <!-- Inventory表格 -->
+            <div class="inventory-table">
+                <h2>📊 Inventory列表</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>类别</th>
+                                <th>当前Inventory</th>
+                                <th>补货点</th>
+                                <th>Status</th>
+                                <th>价格</th>
+                                <th>其他分店</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr>
+                                <td>TNT001</td>
+                                <td>North Face 帐篷</td>
+                                <td>露营装备</td>
+                                <td><strong>15</strong></td>
+                                <td>10</td>
+                                <td><span class="stock-badge good">✅ 充足</span></td>
+                                <td>£450.00</td>
+                                <td><button class="btn btn-small" onclick="checkOtherStores('TNT001')">查看</button></td>
+                                <td class="actions-cell">
+                                    <button class="btn btn-small btn-primary" onclick="adjustStock('TNT001')">调整</button>
+                                </td>
+                            </tr>
+                            <tr class="low-stock-row">
+                                <td>CLR002</td>
+                                <td>Climbing Rope Pro</td>
+                                <td>攀岩装备</td>
+                                <td><strong>5</strong></td>
+                                <td>10</td>
+                                <td><span class="stock-badge low">⚠️ Inventory低</span></td>
+                                <td>£65.00</td>
+                                <td><button class="btn btn-small" onclick="checkOtherStores('CLR002')">查看</button></td>
+                                <td class="actions-cell">
+                                    <button class="btn btn-small btn-primary" onclick="adjustStock('CLR002')">调整</button>
+                                </td>
+                            </tr>
+                            <tr class="out-of-stock-row">
+                                <td>GPS003</td>
+                                <td>GPS Garmin</td>
+                                <td>电子设备</td>
+                                <td><strong>0</strong></td>
+                                <td>5</td>
+                                <td><span class="stock-badge out">❌ Out of Stock</span></td>
+                                <td>£299.00</td>
+                                <td><button class="btn btn-small" onclick="checkOtherStores('GPS003')">查看</button></td>
+                                <td class="actions-cell">
+                                    <button class="btn btn-small btn-danger" onclick="requestRestock('GPS003')">补货</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>SLP004</td>
+                                <td>Sleeping Bag Pro</td>
+                                <td>露营装备</td>
+                                <td><strong>22</strong></td>
+                                <td>10</td>
+                                <td><span class="stock-badge good">✅ 充足</span></td>
+                                <td>£280.00</td>
+                                <td><button class="btn btn-small" onclick="checkOtherStores('SLP004')">查看</button></td>
+                                <td class="actions-cell">
+                                    <button class="btn btn-small btn-primary" onclick="adjustStock('SLP004')">调整</button>
+                                </td>
+                            </tr>
+                            <tr class="low-stock-row">
+                                <td>BKP005</td>
+                                <td>Elite Backpack</td>
+                                <td>背包</td>
+                                <td><strong>7</strong></td>
+                                <td>12</td>
+                                <td><span class="stock-badge low">⚠️ Inventory低</span></td>
+                                <td>£180.00</td>
+                                <td><button class="btn btn-small" onclick="checkOtherStores('BKP005')">查看</button></td>
+                                <td class="actions-cell">
+                                    <button class="btn btn-small btn-primary" onclick="adjustStock('BKP005')">调整</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Inventory调整模态窗口 -->
+    <div class="modal" id="adjustModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 调整Inventory</h2>
+                <button class="btn-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>产品</label>
+                <input type="text" id="productName" readonly>
+            </div>
+            <div class="form-group">
+                <label>当前Inventory</label>
+                <input type="number" id="currentStock" readonly>
+            </div>
+            <div class="form-group">
+                <label>调整数量</label>
+                <input type="number" id="adjustment" placeholder="正数为增加，负数为减少">
+            </div>
+            <div class="form-group">
+                <label>调整原因</label>
+                <input type="text" id="reason" placeholder="例如：盘点、损坏、退货等">
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="confirmAdjustment()" style="flex: 1;">💾 确认</button>
+                <button class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/staff.js"></script>
+    <script src="js/inventory.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+

@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* 库存管理员专属样式 */
+        .inventory-header {
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .inventory-header::before {
+            content: '📦';
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 5rem;
+            opacity: 0.2;
+        }
+        
+        .inventory-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .inventory-header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+        
+        /* 库存统计卡片 */
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--stat-color);
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .stat-card.total { --stat-color: #10B981; }
+        .stat-card.low { --stat-color: #EF4444; }
+        .stat-card.orders { --stat-color: #3B82F6; }
+        .stat-card.value { --stat-color: #F59E0B; }
+        
+        .stat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6B7280;
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: bold;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-detail {
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+        
+        /* 库存预警表格 */
+        .alert-table-container {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1F2937;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .alert-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .alert-table thead {
+            background: #FEF3C7;
+        }
+        
+        .alert-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #92400E;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .alert-table td {
+            padding: 1rem;
+            border-top: 1px solid #E5E7EB;
+            color: #1F2937;
+        }
+        
+        .alert-table tbody tr:hover {
+            background: #FEF3C7;
+        }
+        
+        .stock-level {
+            font-weight: bold;
+        }
+        
+        .stock-level.critical {
+            color: #EF4444;
+        }
+        
+        .stock-level.low {
+            color: #F59E0B;
+        }
+        
+        .stock-level.normal {
+            color: #10B981;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--progress-color);
+            transition: width 0.3s;
+        }
+        
+        .progress-fill.critical {
+            --progress-color: #EF4444;
+        }
+        
+        .progress-fill.low {
+            --progress-color: #F59E0B;
+        }
+        
+        .progress-fill.normal {
+            --progress-color: #10B981;
+        }
+        
+        /* 采购订单 */
+        .purchase-orders {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .order-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .order-id {
+            font-weight: 600;
+            color: #F59E0B;
+            font-size: 1.1rem;
+        }
+        
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .order-info-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        
+        .order-info-label {
+            color: #6B7280;
+        }
+        
+        .order-info-value {
+            font-weight: 600;
+            color: #1F2937;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* 仓库分布 */
+        .warehouse-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .warehouse-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .warehouse-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .warehouse-icon {
+            font-size: 2.5rem;
+        }
+        
+        .warehouse-info h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .warehouse-location {
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+        
+        .warehouse-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .warehouse-metric {
+            background: #F9FAFB;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+        
+        .warehouse-metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #F59E0B;
+            margin-bottom: 0.25rem;
+        }
+        
+        .warehouse-metric-label {
+            font-size: 0.75rem;
+            color: #6B7280;
+        }
+        
+        /* 快速操作按钮组 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quick-action-btn {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .quick-action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #F59E0B;
+        }
+        
+        .quick-action-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .quick-action-title {
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .quick-action-desc {
+            font-size: 0.85rem;
+            color: #6B7280;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .inventory-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .purchase-orders {
+                grid-template-columns: 1fr;
+            }
+            
+            .warehouse-section {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Inventory Management Console</p>
+            </div>
+            <div class="nav-actions">
+                <button class="notification-btn">🔔 Notifications <span class="badge">2</span></button>
+                <div class="user-info">
+                    <span class="user-name">📦 Inventory Admin</span>
+                    <span class="store-info">📍 London Store - UK</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <a href="inventory-dashboard.html" class="menu-item active">
+                    <span class="icon">📊</span>
+                    <span>Inventory Overview</span>
+                </a>
+                
+                <div class="menu-section">
+                    <div class="section-title">Product Management</div>
+                    <a href="#products" class="menu-item">
+                        <span class="icon">🏷️</span>
+                        <span>Product List</span>
+                    </a>
+                    <a href="#categories" class="menu-item">
+                        <span class="icon">📂</span>
+                        <span>Category Management</span>
+                    </a>
+                    <a href="#stock-check" class="menu-item">
+                        <span class="icon">🔍</span>
+                        <span>Stock Check</span>
+                    </a>
+                </div>
+
+                <div class="menu-section">
+                    <div class="section-title">Procurement</div>
+                    <a href="#purchase-orders" class="menu-item">
+                        <span class="icon">🛒</span>
+                        <span>Purchase Orders</span>
+                    </a>
+                    <a href="#suppliers" class="menu-item">
+                        <span class="icon">🏭</span>
+                        <span>Supplier Management</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="content-area">
+            <!-- Page Header -->
+            <div class="inventory-header">
+                <h1>📦 Inventory Management Dashboard</h1>
+                <p class="subtitle">Product Management · Stock Monitoring · Procurement</p>
+            </div>
+
+            <!-- Inventory Statistics Cards -->
+            <div class="inventory-stats">
+                <div class="stat-card total">
+                    <div class="stat-header">
+                        <span class="stat-icon">📦</span>
+                        <span class="stat-label">Total Products</span>
+                    </div>
+                    <div class="stat-value">1,245</div>
+                    <div class="stat-detail">SKUs · Total Value £120K</div>
+                </div>
+
+                <div class="stat-card low">
+                    <div class="stat-header">
+                        <span class="stat-icon">⚠️</span>
+                        <span class="stat-label">Low Stock Items</span>
+                    </div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-detail">Need Immediate Restocking</div>
+                </div>
+
+                <div class="stat-card orders">
+                    <div class="stat-header">
+                        <span class="stat-icon">🛒</span>
+                        <span class="stat-label">Pending Purchase Orders</span>
+                    </div>
+                    <div class="stat-value">8</div>
+                    <div class="stat-detail">Total Amount £24.5K</div>
+                </div>
+
+                <div class="stat-card value">
+                    <div class="stat-header">
+                        <span class="stat-icon">💰</span>
+                        <span class="stat-label">Monthly Inbound Value</span>
+                    </div>
+                    <div class="stat-value">£56.8K</div>
+                    <div class="stat-detail">385 Items Received</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <h2 style="margin-bottom: 1rem;">⚡ Quick Actions</h2>
+            <div class="quick-actions">
+                <div class="quick-action-btn" onclick="alert('Create Purchase Order')">
+                    <div class="quick-action-icon">🛒</div>
+                    <div class="quick-action-title">Create Purchase Order</div>
+                    <div class="quick-action-desc">Order from suppliers</div>
+                </div>
+
+                <div class="quick-action-btn" onclick="alert('Goods Receipt')">
+                    <div class="quick-action-icon">📥</div>
+                    <div class="quick-action-title">Goods Receipt</div>
+                    <div class="quick-action-desc">Register new arrivals</div>
+                </div>
+
+                <div class="quick-action-btn" onclick="alert('Supplier Management')">
+                    <div class="quick-action-icon">🏭</div>
+                    <div class="quick-action-title">Supplier Management</div>
+                    <div class="quick-action-desc">Manage supplier info</div>
+                </div>
+
+                <div class="quick-action-btn" onclick="alert('Stock Inquiry')">
+                    <div class="quick-action-icon">🔍</div>
+                    <div class="quick-action-title">Stock Inquiry</div>
+                    <div class="quick-action-desc">Check product stock</div>
+                </div>
+            </div>
+
+            <!-- Low Stock Alert -->
+            <div class="alert-table-container">
+                <div class="table-header">
+                    <h3 class="table-title">
+                        <span>⚠️</span>
+                        <span>Low Stock Alert</span>
+                    </h3>
+                    <div class="table-actions">
+                        <button class="btn btn-small btn-secondary">Export Excel</button>
+                        <button class="btn btn-small btn-primary">Bulk Purchase</button>
+                    </div>
+                </div>
+                <table class="alert-table">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Product Name</th>
+                            <th>Current Stock</th>
+                            <th>Safety Stock</th>
+                            <th>Stock Rate</th>
+                            <th>Suggested Restock</th>
+                            <th>Supplier</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SKU-001234</strong></td>
+                            <td>Hiking Boots (Size 42)</td>
+                            <td><span class="stock-level critical">5</span></td>
+                            <td>20</td>
+                            <td>
+                                <div>25%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill critical" style="width: 25%"></div>
+                                </div>
+                            </td>
+                            <td><strong>30 units</strong></td>
+                            <td>Salomon</td>
+                            <td><button class="btn btn-small btn-primary">Purchase Now</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>SKU-002156</strong></td>
+                            <td>Waterproof Jacket (L)</td>
+                            <td><span class="stock-level low">12</span></td>
+                            <td>15</td>
+                            <td>
+                                <div>80%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill low" style="width: 80%"></div>
+                                </div>
+                            </td>
+                            <td><strong>25 units</strong></td>
+                            <td>Columbia</td>
+                            <td><button class="btn btn-small btn-primary">Purchase Now</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>SKU-003087</strong></td>
+                            <td>Outdoor Backpack (50L)</td>
+                            <td><span class="stock-level critical">3</span></td>
+                            <td>15</td>
+                            <td>
+                                <div>20%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill critical" style="width: 20%"></div>
+                                </div>
+                            </td>
+                            <td><strong>20 units</strong></td>
+                            <td>Osprey</td>
+                            <td><button class="btn btn-small btn-primary">Purchase Now</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>SKU-004521</strong></td>
+                            <td>Camping Tent (4-Person)</td>
+                            <td><span class="stock-level critical">2</span></td>
+                            <td>10</td>
+                            <td>
+                                <div>20%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill critical" style="width: 20%"></div>
+                                </div>
+                            </td>
+                            <td><strong>15 units</strong></td>
+                            <td>North Face</td>
+                            <td><button class="btn btn-small btn-primary">Purchase Now</button></td>
+                        </tr>
+                        <tr>
+                            <td><strong>SKU-005678</strong></td>
+                            <td>GPS Navigator</td>
+                            <td><span class="stock-level low">8</span></td>
+                            <td>10</td>
+                            <td>
+                                <div>80%</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill low" style="width: 80%"></div>
+                                </div>
+                            </td>
+                            <td><strong>12 units</strong></td>
+                            <td>Garmin</td>
+                            <td><button class="btn btn-small btn-primary">Purchase Now</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pending Purchase Orders -->
+            <h2 style="margin-bottom: 1rem;">🛒 Pending Purchase Orders</h2>
+            <div class="purchase-orders">
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">#PO-2025-1027-001</span>
+                        <span class="badge badge-warning">Pending Approval</span>
+                    </div>
+                    <div class="order-info">
+                        <div class="order-info-item">
+                            <span class="order-info-label">Supplier</span>
+                            <span class="order-info-value">Salomon</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Quantity</span>
+                            <span class="order-info-value">30 units (3 SKUs)</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Order Amount</span>
+                            <span class="order-info-value">£3,897</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Expected Arrival</span>
+                            <span class="order-info-value">2025-11-05</span>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn btn-small btn-success">Approve</button>
+                        <button class="btn btn-small btn-secondary">Details</button>
+                        <button class="btn btn-small btn-danger">Reject</button>
+                    </div>
+                </div>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">#PO-2025-1027-002</span>
+                        <span class="badge badge-warning">Pending Approval</span>
+                    </div>
+                    <div class="order-info">
+                        <div class="order-info-item">
+                            <span class="order-info-label">Supplier</span>
+                            <span class="order-info-value">Columbia</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Quantity</span>
+                            <span class="order-info-value">25 units (2 SKUs)</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Order Amount</span>
+                            <span class="order-info-value">£4,998</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Expected Arrival</span>
+                            <span class="order-info-value">2025-11-03</span>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn btn-small btn-success">Approve</button>
+                        <button class="btn btn-small btn-secondary">Details</button>
+                        <button class="btn btn-small btn-danger">Reject</button>
+                    </div>
+                </div>
+
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">#PO-2025-1026-005</span>
+                        <span class="badge badge-info">Approved</span>
+                    </div>
+                    <div class="order-info">
+                        <div class="order-info-item">
+                            <span class="order-info-label">Supplier</span>
+                            <span class="order-info-value">Osprey</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Quantity</span>
+                            <span class="order-info-value">20 units (2 SKUs)</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Order Amount</span>
+                            <span class="order-info-value">£2,798</span>
+                        </div>
+                        <div class="order-info-item">
+                            <span class="order-info-label">Expected Arrival</span>
+                            <span class="order-info-value">2025-11-01</span>
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        <button class="btn btn-small btn-secondary">Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supplier Information -->
+            <h2 style="margin-bottom: 1rem;">🏭 Key Suppliers</h2>
+            <div class="warehouse-section">
+                <div class="warehouse-card">
+                    <div class="warehouse-header">
+                        <span class="warehouse-icon">🏭</span>
+                        <div class="warehouse-info">
+                            <h3>Salomon</h3>
+                            <div class="warehouse-location">📍 Professional Hiking Equipment</div>
+                        </div>
+                    </div>
+                    <div class="warehouse-metrics">
+                        <div class="warehouse-metric">
+                            <div class="warehouse-metric-value">15</div>
+                            <div class="warehouse-metric-label">Products</div>
+                        </div>
+                        <div class="warehouse-metric">
+                            <div class="warehouse-metric-value">A+</div>
+                            <div class="warehouse-metric-label">Rating</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warehouse-card">
+                    <div class="warehouse-header">
+                        <span class="warehouse-icon">🏭</span>
+                        <div class="warehouse-info">
+                            <h3>Columbia</h3>
+                            <div class="warehouse-location">📍 Outdoor Clothing & Gear</div>
+                        </div>
+                    </div>
+                    <div class="warehouse-metrics">
+                        <div class="warehouse-metric">
+                            <div class="warehouse-metric-value">22</div>
+                            <div class="warehouse-metric-label">Products</div>
+                        </div>
+                        <div class="warehouse-metric">
+                            <div class="warehouse-metric-value">A+</div>
+                            <div class="warehouse-metric-label">Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/admin.js"></script>
+    <script>
+        // Real-time inventory data update
+        setInterval(() => {
+            const lowStockValue = document.querySelector('.stat-card.low .stat-value');
+            if (lowStockValue) {
+                const current = parseInt(lowStockValue.textContent);
+                // Simulate stock changes
+                if (Math.random() > 0.7) {
+                    lowStockValue.textContent = Math.max(0, current - 1);
+                }
+            }
+        }, 15000);
+    </script>
+</body>
+</html>
+
