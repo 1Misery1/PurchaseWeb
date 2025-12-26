@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Summit Gear & Adventures - Customer Portal</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="active">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">0</span></a>
+            </div>
+            <div class="user-info">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="hero-banner">
+        <div class="hero-content">
+            <h2>Welcome to Summit Gear & Adventures!</h2>
+            <p>Gear Up, Explore Beyond - Your Premium Outdoor Equipment Partner</p>
+            <div class="hero-buttons">
+                <a href="products.html" class="btn btn-primary">🛒 Shop Now</a>
+                <a href="stores.html" class="btn btn-secondary">📍 Find Stores</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promotions Banner Slider -->
+    <section class="promotions-section" id="promotionsSection" style="display: none;">
+        <div class="container">
+            <div class="promotions-banner" id="promotionsBanner">
+                <!-- Dynamically loaded from database -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Member Welcome Info (hidden by default, shown when logged in) -->
+    <section class="welcome-section" id="welcomeSection" style="display: none;">
+        <div class="container">
+            <div class="welcome-card">
+                <h3 id="welcomeMessage">Welcome back! 🎖️</h3>
+                <p id="pointsMessage">You have <strong>0 Points</strong></p>
+                <a href="account.html#points" class="link">View Points Details →</a>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Guest Welcome (shown when not logged in) -->
+    <section class="welcome-section" id="guestSection">
+        <div class="container">
+            <div class="welcome-card" style="background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);">
+                <h3>👋 Welcome to Summit Gear & Adventures!</h3>
+                <p>Join our membership program to earn points and get exclusive discounts!</p>
+                <a href="register.html" class="btn btn-primary" style="margin-right: 1rem;">📝 Register Now</a>
+                <a href="login.html" class="btn btn-secondary">🔑 Login</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <main class="container">
+        <!-- Hot Deals and Recommendations -->
+        <div class="content-grid">
+            <!-- This Week's Hot Deals - 动态加载 -->
+            <section class="deals-section">
+                <h2>🔥 This Week's Hot Deals</h2>
+                <div class="product-grid" id="hotDealsGrid">
+                    <div class="loading-placeholder" style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                        <p>⏳ Loading hot deals...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommended for You - 动态加载 -->
+            <section class="recommendations-section">
+                <h2>🎯 Recommended for You</h2>
+                <div class="product-list" id="recommendedList">
+                    <div class="loading-placeholder" style="text-align: center; padding: 2rem;">
+                        <p>⏳ Loading recommendations...</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Shop by Category - 动态加载 -->
+        <section class="categories-section">
+            <h2>📦 Shop by Category</h2>
+            <div class="category-grid" id="categoryGrid">
+                <!-- 将从数据库动态加载 -->
+            </div>
+        </section>
+
+        <!-- Our Brands - 动态加载 -->
+        <section class="brands-section">
+            <h2>⭐ Our Brands</h2>
+            <div class="brands-grid" id="brandsGrid">
+                <!-- 将从数据库动态加载 -->
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Company Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Member Center</h3>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="account.html#orders">Order History</a></li>
+                        <li><a href="account.html#points">Points Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p>📧 info@summitgear.co.uk</p>
+                    <p>📞 0131 123 4567</p>
+                    <p>📍 Edinburgh, Scotland</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/shared.js?v=10"></script>
+    <script>
+        // =====================================================
+        // 首页动态内容加载 - 从数据库获取
+        // =====================================================
+        
+        // 加载促销横幅
+        async function loadPromotions() {
+            const section = document.getElementById('promotionsSection');
+            const banner = document.getElementById('promotionsBanner');
+            if (!section || !banner) {
+                console.log('Promotions section not found');
+                return;
+            }
+            
+            try {
+                console.log('Loading promotions...');
+                
+                // Load active banners
+                const bannerRes = await fetch('/summit-gear/api/promotions.php?type=banners&active=true');
+                const bannerData = await bannerRes.json();
+                console.log('Banner data:', bannerData);
+                
+                // Load active promotions
+                const promoRes = await fetch('/summit-gear/api/promotions.php?type=promotions&active=true');
+                const promoData = await promoRes.json();
+                console.log('Promo data:', promoData);
+                
+                const banners = bannerData.success ? bannerData.data : [];
+                const promotions = promoData.success ? promoData.data : [];
+                
+                // Only show section if we have promotions or banners
+                if (banners.length === 0 && promotions.length === 0) {
+                    console.log('No banners or promotions found');
+                    section.style.display = 'none';
+                    return;
+                }
+                
+                console.log('Found', banners.length, 'banners and', promotions.length, 'promotions');
+                section.style.display = 'block';
+                
+                // Create promotion/banner display
+                let html = '<div class="promo-carousel">';
+                
+                // Add banners first
+                banners.forEach((b, i) => {
+                    const branchName = b.branch_name || 'All Stores';
+                    html += `
+                        <div class="promo-slide ${i === 0 ? 'active' : ''}" style="display:${i === 0 ? 'block' : 'none'};">
+                            <a href="${b.link_url || 'products.html'}" class="promo-link" style="text-decoration:none;">
+                                <div style="background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%); padding: 2rem; border-radius: 1rem; color: white; text-align: center; position: relative;">
+                                    <div style="position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.85rem;">
+                                        📍 ${branchName}
+                                    </div>
+                                    <span style="font-size:3rem;">🎉</span>
+                                    <h3 style="font-size:2rem; margin:0.5rem 0;">${b.title}</h3>
+                                    ${b.subtitle ? `<p style="font-size:2rem; font-weight:700; margin:0.5rem 0;">${b.subtitle}</p>` : ''}
+                                    <p style="opacity:0.9; margin-top:1rem; font-size:1.2rem;">${b.link_text || 'Shop Now'} →</p>
+                                    ${b.end_date ? `<p style="opacity:0.7; font-size:0.9rem; margin-top:0.5rem;">Valid until ${new Date(b.end_date).toLocaleDateString('en-GB')}</p>` : ''}
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                // Add promotions
+                promotions.forEach((p, i) => {
+                    const offset = banners.length + i;
+                    const typeIcon = {
+                        'Discount': '💰',
+                        'Free Shipping': '🚚',
+                        'BOGO': '🎁',
+                        'Points Multiplier': '⭐'
+                    }[p.type] || '🎉';
+                    
+                    const valueTxt = p.type === 'Discount' 
+                        ? `${p.value}% OFF` 
+                        : p.type === 'Points Multiplier' 
+                            ? `${p.value}x Points`
+                            : p.type;
+                    
+                    html += `
+                        <div class="promo-slide ${offset === 0 ? 'active' : ''}" style="display:${offset === 0 ? 'block' : 'none'};">
+                            <a href="products.html" class="promo-link" style="text-decoration:none;">
+                                <div style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%); padding: 2rem; border-radius: 1rem; color: white; text-align: center;">
+                                    <span style="font-size:2.5rem;">${typeIcon}</span>
+                                    <h3 style="font-size:1.75rem; margin:0.5rem 0;">${p.name}</h3>
+                                    <p style="font-size:1.5rem; font-weight:600;">${valueTxt}</p>
+                                    <p style="opacity:0.9; font-size:1rem;">${p.description || ''}</p>
+                                    <p style="opacity:0.8; font-size:0.85rem; margin-top:0.5rem;">Valid until ${new Date(p.end_date).toLocaleDateString('en-GB')}</p>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+                
+                // Add navigation if multiple items
+                const totalSlides = banners.length + promotions.length;
+                if (totalSlides > 1) {
+                    html += `
+                        <div style="text-align:center; margin-top:1rem;">
+                            <button onclick="prevPromo()" style="padding:0.5rem 1rem; margin:0 0.25rem; border:none; background:#374151; color:white; border-radius:0.5rem; cursor:pointer;">← Prev</button>
+                            <span id="promoCounter" style="margin:0 1rem; font-weight:600;">1 / ${totalSlides}</span>
+                            <button onclick="nextPromo()" style="padding:0.5rem 1rem; margin:0 0.25rem; border:none; background:#374151; color:white; border-radius:0.5rem; cursor:pointer;">Next →</button>
+                        </div>
+                    `;
+                }
+                
+                banner.innerHTML = html;
+                
+                // Auto-rotate every 5 seconds
+                if (totalSlides > 1) {
+                    window.promoIndex = 0;
+                    window.totalPromos = totalSlides;
+                    setInterval(() => nextPromo(), 5000);
+                }
+                
+            } catch (error) {
+                console.error('Failed to load promotions:', error);
+                section.style.display = 'none';
+            }
+        }
+        
+        function nextPromo() {
+            if (!window.totalPromos) return;
+            window.promoIndex = (window.promoIndex + 1) % window.totalPromos;
+            showPromo(window.promoIndex);
+        }
+        
+        function prevPromo() {
+            if (!window.totalPromos) return;
+            window.promoIndex = (window.promoIndex - 1 + window.totalPromos) % window.totalPromos;
+            showPromo(window.promoIndex);
+        }
+        
+        function showPromo(index) {
+            const slides = document.querySelectorAll('.promo-slide');
+            slides.forEach((s, i) => {
+                s.style.display = i === index ? 'block' : 'none';
+                s.classList.toggle('active', i === index);
+            });
+            const counter = document.getElementById('promoCounter');
+            if (counter) counter.textContent = `${index + 1} / ${window.totalPromos}`;
+        }
+        
+        // 产品图标映射
+        function getProductEmoji(product) {
+            const name = product.name.toLowerCase();
+            const category = product.category;
+            
+            if (name.includes('tent')) return '⛺';
+            if (name.includes('sleeping bag')) return '🛏️';
+            if (name.includes('mat') || name.includes('mattress')) return '🛋️';
+            if (name.includes('cooler') || name.includes('cool box')) return '🧊';
+            if (name.includes('chair')) return '🪑';
+            if (name.includes('water bottle') || name.includes('bottle')) return '🥤';
+            if (name.includes('cookware') || name.includes('cooking')) return '🍳';
+            if (name.includes('stove') || name.includes('pocket')) return '🔥';
+            if (name.includes('rope')) return '🪢';
+            if (name.includes('harness')) return '🦺';
+            if (name.includes('helmet')) return '🪖';
+            if (name.includes('carabiner')) return '🔗';
+            if (name.includes('glove')) return '🧤';
+            if (name.includes('jacket')) return '🧥';
+            if (name.includes('vest')) return '🦺';
+            if (name.includes('pants') || name.includes('trouser')) return '👖';
+            if (name.includes('base layer') || name.includes('shirt')) return '👕';
+            if (name.includes('fleece')) return '🧣';
+            if (name.includes('boot')) return '🥾';
+            if (name.includes('shoe') || name.includes('running')) return '👟';
+            if (name.includes('sock')) return '🧦';
+            if (name.includes('gps') || name.includes('gpsmap')) return '📍';
+            if (name.includes('watch')) return '⌚';
+            if (name.includes('compass')) return '🧭';
+            if (name.includes('radio')) return '📻';
+            if (name.includes('power bank') || name.includes('solar')) return '🔋';
+            if (name.includes('backpack') || name.includes('pack')) return '🎒';
+            if (name.includes('daypack')) return '💼';
+            if (name.includes('headlamp') || name.includes('lamp')) return '🔦';
+            if (name.includes('lantern')) return '🏮';
+            if (name.includes('multi-tool') || name.includes('tool')) return '🔧';
+            if (name.includes('knife')) return '🔪';
+            if (name.includes('hatchet') || name.includes('axe')) return '🪓';
+            if (name.includes('filter')) return '💧';
+            if (name.includes('fire starter') || name.includes('fire')) return '🔥';
+            if (name.includes('first aid')) return '🩹';
+            if (name.includes('pole') || name.includes('trekking')) return '🏔️';
+            if (name.includes('tape') || name.includes('repair')) return '🧵';
+            
+            const categoryEmojis = {
+                'Camping': '🏕️',
+                'Climbing': '🧗',
+                'Clothing': '🧥',
+                'Backpacks': '🎒',
+                'Electronics': '📱',
+                'Footwear': '🥾',
+                'Lighting': '🔦',
+                'Tools': '🔧'
+            };
+            return categoryEmojis[category] || '📦';
+        }
+        
+        // 分类图标映射
+        const categoryIcons = {
+            'Camping': '🏕️',
+            'Climbing': '🧗',
+            'Clothing': '👕',
+            'Footwear': '👟',
+            'Electronics': '📱',
+            'Backpacks': '🎒',
+            'Lighting': '🔦',
+            'Tools': '🔪'
+        };
+        
+        // URL参数映射
+        const categoryUrlMap = {
+            'Camping': 'camping',
+            'Climbing': 'climbing',
+            'Clothing': 'clothing',
+            'Footwear': 'footwear',
+            'Electronics': 'electronics',
+            'Backpacks': 'backpacks',
+            'Lighting': 'lighting',
+            'Tools': 'tools'
+        };
+        
+        // 5 brands matching our 5 suppliers
+        const brandUrlMap = {
+            'The North Face': 'northface',
+            'Black Diamond': 'blackdiamond',
+            'MSR': 'msr',
+            'Garmin': 'garmin',
+            'Patagonia': 'patagonia'
+        };
+        
+        // 页面加载后获取数据
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadHomePageData();
+            await loadPromotions();
+        });
+        
+        async function loadHomePageData() {
+            try {
+                const response = await fetch('/summit-gear/api/products.php');
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const products = result.data;
+                    
+                    // 渲染热销商品 (前4个)
+                    renderHotDeals(products.slice(0, 4));
+                    
+                    // 渲染推荐商品 (第5-7个)
+                    renderRecommendations(products.slice(4, 7));
+                    
+                    // 渲染分类
+                    renderCategories(products);
+                    
+                    // 渲染品牌
+                    renderBrands(products);
+                    
+                    console.log('✅ 首页数据加载完成，共', products.length, '个产品');
+                } else {
+                    console.error('加载产品失败');
+                }
+            } catch (error) {
+                console.error('加载首页数据出错:', error);
+            }
+        }
+        
+        // 渲染热销商品
+        function renderHotDeals(products) {
+            const grid = document.getElementById('hotDealsGrid');
+            if (!grid) return;
+            
+            const customer = getCurrentCustomer();
+            const discount = customer ? getMembershipDiscount(customer.membership_type) : 0;
+            const membershipType = customer ? customer.membership_type : null;
+            
+            grid.innerHTML = products.map(product => {
+                const price = parseFloat(product.retail_price);
+                const discountedPrice = price * (1 - discount / 100);
+                const emoji = getProductEmoji(product);
+                
+                return `
+                    <div class="product-card">
+                        <div class="product-image">${emoji}</div>
+                        <h3>${product.name}</h3>
+                        <div class="price-info">
+                            ${discount > 0 ? `
+                                <span class="original-price">£${price.toFixed(2)}</span>
+                                <span class="discounted-price">£${discountedPrice.toFixed(2)}</span>
+                            ` : `
+                                <span class="discounted-price">£${price.toFixed(2)}</span>
+                            `}
+                        </div>
+                        ${discount > 0 ? `
+                            <div class="discount-badge">Save ${discount}% (${membershipType})</div>
+                        ` : `
+                            <div class="discount-badge" style="background: #6b7280;">Login for discounts</div>
+                        `}
+                        <div class="stock-status ${product.stock_status === 'In Stock' ? 'in-stock' : 'low-stock'}">
+                            ${product.stock_status === 'In Stock' ? '✅ In Stock' : '⚠️ ' + product.stock_status}
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-block" onclick="addToCart(${product.product_id})">🛒 Add to Cart</button>
+                            <a href="product-detail.html?id=${product.product_id}" class="btn btn-secondary btn-block">👁️ View Details</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 渲染推荐商品
+        function renderRecommendations(products) {
+            const list = document.getElementById('recommendedList');
+            if (!list) return;
+            
+            list.innerHTML = products.map(product => {
+                const price = parseFloat(product.retail_price);
+                const emoji = getProductEmoji(product);
+                
+                return `
+                    <div class="product-list-item">
+                        <div class="product-image-small">${emoji}</div>
+                        <div class="product-info">
+                            <h4>${product.name}</h4>
+                            <p class="price">£${price.toFixed(2)}</p>
+                            <p class="description">${product.category} - ${product.brand}</p>
+                        </div>
+                        <a href="product-detail.html?id=${product.product_id}" class="btn btn-small">View</a>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 渲染分类
+        function renderCategories(products) {
+            const grid = document.getElementById('categoryGrid');
+            if (!grid) return;
+            
+            // 获取唯一分类
+            const categories = [...new Set(products.map(p => p.category))].sort();
+            
+            grid.innerHTML = categories.map(category => {
+                const icon = categoryIcons[category] || '📦';
+                const urlParam = categoryUrlMap[category] || category.toLowerCase();
+                
+                return `
+                    <a href="products.html?category=${urlParam}" class="category-card">
+                        <div class="category-icon">${icon}</div>
+                        <h3>${category}</h3>
+                    </a>
+                `;
+            }).join('');
+        }
+        
+        // 渲染品牌
+        function renderBrands(products) {
+            const grid = document.getElementById('brandsGrid');
+            if (!grid) return;
+            
+            // 获取唯一品牌
+            const brands = [...new Set(products.map(p => p.brand))].sort();
+            
+            grid.innerHTML = brands.map(brand => {
+                const urlParam = brandUrlMap[brand] || brand.toLowerCase().replace(/\s+/g, '');
+                
+                return `
+                    <a href="products.html?brand=${urlParam}" class="brand-card">${brand}</a>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

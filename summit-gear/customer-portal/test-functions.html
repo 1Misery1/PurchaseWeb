@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Function Test - Summit Gear</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 2rem;
+        }
+        .container { max-width: 1000px; margin: 0 auto; }
+        h1 { text-align: center; margin-bottom: 2rem; }
+        .test-section {
+            background: rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .test-section h2 {
+            color: #f97316;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        .test-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 0.25rem;
+            transition: all 0.2s;
+        }
+        .test-btn:hover { background: #ea580c; transform: translateY(-2px); }
+        .test-btn.secondary { background: #6366f1; }
+        .test-btn.danger { background: #ef4444; }
+        .test-btn.success { background: #10b981; }
+        .result {
+            background: #0f172a;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        .status { padding: 0.5rem; border-radius: 0.25rem; margin: 0.25rem 0; }
+        .status.pass { background: #14532d; }
+        .status.fail { background: #7f1d1d; }
+        .status.info { background: #1e3a5f; }
+        a { color: #f97316; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Summit Gear Function Tester</h1>
+        
+        <div class="test-section">
+            <h2>🔐 1. Authentication Tests</h2>
+            <button class="test-btn" onclick="testLogin('james.wilson@email.com')">Login as James (Gold)</button>
+            <button class="test-btn" onclick="testLogin('emma.t@email.com')">Login as Emma (Silver)</button>
+            <button class="test-btn" onclick="testLogin('o.brown@email.com')">Login as Oliver (Platinum)</button>
+            <button class="test-btn" onclick="testLogin('s.clark@email.com')">Login as Sophie (Bronze)</button>
+            <button class="test-btn danger" onclick="testLogout()">Logout</button>
+            <button class="test-btn secondary" onclick="checkLoginStatus()">Check Status</button>
+            <div class="result" id="authResult">Click a button to test...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🛒 2. Cart Tests</h2>
+            <button class="test-btn" onclick="testAddToCart(1)">Add Tent (#1)</button>
+            <button class="test-btn" onclick="testAddToCart(15)">Add Rope (#15)</button>
+            <button class="test-btn" onclick="testAddToCart(29)">Add GPS (#29)</button>
+            <button class="test-btn secondary" onclick="viewCart()">View Cart</button>
+            <button class="test-btn danger" onclick="testClearCart()">Clear Cart</button>
+            <div class="result" id="cartResult">Click a button to test...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📦 3. Order Tests</h2>
+            <button class="test-btn" onclick="viewOrders()">View My Orders</button>
+            <button class="test-btn success" onclick="testCheckout()">Test Checkout</button>
+            <div class="result" id="orderResult">Click a button to test...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 4. User Stats</h2>
+            <button class="test-btn" onclick="viewUserStats()">View Stats</button>
+            <button class="test-btn secondary" onclick="viewAllStorage()">View All LocalStorage</button>
+            <button class="test-btn danger" onclick="clearAllData()">⚠️ Clear ALL Data</button>
+            <div class="result" id="statsResult">Click a button to test...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 Quick Links</h2>
+            <a href="index.html">🏠 Home</a> |
+            <a href="products.html">📦 Products</a> |
+            <a href="cart.html">🛒 Cart</a> |
+            <a href="account.html">👤 Account</a> |
+            <a href="login.html">🔑 Login</a> |
+            <a href="stores.html">🏪 Stores</a>
+        </div>
+    </div>
+
+    <script src="js/shared.js"></script>
+    <script>
+        // Demo customers data
+        const demoCustomers = {
+            'james.wilson@email.com': {
+                id: 1, name: 'James Wilson', email: 'james.wilson@email.com',
+                membershipType: 'Gold', memberSince: 'January 2023',
+                points: 2450, totalSpent: 5850.00, orderCount: 12, preferredStore: 'Edinburgh'
+            },
+            'emma.t@email.com': {
+                id: 2, name: 'Emma Thompson', email: 'emma.t@email.com',
+                membershipType: 'Silver', memberSince: 'March 2024',
+                points: 680, totalSpent: 1890.00, orderCount: 5, preferredStore: 'Glasgow'
+            },
+            'o.brown@email.com': {
+                id: 3, name: 'Oliver Brown', email: 'o.brown@email.com',
+                membershipType: 'Platinum', memberSince: 'June 2022',
+                points: 5200, totalSpent: 12100.00, orderCount: 28, preferredStore: 'Aberdeen'
+            },
+            's.clark@email.com': {
+                id: 4, name: 'Sophie Clark', email: 's.clark@email.com',
+                membershipType: 'Bronze', memberSince: 'November 2024',
+                points: 120, totalSpent: 150.00, orderCount: 1, preferredStore: 'Inverness'
+            }
+        };
+
+        function log(elementId, message, type = 'info') {
+            const el = document.getElementById(elementId);
+            const timestamp = new Date().toLocaleTimeString();
+            el.innerHTML = `<div class="status ${type}">[${timestamp}] ${message}</div>` + el.innerHTML;
+        }
+
+        // Auth Tests
+        function testLogin(email) {
+            const customer = demoCustomers[email];
+            if (customer) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentCustomer', JSON.stringify(customer));
+                initCartFromStorage();
+                log('authResult', `✅ Logged in as ${customer.name} (${customer.membershipType})`, 'pass');
+                log('authResult', `   Points: ${customer.points}, Total Spent: £${customer.totalSpent}`, 'info');
+            } else {
+                log('authResult', `❌ User not found: ${email}`, 'fail');
+            }
+        }
+
+        function testLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentCustomer');
+            log('authResult', '✅ Logged out successfully', 'pass');
+        }
+
+        function checkLoginStatus() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+            const customer = getCurrentCustomer();
+            if (isLoggedIn && customer) {
+                log('authResult', `✅ Logged in as: ${customer.name}`, 'pass');
+                log('authResult', `   Membership: ${customer.membershipType}, Points: ${customer.points}`, 'info');
+                log('authResult', `   User ID: ${customer.id}`, 'info');
+            } else {
+                log('authResult', '❌ Not logged in', 'fail');
+            }
+        }
+
+        // Cart Tests
+        function testAddToCart(productId) {
+            if (typeof addToCart === 'function') {
+                addToCart(productId);
+                const product = productData[productId];
+                log('cartResult', `✅ Added: ${product?.name || 'Unknown'} (ID: ${productId})`, 'pass');
+                viewCart();
+            } else {
+                log('cartResult', '❌ addToCart function not available', 'fail');
+            }
+        }
+
+        function viewCart() {
+            initCartFromStorage();
+            if (cart.length === 0) {
+                log('cartResult', '📭 Cart is empty', 'info');
+            } else {
+                log('cartResult', `🛒 Cart (${cart.length} items):`, 'info');
+                cart.forEach(item => {
+                    log('cartResult', `   - ${item.name} x${item.quantity} = £${(item.price * item.quantity).toFixed(2)}`, 'info');
+                });
+                log('cartResult', `   Total: £${getCartTotal().toFixed(2)}`, 'pass');
+            }
+        }
+
+        function testClearCart() {
+            cart = [];
+            saveCartToStorage();
+            updateCartCount();
+            log('cartResult', '✅ Cart cleared', 'pass');
+        }
+
+        // Order Tests
+        function viewOrders() {
+            const orders = getUserOrders();
+            if (orders.length === 0) {
+                log('orderResult', '📭 No orders found for this user', 'info');
+            } else {
+                log('orderResult', `📦 Found ${orders.length} order(s):`, 'pass');
+                orders.forEach(order => {
+                    log('orderResult', `   #${order.id} - £${order.total.toFixed(2)} (${order.status})`, 'info');
+                });
+            }
+        }
+
+        function testCheckout() {
+            initCartFromStorage();
+            if (cart.length === 0) {
+                log('orderResult', '❌ Cart is empty - add items first', 'fail');
+                return;
+            }
+            
+            const customer = getCurrentCustomer();
+            if (!customer) {
+                log('orderResult', '❌ Please login first', 'fail');
+                return;
+            }
+
+            const order = createOrder(cart, 'Edinburgh Store');
+            if (order) {
+                log('orderResult', `✅ Order created: #${order.id}`, 'pass');
+                log('orderResult', `   Total: £${order.total.toFixed(2)}`, 'info');
+                log('orderResult', `   Points Earned: +${order.pointsEarned}`, 'info');
+                log('orderResult', `   Cart cleared automatically`, 'info');
+            }
+        }
+
+        // Stats
+        function viewUserStats() {
+            const stats = getUserStats();
+            const customer = getCurrentCustomer();
+            
+            if (!customer) {
+                log('statsResult', '❌ Please login first', 'fail');
+                return;
+            }
+
+            log('statsResult', `📊 Stats for ${customer.name}:`, 'pass');
+            log('statsResult', `   Membership: ${stats.membershipType}`, 'info');
+            log('statsResult', `   Points: ${stats.points}`, 'info');
+            log('statsResult', `   Total Orders: ${stats.totalOrders}`, 'info');
+            log('statsResult', `   Total Spent: £${stats.totalSpent.toFixed(2)}`, 'info');
+        }
+
+        function viewAllStorage() {
+            log('statsResult', '📁 LocalStorage Contents:', 'info');
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('summit')) {
+                    const value = localStorage.getItem(key);
+                    const preview = value.length > 100 ? value.substring(0, 100) + '...' : value;
+                    log('statsResult', `   ${key}: ${preview}`, 'info');
+                }
+            }
+            log('statsResult', `   isLoggedIn: ${localStorage.getItem('isLoggedIn')}`, 'info');
+            log('statsResult', `   currentCustomer: ${localStorage.getItem('currentCustomer')?.substring(0,50)}...`, 'info');
+        }
+
+        function clearAllData() {
+            if (confirm('⚠️ This will clear ALL Summit Gear data. Continue?')) {
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key.startsWith('summit') || key === 'isLoggedIn' || key === 'currentCustomer') {
+                        keysToRemove.push(key);
+                    }
+                }
+                keysToRemove.forEach(key => localStorage.removeItem(key));
+                log('statsResult', `✅ Cleared ${keysToRemove.length} items from localStorage`, 'pass');
+            }
+        }
+
+        // Initial status check
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginStatus();
+            viewCart();
+        });
+    </script>
+</body>
+</html>

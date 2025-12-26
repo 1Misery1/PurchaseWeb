@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/products.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html" class="active">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">0</span></a>
+            </div>
+            <div class="user-info">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <h1>📦 Browse Products</h1>
+            <p>Explore our curated outdoor equipment collection</p>
+        </div>
+
+        <!-- 搜索和排序栏 -->
+        <div class="search-sort-bar">
+            <div class="search-box">
+                <input type="text" placeholder="🔍 Search Products..." id="searchInput">
+                <button class="btn btn-primary" id="searchBtn">Search</button>
+            </div>
+            <div class="sort-box">
+                <label>Sort by:</label>
+                <select id="sortSelect">
+                    <option value="best-selling">Best Selling</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="newest">Newest Arrivals</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Products浏览主体 -->
+        <div class="products-layout">
+            <!-- 侧边栏筛选器 -->
+            <aside class="filters-sidebar">
+                <h3>Filters</h3>
+                
+                <!-- 类别筛选 -->
+                <div class="filter-section">
+                    <h4>Category</h4>
+                    <div id="categoryFilters">
+                        <!-- Dynamic category filters -->
+                    </div>
+                </div>
+
+                <!-- 品牌筛选 -->
+                <div class="filter-section">
+                    <h4>Brand</h4>
+                    <div id="brandFilters">
+                        <!-- Dynamic brand filters -->
+                    </div>
+                </div>
+
+                <!-- 价格筛选 -->
+                <div class="filter-section">
+                    <h4>Price Range</h4>
+                    <div class="price-inputs">
+                        <input type="number" placeholder="Min" min="0" value="0" id="priceMin">
+                        <span>-</span>
+                        <input type="number" placeholder="Max" min="0" value="1000" id="priceMax">
+                    </div>
+                    <button class="btn btn-small btn-primary" id="applyPriceBtn">Apply</button>
+                </div>
+
+                <!-- 库存状态 -->
+                <div class="filter-section">
+                    <h4>Stock Status</h4>
+                    <label><input type="checkbox" id="inStockOnly"> In Stock Only</label>
+                </div>
+
+                <button class="btn btn-secondary btn-block" id="clearFiltersBtn">Clear All Filters</button>
+            </aside>
+
+            <!-- Products网格 -->
+            <div class="products-content">
+                <p class="results-count">Loading products...</p>
+                
+                <div class="product-grid" id="productGrid">
+                    <!-- Products will be loaded dynamically -->
+                    <div class="loading-spinner" style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                        <p style="font-size: 2rem;">⏳</p>
+                        <p>Loading products from database...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Company Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Member Center</h3>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="account.html#orders">Order History</a></li>
+                        <li><a href="account.html#points">Points Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p>📧 info@summitgear.co.uk</p>
+                    <p>📞 0131 123 4567</p>
+                    <p>📍 Edinburgh, Scotland</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/shared.js?v=7"></script>
+    <script>
+        // =====================================================
+        // 产品页面 - 数据库连接版本
+        // =====================================================
+        
+        let productsList = [];
+        let filteredProducts = [];
+        
+        // Product-specific emoji mappings based on product name keywords
+        function getProductEmoji(product) {
+            const name = product.name.toLowerCase();
+            const category = product.category;
+            
+            // Specific product mappings
+            if (name.includes('tent')) return '⛺';
+            if (name.includes('sleeping bag')) return '🛏️';
+            if (name.includes('mat') || name.includes('mattress')) return '🛋️';
+            if (name.includes('cooler') || name.includes('cool box')) return '🧊';
+            if (name.includes('chair')) return '🪑';
+            if (name.includes('water bottle') || name.includes('bottle')) return '🥤';
+            if (name.includes('cookware') || name.includes('cooking')) return '🍳';
+            if (name.includes('stove')) return '🔥';
+            
+            if (name.includes('rope')) return '🪢';
+            if (name.includes('harness')) return '🦺';
+            if (name.includes('helmet')) return '🪖';
+            if (name.includes('carabiner')) return '🔗';
+            if (name.includes('glove')) return '🧤';
+            
+            if (name.includes('jacket')) return '🧥';
+            if (name.includes('vest')) return '🦺';
+            if (name.includes('pants') || name.includes('trouser')) return '👖';
+            if (name.includes('base layer') || name.includes('shirt')) return '👕';
+            if (name.includes('fleece')) return '🧣';
+            
+            if (name.includes('boot')) return '🥾';
+            if (name.includes('shoe') || name.includes('running')) return '👟';
+            if (name.includes('sock')) return '🧦';
+            
+            if (name.includes('gps') || name.includes('gpsmap')) return '📍';
+            if (name.includes('watch')) return '⌚';
+            if (name.includes('compass')) return '🧭';
+            if (name.includes('radio')) return '📻';
+            if (name.includes('power bank') || name.includes('solar')) return '🔋';
+            
+            if (name.includes('backpack') || name.includes('pack')) return '🎒';
+            if (name.includes('daypack')) return '💼';
+            
+            if (name.includes('headlamp') || name.includes('lamp')) return '🔦';
+            if (name.includes('lantern')) return '🏮';
+            
+            if (name.includes('multi-tool') || name.includes('tool')) return '🔧';
+            if (name.includes('knife')) return '🔪';
+            if (name.includes('hatchet') || name.includes('axe')) return '🪓';
+            if (name.includes('filter')) return '💧';
+            if (name.includes('fire starter') || name.includes('fire')) return '🔥';
+            if (name.includes('first aid')) return '🩹';
+            if (name.includes('pole') || name.includes('trekking')) return '🏔️';
+            if (name.includes('tape') || name.includes('repair')) return '🧵';
+            
+            // Category fallbacks
+            const categoryEmojis = {
+                'Camping': '🏕️',
+                'Climbing': '🧗',
+                'Clothing': '🧥',
+                'Backpacks': '🎒',
+                'Electronics': '📱',
+                'Footwear': '🥾',
+                'Lighting': '🔦',
+                'Tools': '🔧'
+            };
+            
+            return categoryEmojis[category] || '📦';
+        }
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Load products from database
+            await loadProductsFromDB();
+            
+            // Setup event listeners
+            setupEventListeners();
+            
+            // Apply URL filters if any
+            applyURLFilters();
+        });
+        
+        // =====================================================
+        // Load Products from Database
+        // =====================================================
+        async function loadProductsFromDB() {
+            try {
+                const response = await fetch('/summit-gear/api/products.php');
+                const result = await response.json();
+                
+                if (result.success) {
+                    productsList = result.data;
+                    filteredProducts = [...productsList];
+                    
+                    // Build filter options
+                    buildFilterOptions();
+                    
+                    // Render products
+                    renderProducts();
+                    
+                    console.log(`✅ Loaded ${productsList.length} products from database`);
+                } else {
+                    showNotification('Failed to load products', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                showNotification('Error connecting to database', 'error');
+            }
+        }
+        
+        // =====================================================
+        // Build Dynamic Filter Options
+        // =====================================================
+        function buildFilterOptions() {
+            // Get unique categories
+            const categories = [...new Set(productsList.map(p => p.category))].sort();
+            const categoryFilters = document.getElementById('categoryFilters');
+            categoryFilters.innerHTML = categories.map(cat => `
+                <label><input type="checkbox" data-category="${cat}"> ${cat}</label>
+            `).join('');
+            
+            // Get unique brands
+            const brands = [...new Set(productsList.map(p => p.brand))].sort();
+            const brandFilters = document.getElementById('brandFilters');
+            brandFilters.innerHTML = brands.map(brand => `
+                <label><input type="checkbox" data-brand="${brand}"> ${brand}</label>
+            `).join('');
+            
+            // Add event listeners to new checkboxes
+            categoryFilters.querySelectorAll('input').forEach(cb => {
+                cb.addEventListener('change', applyFilters);
+            });
+            brandFilters.querySelectorAll('input').forEach(cb => {
+                cb.addEventListener('change', applyFilters);
+            });
+        }
+        
+        // =====================================================
+        // Render Products
+        // =====================================================
+        function renderProducts() {
+            const grid = document.getElementById('productGrid');
+            const customer = getCurrentCustomer();
+            const discount = customer ? getMembershipDiscount(customer.membership_type) : 0;
+            const membershipType = customer ? customer.membership_type : null;
+            
+            if (filteredProducts.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                        <p style="font-size: 3rem;">🔍</p>
+                        <p style="color: #9ca3af;">No products found matching your criteria.</p>
+                        <button class="btn btn-primary" onclick="clearAllFilters()">Clear Filters</button>
+                    </div>
+                `;
+                document.querySelector('.results-count').textContent = 'No products found';
+                return;
+            }
+            
+            grid.innerHTML = filteredProducts.map(product => {
+                const originalPrice = parseFloat(product.retail_price);
+                const discountedPrice = originalPrice * (1 - discount / 100);
+                const emoji = getProductEmoji(product);
+                
+                // Stock status
+                let stockClass = 'in-stock';
+                let stockText = '✅ In Stock';
+                if (product.stock_status === 'Out of Stock') {
+                    stockClass = 'out-of-stock';
+                    stockText = '❌ Out of Stock';
+                } else if (product.stock_status === 'Low Stock') {
+                    stockClass = 'low-stock';
+                    stockText = '⚠️ Low Stock';
+                }
+                
+                return `
+                    <div class="product-card" 
+                         data-id="${product.product_id}" 
+                         data-category="${product.category}" 
+                         data-brand="${product.brand}" 
+                         data-price="${originalPrice}" 
+                         data-stock="${stockClass}">
+                        <div class="product-image">${emoji}</div>
+                        <h3>${product.name}</h3>
+                        <p class="product-brand">${product.brand}</p>
+                        <div class="price-info">
+                            ${discount > 0 ? `
+                                <span class="original-price" style="text-decoration: line-through; color: #9ca3af;">£${originalPrice.toFixed(2)}</span>
+                                <span class="discounted-price" style="color: #10B981; font-weight: bold;">£${discountedPrice.toFixed(2)}</span>
+                            ` : `
+                                <span class="discounted-price" style="font-weight: bold;">£${originalPrice.toFixed(2)}</span>
+                            `}
+                        </div>
+                        ${customer && discount > 0 ? `
+                            <div class="discount-badge" style="background: linear-gradient(135deg, #10B981, #059669); color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; display: inline-block;">
+                                -${discount}% ${membershipType}
+                            </div>
+                        ` : (customer ? `
+                            <div class="discount-badge" style="background: #6b7280; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; display: inline-block;">
+                                0% ${membershipType}
+                            </div>
+                        ` : `
+                            <div class="discount-badge" style="background: #6b7280; color: white; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; display: inline-block;">
+                                Login for discounts
+                            </div>
+                        `)}
+                        <div class="stock-status ${stockClass}">${stockText}</div>
+                        <div class="product-actions">
+                            <button class="btn btn-primary btn-block" onclick="handleAddToCart(${product.product_id})" ${stockClass === 'out-of-stock' ? 'disabled' : ''}>
+                                🛒 Add to Cart
+                            </button>
+                            <a href="product-detail.html?id=${product.product_id}" class="btn btn-secondary btn-block">👁️ View Details</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Update results count
+            document.querySelector('.results-count').textContent = 
+                `Showing ${filteredProducts.length} of ${productsList.length} products`;
+        }
+        
+        // =====================================================
+        // Add to Cart Handler
+        // =====================================================
+        function handleAddToCart(productId) {
+            const product = productsList.find(p => p.product_id == productId);
+            if (!product) return;
+            
+            // Get current cart
+            const cart = getCart();
+            const existingItem = cart.find(item => item.product_id == productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({
+                    product_id: product.product_id,
+                    name: product.name,
+                    brand: product.brand,
+                    price: parseFloat(product.retail_price),
+                    quantity: 1
+                });
+            }
+            
+            // Save cart
+            const userId = getCurrentUserId();
+            localStorage.setItem(`summitGearCart_${userId}`, JSON.stringify(cart));
+            updateCartCount();
+            
+            showNotification(`Added ${product.name} to cart!`, 'success');
+        }
+        
+        // =====================================================
+        // Setup Event Listeners
+        // =====================================================
+        function setupEventListeners() {
+            // Sort
+            document.getElementById('sortSelect').addEventListener('change', function() {
+                sortProducts(this.value);
+            });
+            
+            // Search
+            document.getElementById('searchInput').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') applyFilters();
+            });
+            document.getElementById('searchBtn').addEventListener('click', applyFilters);
+            
+            // Price filter
+            document.getElementById('applyPriceBtn').addEventListener('click', function() {
+                applyFilters();
+                showNotification('Price filter applied!', 'success');
+            });
+            
+            // Stock filter
+            document.getElementById('inStockOnly').addEventListener('change', applyFilters);
+            
+            // Clear filters
+            document.getElementById('clearFiltersBtn').addEventListener('click', clearAllFilters);
+        }
+        
+        // =====================================================
+        // URL Filters
+        // =====================================================
+        
+        // URL参数到数据库分类名称的映射
+        const categoryMapping = {
+            'camping': 'Camping',
+            'climbing': 'Climbing',
+            'clothing': 'Clothing',
+            'footwear': 'Footwear',
+            'electronics': 'Electronics',
+            'backpacks': 'Backpacks',
+            'lighting': 'Lighting',
+            'tools': 'Tools'
+        };
+        
+        // URL参数到数据库品牌名称的映射 (5 brands matching our 5 suppliers)
+        const brandMapping = {
+            'northface': 'The North Face',
+            'blackdiamond': 'Black Diamond',
+            'msr': 'MSR',
+            'garmin': 'Garmin',
+            'patagonia': 'Patagonia'
+        };
+        
+        function applyURLFilters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('category');
+            const brandParam = urlParams.get('brand');
+            const search = urlParams.get('search');
+            
+            let filtersApplied = false;
+            
+            if (categoryParam) {
+                // 转换URL参数为数据库分类名称
+                const dbCategory = categoryMapping[categoryParam.toLowerCase()] || categoryParam;
+                
+                const checkbox = document.querySelector(`input[data-category="${dbCategory}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    filtersApplied = true;
+                    
+                    const pageTitle = document.querySelector('.page-header h1');
+                    if (pageTitle) {
+                        pageTitle.innerHTML = `📦 ${dbCategory}`;
+                    }
+                    
+                    console.log(`✅ Applied category filter: ${categoryParam} -> ${dbCategory}`);
+                } else {
+                    console.log(`⚠️ Category not found: ${categoryParam} (tried: ${dbCategory})`);
+                }
+            }
+            
+            if (brandParam) {
+                // 转换URL参数为数据库品牌名称
+                const dbBrand = brandMapping[brandParam.toLowerCase()] || brandParam;
+                
+                const checkbox = document.querySelector(`input[data-brand="${dbBrand}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                    filtersApplied = true;
+                    
+                    const pageTitle = document.querySelector('.page-header h1');
+                    if (pageTitle) {
+                        pageTitle.innerHTML = `⭐ ${dbBrand} Products`;
+                    }
+                    
+                    console.log(`✅ Applied brand filter: ${brandParam} -> ${dbBrand}`);
+                } else {
+                    console.log(`⚠️ Brand not found: ${brandParam} (tried: ${dbBrand})`);
+                }
+            }
+            
+            if (search) {
+                document.getElementById('searchInput').value = search;
+                filtersApplied = true;
+                console.log(`✅ Applied search filter: ${search}`);
+            }
+            
+            if (filtersApplied) {
+                applyFilters();
+            }
+        }
+        
+        // =====================================================
+        // Sort Products
+        // =====================================================
+        function sortProducts(sortBy) {
+            switch(sortBy) {
+                case 'price-low':
+                    filteredProducts.sort((a, b) => parseFloat(a.retail_price) - parseFloat(b.retail_price));
+                    break;
+                case 'price-high':
+                    filteredProducts.sort((a, b) => parseFloat(b.retail_price) - parseFloat(a.retail_price));
+                    break;
+                case 'newest':
+                    filteredProducts.sort((a, b) => b.product_id - a.product_id);
+                    break;
+                case 'best-selling':
+                default:
+                    // Keep original order from DB (could be sorted by sales in the future)
+                    break;
+            }
+            
+            renderProducts();
+            showNotification('Products sorted!', 'success');
+        }
+        
+        // =====================================================
+        // Apply Filters
+        // =====================================================
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const priceMin = parseFloat(document.getElementById('priceMin').value) || 0;
+            const priceMax = parseFloat(document.getElementById('priceMax').value) || 99999;
+            const inStockOnly = document.getElementById('inStockOnly').checked;
+            
+            // Get selected categories
+            const selectedCategories = [];
+            document.querySelectorAll('[data-category]:checked').forEach(cb => {
+                selectedCategories.push(cb.dataset.category);
+            });
+            
+            // Get selected brands
+            const selectedBrands = [];
+            document.querySelectorAll('[data-brand]:checked').forEach(cb => {
+                selectedBrands.push(cb.dataset.brand);
+            });
+            
+            // Filter products
+            filteredProducts = productsList.filter(product => {
+                const price = parseFloat(product.retail_price);
+                
+                // Search filter
+                if (searchTerm && !product.name.toLowerCase().includes(searchTerm) && 
+                    !product.brand.toLowerCase().includes(searchTerm) &&
+                    !(product.description && product.description.toLowerCase().includes(searchTerm))) {
+                    return false;
+                }
+                
+                // Category filter
+                if (selectedCategories.length > 0 && !selectedCategories.includes(product.category)) {
+                    return false;
+                }
+                
+                // Brand filter
+                if (selectedBrands.length > 0 && !selectedBrands.includes(product.brand)) {
+                    return false;
+                }
+                
+                // Price filter
+                if (price < priceMin || price > priceMax) {
+                    return false;
+                }
+                
+                // Stock filter
+                if (inStockOnly && product.stock_status === 'Out of Stock') {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            renderProducts();
+        }
+        
+        // =====================================================
+        // Clear All Filters
+        // =====================================================
+        function clearAllFilters() {
+            // Clear search
+            document.getElementById('searchInput').value = '';
+            
+            // Clear checkboxes
+            document.querySelectorAll('.filters-sidebar input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            // Reset price
+            document.getElementById('priceMin').value = 0;
+            document.getElementById('priceMax').value = 1000;
+            
+            // Reset sort
+            document.getElementById('sortSelect').value = 'best-selling';
+            
+            // Reset filtered products
+            filteredProducts = [...productsList];
+            
+            // Re-render
+            renderProducts();
+            
+            // Reset page title
+            document.querySelector('.page-header h1').innerHTML = '📦 Browse Products';
+            
+            showNotification('All filters cleared!', 'info');
+        }
+    </script>
+</body>
+</html>

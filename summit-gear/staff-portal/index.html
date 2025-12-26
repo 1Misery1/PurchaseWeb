@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff POS System - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="branch-info">📍 Loading...</p>
+            </div>
+            <div class="nav-info">
+                <div class="staff-info">
+                    <span class="staff-name">👤 Loading...</span>
+                    <span class="datetime">📅 Loading... | 🕐 <span id="current-time">--:--</span></span>
+                </div>
+                <div class="nav-actions">
+                    <a href="#my-sales" class="btn btn-secondary btn-small">📊 My Sales</a>
+                    <button class="btn-logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Function Tabs -->
+    <div class="main-tabs">
+        <div class="container">
+            <button class="tab-btn active" data-tab="pos">🛒 Sales (POS)</button>
+            <button class="tab-btn" data-tab="orders">📋 Orders</button>
+            <button class="tab-btn" data-tab="customers">👥 Customers</button>
+            <button class="tab-btn" data-tab="stock">📦 Stock Check</button>
+            <button class="tab-btn" data-tab="returns">🔄 Returns</button>
+            <button class="tab-btn" data-tab="my-sales">📊 My Performance</button>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- POS Sales Interface -->
+        <section id="pos" class="tab-content active">
+            <div class="container">
+                <div class="pos-header">
+                    <h2>🛒 New Sales Order</h2>
+                    <button class="btn btn-danger" onclick="clearCart()">❌ Clear Cart</button>
+                </div>
+
+                <div class="pos-layout">
+                    <!-- Left: Product Search -->
+                    <div class="product-search-section">
+                        <div class="card">
+                            <h3>🔍 Product Search</h3>
+                            
+                            <div class="search-bar">
+                                <input type="text" id="product-search" placeholder="Enter product name or ID..." class="search-input">
+                                <button class="btn btn-primary">🔍</button>
+                            </div>
+
+                            <div class="filter-row">
+                                <select class="filter-select">
+                                    <option>All Categories</option>
+                                    <!-- Categories loaded dynamically -->
+                                </select>
+                            </div>
+
+                            <!-- Product List - Loaded Dynamically -->
+                            <div class="product-list">
+                                <p style="text-align: center; color: #666; padding: 2rem;">
+                                    🔄 Loading products from database...
+                                </p>
+                            </div>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-secondary btn-block" onclick="document.querySelector('[data-tab=stock]').click()">📦 Check Stock</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Current Order -->
+                    <div class="order-section">
+                        <div class="card">
+                            <h3>🛒 Current Order</h3>
+                            
+                            <!-- Customer Selection -->
+                            <div class="customer-select">
+                                <label>Customer:</label>
+                                <select id="customer-select" onchange="selectCustomer()">
+                                    <option value="">Loading customers...</option>
+                                </select>
+                            </div>
+
+                            <div id="customer-info" class="customer-info" style="display: none;">
+                                <!-- Customer info displayed dynamically -->
+                            </div>
+
+                            <!-- Cart Items List -->
+                            <div class="cart-items" id="cart-items">
+                                <p class="empty-cart">Cart is empty - add products to begin</p>
+                            </div>
+
+                            <!-- Order Summary -->
+                            <div class="order-summary">
+                                <div class="summary-line">
+                                    <span>Subtotal:</span>
+                                    <span id="subtotal">£0.00</span>
+                                </div>
+                                <div class="summary-line discount">
+                                    <span>Member Discount (<span id="discount-percent">0</span>%):</span>
+                                    <span id="discount-amount">-£0.00</span>
+                                </div>
+                                <div class="summary-line total">
+                                    <span>Total:</span>
+                                    <span id="total">£0.00</span>
+                                </div>
+                                <div class="points-earn">
+                                    <span>Points Earned: <strong id="points-earn">+0</strong></span>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-block btn-checkout" onclick="checkout()">💳 Checkout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orders Management Section -->
+        <section id="orders" class="tab-content">
+            <div class="container">
+                <h2>📋 Order Management <span id="orders-branch-info" style="font-size: 0.875rem; font-weight: normal; color: #6b7280;"></span></h2>
+                
+                <div class="filters-bar" style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <select id="order-status-filter" class="filter-select" onchange="loadOrders()">
+                        <option value="Pending">⏳ Pending Orders</option>
+                        <option value="all">All Orders</option>
+                        <option value="Completed">✅ Completed</option>
+                        <option value="Cancelled">❌ Cancelled</option>
+                    </select>
+                    <input type="text" id="order-search" placeholder="Search order number..." class="search-input" style="flex: 1; min-width: 200px;">
+                    <button class="btn btn-primary" onclick="loadOrders()">🔍 Search</button>
+                    <button class="btn btn-secondary" onclick="loadOrders()">🔄 Refresh</button>
+                </div>
+
+                <div class="orders-stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="stat-card" style="background: #FEF3C7; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold;" id="pending-count">0</div>
+                        <div style="font-size: 0.875rem; color: #92400E;">⏳ Pending</div>
+                    </div>
+                    <div class="stat-card" style="background: #D1FAE5; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold;" id="completed-count">0</div>
+                        <div style="font-size: 0.875rem; color: #065F46;">✅ Completed</div>
+                    </div>
+                    <div class="stat-card" style="background: #DBEAFE; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: bold;" id="today-total">£0</div>
+                        <div style="font-size: 0.875rem; color: #1E40AF;">💰 Today's Sales</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div id="orders-list">
+                        <p style="text-align: center; color: #666; padding: 2rem;">
+                            🔄 Loading orders...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Customer Management Section -->
+        <section id="customers" class="tab-content">
+            <div class="container">
+                <h2>👥 Customer Management</h2>
+                <p>For detailed customer management, please visit the <a href="customers.html">Customer Management Page</a>.</p>
+
+                <div class="search-section">
+                    <input type="text" id="pos-customer-search" placeholder="Search customer name, email or phone..." class="search-input">
+                    <button class="btn btn-primary" onclick="searchCustomersFromPOS()">🔍 Search</button>
+                    <button class="btn btn-success" onclick="showNewCustomerModal()">➕ New Customer</button>
+                </div>
+
+                <div id="customer-search-results" class="customers-list">
+                    <p style="text-align: center; color: #666; padding: 2rem;">
+                        Enter a search term to find customers
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stock Check Section -->
+        <section id="stock" class="tab-content">
+            <div class="container">
+                <h2>📦 Stock Inquiry</h2>
+                <p>For full inventory management, please visit the <a href="inventory.html">Inventory Management Page</a>.</p>
+
+                <div class="search-section">
+                    <input type="text" id="stock-search" placeholder="Search product name or ID..." class="search-input">
+                    <button class="btn btn-primary" onclick="searchStock()">🔍 Search</button>
+                </div>
+
+                <div id="stock-results" class="stock-details">
+                    <p style="text-align: center; color: #666; padding: 2rem;">
+                        Enter a search term to check stock levels
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Returns Section -->
+        <section id="returns" class="tab-content">
+            <div class="container">
+                <h2>🔄 Returns Processing</h2>
+                <p style="color:#6b7280; margin-bottom:1rem;">Process customer return requests. Approving a return will restore stock, refund points, and adjust sales records.</p>
+
+                <!-- Return Stats -->
+                <div class="stats-grid" style="margin-bottom:1.5rem;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #fef3c7, #fde68a);">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-info">
+                            <h3>Pending</h3>
+                            <div class="stat-value" id="returns-pending">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-info">
+                            <h3>Approved Today</h3>
+                            <div class="stat-value" id="returns-approved">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #fee2e2, #fecaca);">
+                        <div class="stat-icon">❌</div>
+                        <div class="stat-info">
+                            <h3>Rejected Today</h3>
+                            <div class="stat-value" id="returns-rejected">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                    <button class="btn btn-primary return-filter-btn active" onclick="filterReturns('Pending')">⏳ Pending</button>
+                    <button class="btn btn-secondary return-filter-btn" onclick="filterReturns('Approved')">✅ Approved</button>
+                    <button class="btn btn-secondary return-filter-btn" onclick="filterReturns('Rejected')">❌ Rejected</button>
+                    <button class="btn btn-secondary return-filter-btn" onclick="filterReturns('all')">📋 All</button>
+                </div>
+
+                <!-- Returns List -->
+                <div class="card">
+                    <div id="returns-list">
+                        <p style="text-align: center; color: #666; padding: 2rem;">
+                            🔄 Loading return requests...
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Performance Section -->
+        <section id="my-sales" class="tab-content">
+            <div class="container">
+                <h2>📊 My Sales Performance</h2>
+
+                <div class="performance-header">
+                    <p><strong>Staff:</strong> <span id="perf-staff-name">Loading...</span> | <strong>Store:</strong> <span id="perf-branch">Loading...</span> | <strong>Period:</strong> Today</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <h3>Today's Sales</h3>
+                            <div class="stat-value">£0.00</div>
+                            <p class="stat-trend">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">🛒</div>
+                        <div class="stat-info">
+                            <h3>Orders Processed</h3>
+                            <div class="stat-value">0</div>
+                            <p class="stat-trend">Loading...</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <h3>Customers Served</h3>
+                            <div class="stat-value">0</div>
+                            <p class="stat-trend">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Recent Transactions</h3>
+                    <table class="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Order No</th>
+                                <th>Customer</th>
+                                <th>Items</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: #666;">Loading transactions...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <h3>This Week's Performance</h3>
+                    <div class="weekly-stats">
+                        <p>Loading weekly statistics...</p>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%">0%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Checkout Modal -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💳 Checkout</h2>
+                <span class="close" onclick="closeCheckout()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="checkout-customer-info" class="checkout-info">
+                    <!-- Customer info displayed dynamically -->
+                </div>
+
+                <h3>Payment Method</h3>
+                <div class="payment-methods">
+                    <button class="payment-btn active" data-method="cash">💵 Cash</button>
+                    <button class="payment-btn" data-method="card">💳 Card</button>
+                    <button class="payment-btn" data-method="mobile">📱 Mobile Payment</button>
+                </div>
+
+                <div class="checkout-summary">
+                    <h3>Order Summary</h3>
+                    <div class="summary-line">
+                        <span>Items:</span>
+                        <span id="checkout-items">0</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Subtotal:</span>
+                        <span id="checkout-subtotal">£0.00</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Member Discount:</span>
+                        <span id="checkout-discount">-£0.00</span>
+                    </div>
+                    <div class="summary-line total">
+                        <span>Total Amount:</span>
+                        <span id="checkout-total">£0.00</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Points Earned:</span>
+                        <span id="checkout-points">+0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary btn-large" onclick="completeSale()">✅ Complete Sale</button>
+                <button class="btn btn-secondary" onclick="closeCheckout()">❌ Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/staff.js?v=5"></script>
+    <script>
+        // Additional functions for stock and customer search from POS
+        async function searchStock() {
+            const searchTerm = document.getElementById('stock-search').value;
+            if (!searchTerm) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            const currentStaff = JSON.parse(localStorage.getItem('currentStaff') || '{}');
+            const branchId = currentStaff.branch_id || 1;
+            
+            try {
+                const response = await fetch(`/summit-gear/api/stock.php?action=list&branch_id=${branchId}&search=${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                const resultsDiv = document.getElementById('stock-results');
+                
+                if (data.success && data.data.length > 0) {
+                    resultsDiv.innerHTML = data.data.map(item => `
+                        <div class="card" style="margin-bottom: 1rem;">
+                            <h3>${item.product_name} (P${String(item.product_id).padStart(3, '0')})</h3>
+                            <p><strong>Category:</strong> ${item.category} | <strong>Price:</strong> £${item.unit_price.toFixed(2)}</p>
+                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                                <div style="flex: 1; background: ${item.stock_status === 'good' ? '#D1FAE5' : item.stock_status === 'low' ? '#FEF3C7' : '#FEE2E2'}; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                                    <div style="font-size: 0.875rem; color: #666;">Current Stock</div>
+                                    <div style="font-size: 2rem; font-weight: bold;">${item.current_stock}</div>
+                                    <div style="font-size: 0.875rem;">
+                                        ${item.stock_status === 'good' ? '✅ In Stock' : item.stock_status === 'low' ? '⚠️ Low Stock' : '❌ Out of Stock'}
+                                    </div>
+                                </div>
+                                <div style="flex: 1; background: #F3F4F6; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                                    <div style="font-size: 0.875rem; color: #666;">Reorder Level</div>
+                                    <div style="font-size: 2rem; font-weight: bold;">${item.reorder_level}</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top: 1rem;" onclick="checkOtherBranches(${item.product_id})">🔍 Check Other Branches</button>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No products found</p>';
+                }
+            } catch (error) {
+                console.error('Stock search error:', error);
+                alert('Failed to search stock');
+            }
+        }
+        
+        async function checkOtherBranches(productId) {
+            const currentStaff = JSON.parse(localStorage.getItem('currentStaff') || '{}');
+            const branchId = currentStaff.branch_id || 1;
+            
+            try {
+                const response = await fetch(`/summit-gear/api/stock.php?action=other_branches&product_id=${productId}&current_branch=${branchId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    let message = 'Stock at Other Branches:\n\n';
+                    data.data.forEach(branch => {
+                        message += `${branch.branch_name} (${branch.city}): ${branch.stock} units\n`;
+                    });
+                    alert(message);
+                }
+            } catch (error) {
+                console.error('Error checking other branches:', error);
+            }
+        }
+        
+        async function searchCustomersFromPOS() {
+            const searchTerm = document.getElementById('pos-customer-search').value;
+            if (!searchTerm) {
+                alert('Please enter a search term');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/summit-gear/api/sales.php?action=customers&search=${encodeURIComponent(searchTerm)}`);
+                const data = await response.json();
+                
+                const resultsDiv = document.getElementById('customer-search-results');
+                
+                if (data.success && data.data.length > 0) {
+                    resultsDiv.innerHTML = data.data.map(customer => `
+                        <div class="customer-card" style="background: white; padding: 1.5rem; border-radius: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h3 style="margin: 0;">👤 ${customer.name}</h3>
+                                    <p style="margin: 0.5rem 0; color: #666;">${customer.email || 'No email'} | ${customer.phone || 'No phone'}</p>
+                                </div>
+                                <div style="text-align: right;">
+                                    <span style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; background: ${customer.membership_type === 'Gold' ? '#FFD700' : customer.membership_type === 'Silver' ? '#C0C0C0' : customer.membership_type === 'Platinum' ? '#E5E4E2' : '#CD7F32'}; color: white; font-weight: bold;">
+                                        ${customer.membership_type}
+                                    </span>
+                                    <div style="margin-top: 0.5rem; font-weight: bold;">${customer.points.toLocaleString()} pts</div>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <button class="btn btn-primary btn-small" onclick="selectCustomerById(${customer.customer_id})">🛒 Select for Order</button>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    resultsDiv.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">No customers found</p>';
+                }
+            } catch (error) {
+                console.error('Customer search error:', error);
+                alert('Failed to search customers');
+            }
+        }
+        
+        async function selectCustomerById(customerId) {
+            // Switch to POS tab
+            document.querySelector('[data-tab="pos"]').click();
+            
+            // Select customer in dropdown
+            const customerSelect = document.getElementById('customer-select');
+            customerSelect.value = customerId;
+            
+            // Trigger change event
+            selectCustomer();
+        }
+        
+        function searchOrderForReturn() {
+            const orderNumber = document.getElementById('return-order-number').value;
+            if (!orderNumber) {
+                alert('Please enter an order number');
+                return;
+            }
+            
+            // For demo purposes, show a placeholder
+            document.getElementById('return-order-details').style.display = 'block';
+            document.getElementById('return-order-details').innerHTML = `
+                <div class="card" style="margin-top: 1rem;">
+                    <h3>Order: ${orderNumber}</h3>
+                    <p>⚠️ Returns processing requires integration with the full order management system.</p>
+                    <p>Please contact a manager for processing returns.</p>
+                </div>
+            `;
+        }
+        
+        // Update performance header when staff data is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const currentStaff = JSON.parse(localStorage.getItem('currentStaff') || '{}');
+                if (currentStaff.name) {
+                    const perfStaffName = document.getElementById('perf-staff-name');
+                    const perfBranch = document.getElementById('perf-branch');
+                    if (perfStaffName) perfStaffName.textContent = currentStaff.name;
+                    if (perfBranch) perfBranch.textContent = currentStaff.branch_name || currentStaff.branchName || 'Unknown';
+                }
+            }, 100);
+        });
+        
+        // =====================================================
+        // Order Management Functions
+        // =====================================================
+        
+        let allOrders = [];
+        
+        async function loadOrders() {
+            const statusFilter = document.getElementById('order-status-filter').value;
+            const searchTerm = document.getElementById('order-search').value.trim();
+            const ordersList = document.getElementById('orders-list');
+            
+            // Get current staff's branch
+            const currentStaff = JSON.parse(localStorage.getItem('currentStaff') || '{}');
+            const branchId = currentStaff.branch_id;
+            
+            if (!branchId) {
+                ordersList.innerHTML = '<p style="text-align: center; color: #dc2626; padding: 2rem;">❌ Please log in again to load orders</p>';
+                return;
+            }
+            
+            ordersList.innerHTML = '<p style="text-align: center; padding: 2rem;">⏳ Loading orders...</p>';
+            
+            // Update branch info in title
+            const branchInfo = document.getElementById('orders-branch-info');
+            if (branchInfo) {
+                branchInfo.textContent = `(📍 ${currentStaff.branch_name || currentStaff.branchName || 'Your Store'})`;
+            }
+            
+            try {
+                // Always filter by branch so staff only sees their own store's orders
+                let url = `/summit-gear/api/orders.php?branch_id=${branchId}`;
+                if (statusFilter && statusFilter !== 'all') {
+                    url += `&status=${statusFilter}`;
+                }
+                
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.success) {
+                    allOrders = result.data || [];
+                    
+                    // Filter by search term if provided
+                    let filteredOrders = allOrders;
+                    if (searchTerm) {
+                        filteredOrders = allOrders.filter(o => 
+                            o.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            (o.customer_name && o.customer_name.toLowerCase().includes(searchTerm.toLowerCase()))
+                        );
+                    }
+                    
+                    // Update stats
+                    updateOrderStats();
+                    
+                    // Render orders
+                    renderOrders(filteredOrders);
+                } else {
+                    ordersList.innerHTML = '<p style="text-align: center; color: #dc2626; padding: 2rem;">❌ Failed to load orders</p>';
+                }
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                ordersList.innerHTML = '<p style="text-align: center; color: #dc2626; padding: 2rem;">❌ Error loading orders</p>';
+            }
+        }
+        
+        function updateOrderStats() {
+            const pending = allOrders.filter(o => o.status === 'Pending').length;
+            const completed = allOrders.filter(o => o.status === 'Completed').length;
+            
+            // Calculate today's total
+            const today = new Date().toISOString().split('T')[0];
+            const todayTotal = allOrders
+                .filter(o => o.status === 'Completed' && o.order_date && o.order_date.startsWith(today))
+                .reduce((sum, o) => sum + parseFloat(o.final_amount || 0), 0);
+            
+            document.getElementById('pending-count').textContent = pending;
+            document.getElementById('completed-count').textContent = completed;
+            document.getElementById('today-total').textContent = '£' + todayTotal.toFixed(2);
+        }
+        
+        function renderOrders(orders) {
+            const ordersList = document.getElementById('orders-list');
+            
+            if (!orders || orders.length === 0) {
+                ordersList.innerHTML = '<p style="text-align: center; color: #666; padding: 2rem;">📋 No orders found</p>';
+                return;
+            }
+            
+            ordersList.innerHTML = `
+                <table class="data-table" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Customer</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orders.map(order => `
+                            <tr>
+                                <td><strong>${order.order_number}</strong></td>
+                                <td>${formatDateTime(order.order_date)}</td>
+                                <td>${order.customer_name || 'N/A'}</td>
+                                <td>£${parseFloat(order.final_amount).toFixed(2)}</td>
+                                <td>
+                                    <span class="status-badge ${order.status.toLowerCase()}" style="padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; ${getStatusStyle(order.status)}">
+                                        ${getStatusIcon(order.status)} ${order.status}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-small btn-secondary" onclick="viewOrderDetail(${order.order_id})">👁️ View</button>
+                                    ${order.status === 'Pending' ? `
+                                        <button class="btn btn-small btn-success" onclick="completeOrder(${order.order_id}, '${order.order_number}')" style="background: #10B981; color: white;">✅ Complete</button>
+                                        <button class="btn btn-small btn-danger" onclick="cancelOrder(${order.order_id}, '${order.order_number}')" style="background: #EF4444; color: white;">❌ Cancel</button>
+                                    ` : ''}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function getStatusIcon(status) {
+            const icons = { 'Pending': '⏳', 'Completed': '✅', 'Cancelled': '❌', 'Returned': '🔄' };
+            return icons[status] || '📋';
+        }
+        
+        function getStatusStyle(status) {
+            const styles = {
+                'Pending': 'background: #FEF3C7; color: #92400E;',
+                'Completed': 'background: #D1FAE5; color: #065F46;',
+                'Cancelled': 'background: #FEE2E2; color: #991B1B;',
+                'Returned': 'background: #E0E7FF; color: #4338CA;'
+            };
+            return styles[status] || 'background: #F3F4F6; color: #374151;';
+        }
+        
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + 
+                   ' ' + date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        }
+        
+        async function viewOrderDetail(orderId) {
+            try {
+                const response = await fetch(`/summit-gear/api/orders.php?id=${orderId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const order = result.data;
+                    const items = order.items || [];
+                    
+                    let itemsHtml = items.map(item => 
+                        `• ${item.product_name} x${item.quantity} = £${parseFloat(item.total_price).toFixed(2)}`
+                    ).join('\n');
+                    
+                    alert(`Order: ${order.order_number}
+═══════════════════════════
+Customer: ${order.customer_name}
+Date: ${formatDateTime(order.order_date)}
+Status: ${order.status}
+Payment: ${order.payment_status}
+
+Items:
+${itemsHtml || 'No items'}
+
+Subtotal: £${parseFloat(order.total_amount).toFixed(2)}
+Discount: -£${parseFloat(order.discount_amount).toFixed(2)}
+Total: £${parseFloat(order.final_amount).toFixed(2)}
+Points Earned: +${order.points_earned}
+${order.points_used > 0 ? `Points Used: -${order.points_used}` : ''}`);
+                }
+            } catch (error) {
+                console.error('Error viewing order:', error);
+                alert('Failed to load order details');
+            }
+        }
+        
+        async function completeOrder(orderId, orderNumber) {
+            const currentStaff = JSON.parse(localStorage.getItem('currentStaff') || '{}');
+            
+            if (!confirm(`Complete order ${orderNumber}?\n\nThis will:\n• Mark order as Completed\n• Assign sale to: ${currentStaff.name || 'You'}\n• Add points to customer account\n• Update customer spending total`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/summit-gear/api/orders.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: 'Completed',
+                        employee_id: currentStaff.employee_id  // Assign sale to current staff
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ Order ${orderNumber} completed successfully!\n\nSale assigned to: ${currentStaff.name}\nPoints have been added to customer account.`);
+                    loadOrders();
+                } else {
+                    alert('❌ Failed to complete order: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error completing order:', error);
+                alert('❌ Error completing order');
+            }
+        }
+        
+        async function cancelOrder(orderId, orderNumber) {
+            const reason = prompt(`Cancel order ${orderNumber}?\n\nPlease enter reason for cancellation:`);
+            if (!reason) return;
+            
+            try {
+                const response = await fetch('/summit-gear/api/orders.php', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: 'Cancelled'
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Order ${orderNumber} has been cancelled.`);
+                    loadOrders();
+                } else {
+                    alert('❌ Failed to cancel order: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error cancelling order:', error);
+                alert('❌ Error cancelling order');
+            }
+        }
+        
+        // Load orders when Orders tab is clicked
+        document.addEventListener('DOMContentLoaded', function() {
+            const ordersTab = document.querySelector('[data-tab="orders"]');
+            if (ordersTab) {
+                ordersTab.addEventListener('click', function() {
+                    loadOrders();
+                });
+            }
+        });
+    </script>
+</body>
+</html>

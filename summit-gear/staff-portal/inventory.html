@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management - Staff System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value.good { color: var(--success-color); }
+        .stat-value.warning { color: var(--warning-color); }
+        .stat-value.danger { color: var(--danger-color); }
+        
+        .stat-label { color: var(--text-secondary); }
+        
+        .search-filter-bar {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .filters {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+        }
+        
+        .filter-select {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            min-width: 150px;
+        }
+        
+        .inventory-table {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .low-stock-row { background: #FEF3C7; }
+        .out-of-stock-row { background: #FEE2E2; }
+        
+        .actions-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .stock-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        .stock-badge.good { background: #D1FAE5; color: #065F46; }
+        .stock-badge.low { background: #FEF3C7; color: #92400E; }
+        .stock-badge.out { background: #FEE2E2; color: #991B1B; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active { display: flex; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            box-sizing: border-box;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th, .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="branch-info">📍 Loading...</p>
+            </div>
+            <div class="nav-info">
+                <div class="staff-info">
+                    <span class="staff-name">👤 Loading...</span>
+                    <span class="datetime">📅 Today | 🕐 <span id="current-time">--:--</span></span>
+                </div>
+                <div class="nav-actions">
+                    <a href="index.html" class="btn btn-secondary btn-small">← Back to POS</a>
+                    <button class="btn-logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="inventory-header">
+                <div>
+                    <h1>📦 Inventory Management</h1>
+                    <p>Real-time inventory query and management</p>
+                </div>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-success" onclick="openStockInModal()" style="background: #10B981;">📥 Stock In</button>
+                    <button class="btn btn-secondary" onclick="requestStockTransfer()">🔄 Transfer</button>
+                    <button class="btn btn-primary" onclick="window.print()">🖨️ Print Report</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards - Loaded Dynamically -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value good">-</div>
+                    <div class="stat-label">In Stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value warning">-</div>
+                    <div class="stat-label">Low Stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value danger">-</div>
+                    <div class="stat-label">Out of Stock</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">-</div>
+                    <div class="stat-label">Total Value</div>
+                </div>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="search-filter-bar">
+                <div class="filters">
+                    <input type="text" class="search-input" placeholder="🔍 Search product name or ID..." id="searchInventory">
+                    <select class="filter-select" id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="Camping">Camping</option>
+                        <option value="Climbing">Climbing</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Footwear">Footwear</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Accessories">Accessories</option>
+                    </select>
+                    <select class="filter-select" id="stockFilter">
+                        <option value="">All Status</option>
+                        <option value="good">In Stock</option>
+                        <option value="low">Low Stock</option>
+                        <option value="out">Out of Stock</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="applyFilters()">Filter</button>
+                    <button class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Inventory Table -->
+            <div class="inventory-table">
+                <h2>📊 Inventory List</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Current Stock</th>
+                                <th>Reorder Level</th>
+                                <th>Status</th>
+                                <th>Price</th>
+                                <th>Other Branches</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <tr>
+                                <td colspan="9" style="text-align: center; color: #666; padding: 2rem;">
+                                    🔄 Loading inventory from database...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Stock Adjustment Modal -->
+    <div class="modal" id="adjustModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>📊 Adjust Stock</h2>
+                <button class="btn-close" onclick="closeModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            <div class="form-group">
+                <label>Product</label>
+                <input type="text" id="productName" readonly>
+            </div>
+            <div class="form-group">
+                <label>Current Stock</label>
+                <input type="number" id="currentStock" readonly>
+            </div>
+            <div class="form-group">
+                <label>Adjustment Quantity</label>
+                <input type="number" id="adjustment" placeholder="Positive to add, negative to deduct">
+            </div>
+            <div class="form-group">
+                <label>Reason *</label>
+                <input type="text" id="reason" placeholder="e.g., Stock count, Damaged, Return">
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="confirmAdjustment()" style="flex: 1;">💾 Confirm</button>
+                <button class="btn btn-secondary" onclick="closeModal()" style="flex: 1;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock In Modal -->
+    <div class="modal" id="stockInModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>📥 Stock In - Receive Goods</h2>
+                <button class="btn-close" onclick="closeStockInModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            </div>
+            
+            <form id="stockInForm" onsubmit="handleStockIn(event)">
+                <div class="form-group">
+                    <label>Product *</label>
+                    <select id="stockInProduct" required style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem;">
+                        <option value="">-- Select Product --</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Quantity *</label>
+                    <input type="number" id="stockInQty" required min="1" placeholder="Number of units to add" style="width: 100%;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Batch Number</label>
+                        <input type="text" id="batchNo" placeholder="Auto-generated" style="width: 100%;">
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="stockLocation" placeholder="e.g., A-01-01" style="width: 100%;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="stockInNotes" rows="2" placeholder="Optional notes" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 0.5rem; resize: none;"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1; background: #10B981;">
+                        📥 Confirm Stock In
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeStockInModal()" style="flex: 1;">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="successToast" style="display: none; position: fixed; top: 100px; right: 20px; background: #10B981; color: white; padding: 1rem 1.5rem; border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 10000;">
+        <strong>✅ Success!</strong> <span id="toastMessage"></span>
+    </div>
+
+    <script src="js/inventory.js?v=2"></script>
+    <script>
+        // Stock In Modal Functions
+        function openStockInModal() {
+            document.getElementById('stockInModal').classList.add('active');
+            
+            // Generate batch number
+            const today = new Date();
+            const batchNo = 'BSG_' + today.getFullYear() + 
+                           String(today.getMonth() + 1).padStart(2, '0') + 
+                           String(today.getDate()).padStart(2, '0') + '_' +
+                           String(today.getHours()).padStart(2, '0') +
+                           String(today.getMinutes()).padStart(2, '0');
+            document.getElementById('batchNo').value = batchNo;
+            
+            // Populate product dropdown from allStock
+            const productSelect = document.getElementById('stockInProduct');
+            productSelect.innerHTML = '<option value="">-- Select Product --</option>';
+            allStock.forEach(item => {
+                productSelect.innerHTML += `<option value="${item.product_id}">${item.product_name} (Current: ${item.current_stock})</option>`;
+            });
+        }
+
+        function closeStockInModal() {
+            document.getElementById('stockInModal').classList.remove('active');
+            document.getElementById('stockInForm').reset();
+        }
+
+        async function handleStockIn(event) {
+            event.preventDefault();
+
+            const productId = document.getElementById('stockInProduct').value;
+            const quantity = parseInt(document.getElementById('stockInQty').value);
+            const batchNo = document.getElementById('batchNo').value;
+
+            if (!productId || !quantity) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/summit-gear/api/stock.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'stock_in',
+                        product_id: parseInt(productId),
+                        branch_id: currentBranchId,
+                        quantity: quantity,
+                        batch_no: batchNo
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show success toast
+                    const toast = document.getElementById('successToast');
+                    document.getElementById('toastMessage').textContent = data.message;
+                    toast.style.display = 'block';
+
+                    // Close modal and refresh
+                    closeStockInModal();
+                    await loadInventoryStats();
+                    await loadInventory();
+
+                    // Hide toast after 3 seconds
+                    setTimeout(() => {
+                        toast.style.display = 'none';
+                    }, 3000);
+                } else {
+                    alert('Failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Stock in error:', error);
+                alert('Failed to add stock');
+            }
+        }
+    </script>
+</body>
+</html>

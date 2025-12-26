@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/products.css">
+    <style>
+        .product-detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            margin: 2rem 0;
+        }
+        
+        .product-gallery {
+            background: #F3F4F6;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .main-image {
+            font-size: 15rem;
+            margin-bottom: 1rem;
+        }
+        
+        .thumbnail-gallery {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .thumbnail:hover,
+        .thumbnail.active {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
+        }
+        
+        .product-info-section {
+            padding: 1rem 0;
+        }
+        
+        .product-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .product-rating-line {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rating-stars {
+            font-size: 1.25rem;
+        }
+        
+        .rating-count {
+            color: var(--text-secondary);
+        }
+        
+        .price-section {
+            background: #F3F4F6;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .current-price {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .original-price-line {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            font-size: 1.25rem;
+        }
+        
+        .discount-info {
+            color: var(--success-color);
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .stock-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .stock-info.in-stock {
+            color: var(--success-color);
+        }
+        
+        .stock-info.low-stock {
+            color: #f59e0b;
+        }
+        
+        .stock-info.out-of-stock {
+            color: #ef4444;
+        }
+        
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .quantity-btn {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quantity-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        .quantity-input {
+            width: 60px;
+            text-align: center;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            flex: 1;
+        }
+        
+        .product-features {
+            background: #FEF3C7;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .feature-list li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .product-tabs {
+            margin-top: 3rem;
+        }
+        
+        .tabs-nav {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+        
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover,
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .description-section {
+            line-height: 1.8;
+        }
+        
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .specs-table tr {
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .specs-table td {
+            padding: 1rem;
+        }
+        
+        .specs-table td:first-child {
+            font-weight: 600;
+            width: 200px;
+        }
+        
+        .review-item {
+            padding: 1.5rem;
+            background: #F3F4F6;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .review-item.user-review {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 2px solid #10b981;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .reviewer-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .verified-badge {
+            background: #10b981;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .review-date {
+            color: var(--text-secondary);
+        }
+        
+        .review-text {
+            margin-top: 1rem;
+            line-height: 1.6;
+        }
+        
+        /* Review Stats */
+        .review-stats {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .rating-overview {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .average-rating {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .big-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stars-text .stars {
+            color: #fbbf24;
+            font-size: 1.5rem;
+            display: block;
+        }
+        
+        .review-count {
+            color: #6B7280;
+            font-size: 0.9rem;
+        }
+        
+        /* Review Form */
+        .review-form {
+            background: #f9fafb;
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .review-form .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .review-form label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .review-form input[type="text"],
+        .review-form textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        
+        .review-form input[type="text"]:focus,
+        .review-form textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+        
+        .review-form textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .char-count {
+            display: block;
+            text-align: right;
+            color: #9ca3af;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Star Rating Input */
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 2rem;
+        }
+        
+        .star-rating .star {
+            cursor: pointer;
+            color: #d1d5db;
+            transition: color 0.2s, transform 0.2s;
+        }
+        
+        .star-rating .star:hover,
+        .star-rating .star.hover {
+            color: #fbbf24;
+            transform: scale(1.1);
+        }
+        
+        .star-rating .star.selected {
+            color: #fbbf24;
+        }
+        
+        /* Delete Review Button */
+        .btn-delete-review {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0.25rem 0.5rem;
+            margin-left: 0.5rem;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        
+        .btn-delete-review:hover {
+            opacity: 1;
+        }
+        
+        .review-date {
+            display: flex;
+            align-items: center;
+        }
+        
+        .related-products {
+            margin-top: 4rem;
+        }
+        
+        @media (max-width: 768px) {
+            .product-detail-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-image {
+                font-size: 8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html" class="active">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">0</span></a>
+            </div>
+            <div class="user-info">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <a href="index.html">Home</a> > 
+            <a href="products.html">Products</a> > 
+            <span id="breadcrumb-category">Loading...</span> > 
+            <span id="breadcrumb-product">Loading...</span>
+        </div>
+
+        <!-- 产品详情布局 -->
+        <div class="product-detail-layout">
+            <!-- 产品图片画廊 -->
+            <div class="product-gallery">
+                <div class="main-image" id="mainImage">⏳</div>
+                <div class="thumbnail-gallery">
+                    <div class="thumbnail active">⏳</div>
+                </div>
+            </div>
+
+            <!-- 产品信息 -->
+            <div class="product-info-section">
+                <h1 class="product-title" id="productName">Loading Product...</h1>
+                
+                <!-- 评分和评论 -->
+                <div class="product-rating-line">
+                    <div class="rating-stars">⭐⭐⭐⭐⭐</div>
+                    <span class="rating-count">(-- Reviews)</span>
+                    <span style="color: var(--text-secondary)">SKU: ---</span>
+                </div>
+
+                <!-- 价格信息 -->
+                <div class="price-section">
+                    <div class="current-price" id="currentPrice">£---.--</div>
+                    <div class="original-price-line">Loading price...</div>
+                    <div class="discount-info">Loading discount info...</div>
+                </div>
+
+                <!-- 库存状态 -->
+                <div class="stock-info">
+                    ⏳ Checking stock...
+                </div>
+
+                <!-- 数量选择 -->
+                <div class="quantity-selector">
+                    <strong>Quantity:</strong>
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                        <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="99">
+                        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="action-buttons">
+                    <button class="btn btn-primary btn-large" onclick="addToCartDetail()">
+                        🛒 Add to Cart
+                    </button>
+                </div>
+
+                <!-- 产品特点 -->
+                <div class="product-features">
+                    <h3>✨ Product Features</h3>
+                    <ul class="feature-list">
+                        <li>Loading features...</li>
+                    </ul>
+                </div>
+
+                <!-- 配送和退货信息 -->
+                <div class="shipping-info">
+                    <p>🚚 <strong>Free Delivery</strong> - On orders over £50</p>
+                    <p>🔄 <strong>30-Day Returns</strong> - Hassle-free if not satisfied</p>
+                    <p>📦 <strong>Click & Collect</strong> - Save on delivery costs</p>
+                    <p>💳 <strong>Payment Plans</strong> - 3 interest-free installments available</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 产品详情标签页 -->
+        <div class="product-tabs">
+            <div class="tabs-nav">
+                <button class="tab-btn active" onclick="showTab('description')">Description</button>
+                <button class="tab-btn" onclick="showTab('specs')">Specifications</button>
+                <button class="tab-btn" onclick="showTab('reviews')">Reviews</button>
+            </div>
+
+            <!-- 产品描述 - 将由JS动态填充 -->
+            <div id="description" class="tab-content active">
+                <div class="description-section">
+                    <p>Loading product description...</p>
+                </div>
+            </div>
+
+            <!-- 规格参数 - 将由JS动态填充 -->
+            <div id="specs" class="tab-content">
+                <h2>Specifications</h2>
+                <p>Loading specifications...</p>
+            </div>
+
+            <!-- 用户评论 -->
+            <div id="reviews" class="tab-content">
+                <h2 id="reviewsTitle">Customer Reviews (--)</h2>
+                
+                <!-- 评价统计 -->
+                <div class="review-stats" id="reviewStats" style="display: none;">
+                    <div class="rating-overview">
+                        <div class="average-rating">
+                            <span class="big-number" id="avgRating">0</span>
+                            <div class="stars-text">
+                                <span class="stars" id="avgStars">☆☆☆☆☆</span>
+                                <span class="review-count" id="totalReviewCount">0 reviews</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 写评价按钮/表单 -->
+                <div class="write-review-section" style="margin: 2rem 0;">
+                    <button id="writeReviewBtn" class="btn btn-primary" onclick="toggleReviewForm()">
+                        ✍️ Write a Review
+                    </button>
+                    
+                    <div id="reviewFormContainer" style="display: none; margin-top: 1rem;">
+                        <form id="reviewForm" class="review-form">
+                            <div class="form-group">
+                                <label>Your Rating *</label>
+                                <div class="star-rating" id="starRating">
+                                    <span class="star" data-rating="1">☆</span>
+                                    <span class="star" data-rating="2">☆</span>
+                                    <span class="star" data-rating="3">☆</span>
+                                    <span class="star" data-rating="4">☆</span>
+                                    <span class="star" data-rating="5">☆</span>
+                                </div>
+                                <input type="hidden" id="reviewRating" name="rating" value="0">
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewTitle">Review Title *</label>
+                                <input type="text" id="reviewTitle" name="title" placeholder="Sum up your review in a headline" required maxlength="200">
+                            </div>
+                            <div class="form-group">
+                                <label for="reviewContent">Your Review *</label>
+                                <textarea id="reviewContent" name="content" rows="5" placeholder="What did you like or dislike? How did you use this product?" required minlength="20" maxlength="2000"></textarea>
+                                <small class="char-count"><span id="charCount">0</span>/2000 characters</small>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Submit Review</button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleReviewForm()">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <div id="reviewsContainer">
+                    <p>Loading reviews...</p>
+                </div>
+                <button id="viewMoreReviewsBtn" class="btn btn-secondary" style="margin-top: 1rem; display: none;" onclick="loadMoreReviews()">View More Reviews</button>
+            </div>
+        </div>
+
+        <!-- 相关产品推荐 - 将由JS动态填充 -->
+        <section class="related-products">
+            <h2>🎯 Related Products</h2>
+            <div class="product-grid">
+                <div style="grid-column: 1/-1; text-align: center; padding: 2rem;">
+                    <p>⏳ Loading related products...</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">Company Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Returns Policy</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Member Center</h3>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="account.html#orders">Order History</a></li>
+                        <li><a href="account.html#points">Points Management</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p>📧 info@summitgear.co.uk</p>
+                    <p>📞 0131 123 4567</p>
+                    <p>📍 Edinburgh, Scotland</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/shared.js?v=8"></script>
+    <script src="js/product-detail.js?v=11"></script>
+</body>
+</html>

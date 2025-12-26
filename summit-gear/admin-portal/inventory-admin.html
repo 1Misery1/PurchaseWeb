@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Admin - Summit Gear</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #10b981; --primary-dark: #059669; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f3f4f6; }
+        
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.25rem; }
+        .header-right { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; }
+        .btn-logout { background: #dc2626; color: white; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; padding: 1.25rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid var(--primary); }
+        .stat-card .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; }
+        .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #1f2937; }
+        .stat-card .sub { font-size: 0.75rem; color: #6b7280; }
+        .stat-card.warning { border-color: var(--warning); }
+        .stat-card.danger { border-color: var(--danger); }
+        
+        .tabs { display: flex; background: white; border-radius: 0.75rem 0.75rem 0 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-btn { flex: 1; padding: 1rem; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; color: #6b7280; white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #ecfdf5; }
+        .tab-btn .badge { background: var(--danger); color: white; padding: 0.125rem 0.5rem; border-radius: 1rem; font-size: 0.7rem; }
+        
+        .tab-content { display: none; background: white; padding: 1.5rem; border-radius: 0 0 0.75rem 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6; }
+        .section-header h2 { font-size: 1.1rem; color: #1f2937; }
+        
+        .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .filters select, .filters input { padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; }
+        .filters input { flex: 1; min-width: 200px; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f9fafb; }
+        th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: #374151; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 0.75rem 1rem; border-top: 1px solid #e5e7eb; font-size: 0.9rem; }
+        tbody tr:hover { background: #f9fafb; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #ede9fe; color: #5b21b6; }
+        
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #e5e7eb; color: #374151; }
+        .btn-warning { background: var(--warning); color: white; }
+        
+        .loading { text-align: center; padding: 3rem; color: #6b7280; }
+        .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+        .alert-warning { background: #fef3c7; color: #92400e; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-info { background: #dbeafe; color: #1e40af; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 1rem; padding: 1.5rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-header h3 { font-size: 1.1rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.625rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.9rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .urgency-critical { background: #fee2e2 !important; }
+        .urgency-high { background: #fef3c7 !important; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>📦 Inventory Admin Dashboard</h1>
+        <div class="header-right">
+            <span id="adminName">Loading...</span>
+            <button class="btn btn-back" onclick="location.href='index.html'">← Back</button>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="label">📦 Total Products</div><div class="value" id="totalProducts">0</div><div class="sub">Active SKUs</div></div>
+            <div class="stat-card warning"><div class="label">⚠️ Low Stock</div><div class="value" id="lowStockCount">0</div><div class="sub">Need restocking</div></div>
+            <div class="stat-card danger"><div class="label">❌ Out of Stock</div><div class="value" id="outOfStock">0</div><div class="sub">Critical</div></div>
+            <div class="stat-card"><div class="label">📋 Pending Requests</div><div class="value" id="pendingRequests">0</div><div class="sub">Awaiting supplier</div></div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="stock">📊 Stock Levels</button>
+            <button class="tab-btn" data-tab="lowstock">⚠️ Low Stock <span class="badge" id="lowStockBadge">0</span></button>
+            <button class="tab-btn" data-tab="requests">📋 Stock Requests <span class="badge" id="requestsBadge">0</span></button>
+        </div>
+
+        <!-- Stock Levels Tab -->
+        <div class="tab-content active" id="tab-stock">
+            <div class="section-header">
+                <h2>📊 Current Stock Levels</h2>
+                <button class="btn btn-primary" onclick="loadProducts()">🔄 Refresh</button>
+            </div>
+            <div class="filters">
+                <select id="categoryFilter" onchange="filterProducts()"><option value="">All Categories</option></select>
+                <select id="stockFilter" onchange="filterProducts()">
+                    <option value="">All Stock Levels</option>
+                    <option value="low">⚠️ Low Stock (≤10)</option>
+                    <option value="out">❌ Out of Stock</option>
+                    <option value="ok">✅ In Stock (>10)</option>
+                </select>
+                <input type="text" id="productSearch" placeholder="Search products..." onkeyup="filterProducts()">
+            </div>
+            <div id="productsTable"><p class="loading">Loading...</p></div>
+        </div>
+
+        <!-- Low Stock Tab -->
+        <div class="tab-content" id="tab-lowstock">
+            <div class="section-header">
+                <h2>⚠️ Low Stock Alerts</h2>
+                <button class="btn btn-primary" onclick="loadLowStock()">🔄 Refresh</button>
+            </div>
+            <div class="alert alert-warning">Products with 10 or fewer units in stock. Create stock requests to notify suppliers.</div>
+            <div id="lowStockTable"><p class="loading">Loading...</p></div>
+        </div>
+
+        <!-- Stock Requests Tab -->
+        <div class="tab-content" id="tab-requests">
+            <div class="section-header">
+                <h2>📋 Stock Requests to Suppliers</h2>
+                <button class="btn btn-primary" onclick="loadStockRequests()">🔄 Refresh</button>
+            </div>
+            <p style="color:#6b7280; margin-bottom:1rem;">Track requests sent to suppliers. They can see and respond to these requests.</p>
+            <div id="requestsTable"><p class="loading">Loading...</p></div>
+        </div>
+    </div>
+
+    <!-- Stock Request Modal -->
+    <div class="modal" id="requestModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📋 Create Stock Request</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="requestForm" onsubmit="submitStockRequest(event)">
+                <input type="hidden" id="requestProductId">
+                <div class="form-group">
+                    <label>Product</label>
+                    <input type="text" id="requestProductName" readonly style="background:#f3f4f6;">
+                </div>
+                <div class="form-group">
+                    <label>Current Stock</label>
+                    <input type="text" id="requestCurrentStock" readonly style="background:#f3f4f6;">
+                </div>
+                <div class="form-group">
+                    <label>Supplier</label>
+                    <input type="text" id="requestSupplier" readonly style="background:#f3f4f6;">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Quantity Needed *</label>
+                        <input type="number" id="requestQuantity" required min="1" placeholder="e.g., 50">
+                    </div>
+                    <div class="form-group">
+                        <label>Urgency *</label>
+                        <select id="requestUrgency" required>
+                            <option value="Low">🟢 Low</option>
+                            <option value="Medium" selected>🟡 Medium</option>
+                            <option value="High">🟠 High</option>
+                            <option value="Critical">🔴 Critical</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Branch *</label>
+                    <select id="requestBranch" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="requestNotes" placeholder="Additional notes for supplier..."></textarea>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send to Supplier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+        let allProducts = [];
+        let currentAdmin = null;
+        let branches = [];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || 'null');
+            if (!currentAdmin || localStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('adminName').textContent = currentAdmin.name;
+            setupTabs();
+            loadBranches();
+            loadDashboard();
+            loadProducts();
+        });
+
+        function logout() { if(confirm('Logout?')) { localStorage.clear(); window.location.href = '../index.html'; } }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                    
+                    switch(this.dataset.tab) {
+                        case 'stock': loadProducts(); break;
+                        case 'lowstock': loadLowStock(); break;
+                        case 'requests': loadStockRequests(); break;
+                    }
+                });
+            });
+        }
+
+        function closeModal() { document.getElementById('requestModal').classList.remove('active'); }
+
+        async function loadBranches() {
+            try {
+                const res = await fetch(`${API_BASE}/branches.php`);
+                const data = await res.json();
+                
+                // Handle both array response and {success, data} response formats
+                if (Array.isArray(data)) {
+                    branches = data;
+                } else if (data.success && data.data) {
+                    branches = data.data;
+                } else {
+                    branches = [];
+                }
+                
+                document.getElementById('requestBranch').innerHTML = branches.map(b => 
+                    `<option value="${b.branch_id}">${b.branch_name}</option>`
+                ).join('');
+            } catch(e) { console.error('Failed to load branches:', e); }
+        }
+
+        async function loadDashboard() {
+            try {
+                // Get branch-specific stats
+                const branchId = currentAdmin?.branch_id || '';
+                
+                // Total products (same across all branches)
+                const res = await fetch(`${API_BASE}/admin.php?action=dashboard`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('totalProducts').textContent = data.data.total_products;
+                }
+                
+                // Count out of stock and low stock for this branch
+                const prodRes = await fetch(`${API_BASE}/admin.php?action=products&branch_id=${branchId}`);
+                const prodData = await prodRes.json();
+                if (prodData.success) {
+                    // Convert stock_quantity to number for comparison
+                    const outOfStock = prodData.data.filter(p => parseInt(p.stock_quantity) === 0).length;
+                    const lowStock = prodData.data.filter(p => parseInt(p.stock_quantity) > 0 && parseInt(p.stock_quantity) <= 10).length;
+                    document.getElementById('outOfStock').textContent = outOfStock;
+                    document.getElementById('lowStockCount').textContent = lowStock;
+                    document.getElementById('lowStockBadge').textContent = lowStock + outOfStock;  // Badge shows total alerts
+                }
+                
+                // Count pending requests for this branch
+                const reqRes = await fetch(`${API_BASE}/stock-requests.php?status=Pending&branch_id=${branchId}`);
+                const reqData = await reqRes.json();
+                if (reqData.success) {
+                    document.getElementById('pendingRequests').textContent = reqData.count;
+                    document.getElementById('requestsBadge').textContent = reqData.count;
+                }
+            } catch(e) { console.error('Dashboard error:', e); }
+        }
+
+        // =====================================================
+        // Products / Stock (filtered by branch)
+        // =====================================================
+        async function loadProducts() {
+            const container = document.getElementById('productsTable');
+            container.innerHTML = '<p class="loading">Loading...</p>';
+            try {
+                // Filter by current admin's branch
+                const branchId = currentAdmin?.branch_id || '';
+                const res = await fetch(`${API_BASE}/admin.php?action=products&branch_id=${branchId}`);
+                const data = await res.json();
+                if (data.success) {
+                    allProducts = data.data;
+                    
+                    const categories = [...new Set(allProducts.map(p => p.category))].sort();
+                    document.getElementById('categoryFilter').innerHTML = '<option value="">All Categories</option>' + 
+                        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+                    
+                    renderProducts(allProducts);
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load products</div>'; }
+        }
+
+        function filterProducts() {
+            const category = document.getElementById('categoryFilter').value;
+            const stockLevel = document.getElementById('stockFilter').value;
+            const search = document.getElementById('productSearch').value.toLowerCase();
+            
+            let filtered = allProducts;
+            if (category) filtered = filtered.filter(p => p.category === category);
+            if (stockLevel === 'low') filtered = filtered.filter(p => parseInt(p.stock_quantity) > 0 && parseInt(p.stock_quantity) <= 10);
+            if (stockLevel === 'out') filtered = filtered.filter(p => parseInt(p.stock_quantity) === 0);
+            if (stockLevel === 'ok') filtered = filtered.filter(p => parseInt(p.stock_quantity) > 10);
+            if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || p.sku.toLowerCase().includes(search));
+            
+            renderProducts(filtered);
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsTable');
+            if (!products.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No products found</p></div>';
+                return;
+            }
+            
+            container.innerHTML = `<table>
+                <thead><tr><th>SKU</th><th>Product</th><th>Category</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody>${products.map(p => {
+                    const qty = parseInt(p.stock_quantity);
+                    const stockClass = qty > 10 ? 'success' : qty > 0 ? 'warning' : 'danger';
+                    const rowClass = qty === 0 ? 'urgency-critical' : qty <= 5 ? 'urgency-high' : '';
+                    return `<tr class="${rowClass}">
+                        <td><code>${p.sku}</code></td>
+                        <td><strong>${p.name}</strong><br><small>${p.brand} • ${p.supplier_name || 'No supplier'}</small></td>
+                        <td>${p.category}</td>
+                        <td><span class="badge badge-${stockClass}">${qty} units</span></td>
+                        <td><span class="badge badge-${p.status === 'Active' ? 'success' : 'danger'}">${p.status}</span></td>
+                        <td>
+                            ${qty <= 10 ? `<button class="btn btn-warning btn-sm" onclick="openRequestModal(${p.product_id})">📋 Request Stock</button>` : '—'}
+                        </td>
+                    </tr>`
+                }).join('')}</tbody>
+            </table>`;
+        }
+
+        // =====================================================
+        // Low Stock (filtered by branch)
+        // =====================================================
+        async function loadLowStock() {
+            const container = document.getElementById('lowStockTable');
+            container.innerHTML = '<p class="loading">Loading...</p>';
+            try {
+                // Filter by current admin's branch
+                const branchId = currentAdmin?.branch_id || '';
+                const res = await fetch(`${API_BASE}/admin.php?action=low-stock&branch_id=${branchId}`);
+                const data = await res.json();
+                if (data.success && data.data.length) {
+                    container.innerHTML = `<table>
+                        <thead><tr><th>SKU</th><th>Product</th><th>Current Stock</th><th>Supplier</th><th>Action</th></tr></thead>
+                        <tbody>${data.data.map(p => `<tr class="${p.stock_quantity === 0 ? 'urgency-critical' : ''}">
+                            <td><code>${p.sku}</code></td>
+                            <td><strong>${p.name}</strong><br><small>${p.brand}</small></td>
+                            <td><span class="badge badge-${p.stock_quantity === 0 ? 'danger' : 'warning'}">${p.stock_quantity} units</span></td>
+                            <td>${p.supplier_name || 'No supplier'}</td>
+                            <td><button class="btn btn-warning btn-sm" onclick="openRequestModal(${p.product_id})">📋 Request Stock</button></td>
+                        </tr>`).join('')}</tbody>
+                    </table>`;
+                } else {
+                    container.innerHTML = '<div class="alert alert-success">✅ All products have sufficient stock!</div>';
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load</div>'; }
+        }
+
+        // =====================================================
+        // Stock Requests
+        // =====================================================
+        async function openRequestModal(productId) {
+            const product = allProducts.find(p => p.product_id == productId);
+            if (!product) return;
+            
+            document.getElementById('requestProductId').value = productId;
+            document.getElementById('requestProductName').value = product.name + ' (' + product.sku + ')';
+            document.getElementById('requestCurrentStock').value = product.stock_quantity + ' units';
+            document.getElementById('requestSupplier').value = product.supplier_name || 'No supplier assigned';
+            document.getElementById('requestQuantity').value = '';
+            document.getElementById('requestUrgency').value = product.stock_quantity === 0 ? 'Critical' : product.stock_quantity <= 5 ? 'High' : 'Medium';
+            document.getElementById('requestNotes').value = '';
+            
+            document.getElementById('requestModal').classList.add('active');
+        }
+
+        async function submitStockRequest(e) {
+            e.preventDefault();
+            
+            const data = {
+                product_id: document.getElementById('requestProductId').value,
+                branch_id: document.getElementById('requestBranch').value,
+                requested_quantity: document.getElementById('requestQuantity').value,
+                urgency: document.getElementById('requestUrgency').value,
+                notes: document.getElementById('requestNotes').value,
+                requested_by: currentAdmin.employee_id
+            };
+            
+            try {
+                const res = await fetch(`${API_BASE}/stock-requests.php`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    closeModal();
+                    alert('✅ Stock request sent to supplier!');
+                    loadDashboard();
+                    loadStockRequests();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch(e) { alert('Failed to create request'); }
+        }
+
+        async function loadStockRequests() {
+            const container = document.getElementById('requestsTable');
+            container.innerHTML = '<p class="loading">Loading...</p>';
+            try {
+                // Filter by current admin's branch
+                const branchId = currentAdmin?.branch_id || '';
+                const res = await fetch(`${API_BASE}/stock-requests.php?branch_id=${branchId}`);
+                const data = await res.json();
+                if (data.success && data.data.length) {
+                    const urgencyBadge = u => {
+                        const map = { 'Critical': 'danger', 'High': 'warning', 'Medium': 'info', 'Low': 'success' };
+                        return `<span class="badge badge-${map[u]}">${u}</span>`;
+                    };
+                    const statusBadge = s => {
+                        const map = { 
+                            'Pending': { class: 'warning', label: '⏳ Pending' },
+                            'In Transit': { class: 'info', label: '🚚 In Transit' },
+                            'Completed': { class: 'success', label: '✓ Completed' },
+                            'Cancelled': { class: 'danger', label: '✗ Cancelled' }
+                        };
+                        const style = map[s] || { class: 'info', label: s };
+                        return `<span class="badge badge-${style.class}">${style.label}</span>`;
+                    };
+                    
+                    const getActions = r => {
+                        if (r.status === 'Pending') {
+                            return `<button class="btn btn-danger btn-sm" onclick="cancelRequest(${r.request_id})">Cancel</button>`;
+                        } else if (r.status === 'In Transit') {
+                            return `<button class="btn btn-success btn-sm" onclick="confirmReceipt(${r.request_id}, ${r.product_id}, ${r.requested_quantity})">✓ Confirm Receipt</button>`;
+                        } else if (r.status === 'Completed' && r.payment_status === 'Unpaid') {
+                            return `<button class="btn btn-primary btn-sm" onclick="payRequest(${r.request_id}, ${parseFloat(r.total_amount).toFixed(2)})">💳 Pay £${parseFloat(r.total_amount).toFixed(2)}</button>`;
+                        } else if (r.status === 'Completed' && r.payment_status === 'Paid') {
+                            return `<span style="color:#10b981;">✓ Paid</span>`;
+                        }
+                        return '—';
+                    };
+                    
+                    const paymentBadge = r => {
+                        if (r.status !== 'Completed') return '';
+                        return r.payment_status === 'Paid' 
+                            ? '<span class="badge badge-success">💳 Paid</span>' 
+                            : '<span class="badge badge-warning">💳 Unpaid</span>';
+                    };
+                    
+                    container.innerHTML = `<table>
+                        <thead><tr><th>Product</th><th>Supplier</th><th>Qty / Amount</th><th>Urgency</th><th>Status</th><th>Payment</th><th>Actions</th></tr></thead>
+                        <tbody>${data.data.map(r => `<tr class="${r.urgency === 'Critical' ? 'urgency-critical' : r.urgency === 'High' ? 'urgency-high' : ''}">
+                            <td><strong>${r.product_name}</strong><br><small>${r.sku}</small></td>
+                            <td>${r.supplier_name}</td>
+                            <td><strong>${r.requested_quantity}</strong> units<br><small>£${parseFloat(r.total_amount || 0).toFixed(2)}</small></td>
+                            <td>${urgencyBadge(r.urgency)}</td>
+                            <td>${statusBadge(r.status)}</td>
+                            <td>${paymentBadge(r)}</td>
+                            <td>${getActions(r)}</td>
+                        </tr>`).join('')}</tbody>
+                    </table>`;
+                } else {
+                    container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No stock requests yet. Create requests from the Stock Levels or Low Stock tabs.</p></div>';
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-info">Stock request system not yet initialized. Run database update first.</div>'; }
+        }
+
+        async function cancelRequest(id) {
+            if (!confirm('Cancel this stock request?')) return;
+            try {
+                await fetch(`${API_BASE}/stock-requests.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ request_id: id, status: 'Cancelled' })
+                });
+                loadStockRequests();
+                loadDashboard();
+            } catch(e) { alert('Failed to cancel request'); }
+        }
+        
+        async function payRequest(requestId, amount) {
+            if (!confirm(`Confirm payment of £${amount} to supplier for this stock request?`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/stock-requests.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        request_id: requestId, 
+                        payment_status: 'Paid'
+                    })
+                });
+                
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert(`✅ Payment of £${amount} completed successfully!`);
+                    loadStockRequests();
+                } else {
+                    alert('Error: ' + (result.message || 'Payment failed'));
+                }
+            } catch(e) { 
+                console.error(e);
+                alert('Failed to process payment'); 
+            }
+        }
+        
+        async function confirmReceipt(requestId, productId, quantity) {
+            if (!confirm(`Confirm receipt of ${quantity} units?\n\nThis will add ${quantity} units to your store's inventory and mark the request as complete.`)) return;
+            
+            try {
+                // Step 1: Update stock request status to Completed
+                const statusRes = await fetch(`${API_BASE}/stock-requests.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        request_id: requestId, 
+                        status: 'Completed',
+                        // Also pass stock update info
+                        update_stock: true,
+                        product_id: productId,
+                        branch_id: currentAdmin.branch_id,
+                        quantity: quantity
+                    })
+                });
+                
+                const result = await statusRes.json();
+                
+                if (result.success) {
+                    alert(`✅ Stock received!\n\n${quantity} units have been added to your store's inventory.`);
+                    loadStockRequests();
+                    loadDashboard();
+                    loadProducts();
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to confirm receipt'));
+                }
+            } catch(e) { 
+                console.error(e);
+                alert('Failed to confirm receipt'); 
+            }
+        }
+    </script>
+</body>
+</html>

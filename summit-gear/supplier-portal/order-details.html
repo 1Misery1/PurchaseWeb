@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Details - Supplier Portal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .order-detail-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .order-number {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .order-status.pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .order-status.confirmed {
+            background: #DBEAFE;
+            color: #1E40AF;
+        }
+        
+        .order-status.shipped {
+            background: #E0E7FF;
+            color: #4338CA;
+        }
+        
+        .order-status.received {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        
+        .order-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .info-item {
+            padding: 1rem;
+            background: #F3F4F6;
+            border-radius: 0.5rem;
+        }
+        
+        .info-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .items-table {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .shipping-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        
+        .action-buttons {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 4rem;
+        }
+        
+        .error-state {
+            text-align: center;
+            padding: 4rem;
+            color: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Supplier Portal</p>
+            </div>
+            <div class="supplier-info">
+                <div class="supplier-details">
+                    <span class="company-name">🏢 Loading...</span>
+                    <span class="contact-person">Contact: Loading...</span>
+                </div>
+                <div class="nav-actions">
+                    <a href="index.html" class="notification-btn">📊 Dashboard</a>
+                    <button class="btn-logout" onclick="handleLogout()">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <!-- 左侧导航菜单 -->
+        <aside class="sidebar">
+            <nav class="sidebar-menu">
+                <a href="index.html" class="menu-item">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="index.html#orders" class="menu-item active">
+                        <span class="icon">📋</span>
+                    <span>Purchase Orders</span>
+                    </a>
+
+                    <a href="products.html" class="menu-item">
+                        <span class="icon">📦</span>
+                    <span>Product Catalog</span>
+                    </a>
+
+                <a href="index.html#payments" class="menu-item">
+                    <span class="icon">💰</span>
+                    <span>Payments</span>
+                </a>
+
+                <a href="index.html#reports" class="menu-item">
+                    <span class="icon">📊</span>
+                    <span>Reports</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区域 -->
+        <main class="content-area">
+            <!-- 面包屑 -->
+            <div class="breadcrumb">
+                <a href="index.html">Dashboard</a> > 
+                <a href="index.html#orders">Purchase Orders</a> > 
+                <span id="breadcrumbOrderNo">Loading...</span>
+            </div>
+
+            <!-- 内容区 - 动态加载 -->
+            <div id="orderContent">
+                <div class="loading-state">
+                    <p style="font-size: 3rem;">⏳</p>
+                    <p>Loading order details...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+        let currentSupplier = null;
+        let currentOrder = null;
+
+        // =====================================================
+        // Initialization
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            const supplierData = localStorage.getItem('currentSupplier');
+            if (!supplierData) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentSupplier = JSON.parse(supplierData);
+            updateNavSupplierInfo();
+            
+            // Get order ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const poId = urlParams.get('id');
+            
+            if (!poId) {
+                showError('No order ID provided');
+                return;
+            }
+            
+            // Load order details
+            await loadOrderDetails(poId);
+        });
+
+        function updateNavSupplierInfo() {
+            const companyName = document.querySelector('.company-name');
+            const contactPerson = document.querySelector('.contact-person');
+            
+            if (companyName) companyName.textContent = '🏢 ' + currentSupplier.name;
+            if (contactPerson) contactPerson.textContent = 'Contact: ' + currentSupplier.contact_person;
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('currentSupplier');
+                localStorage.removeItem('supplierId');
+                window.location.href = '../index.html';
+            }
+        }
+
+        // =====================================================
+        // Load Order Details
+        // =====================================================
+        async function loadOrderDetails(poId) {
+            try {
+                const response = await fetch(`${API_BASE}/purchase-orders.php?id=${poId}`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    currentOrder = result.data;
+                    
+                    // Verify this order belongs to current supplier
+                    if (currentOrder.supplier_id != currentSupplier.supplier_id) {
+                        showError('You do not have permission to view this order');
+                        return;
+                    }
+                    
+                    renderOrderDetails();
+                } else {
+                    showError('Order not found');
+                }
+            } catch (error) {
+                console.error('Error loading order:', error);
+                showError('Failed to load order details');
+            }
+        }
+
+        function showError(message) {
+            document.getElementById('orderContent').innerHTML = `
+                <div class="error-state">
+                    <p style="font-size: 3rem;">❌</p>
+                    <p>${message}</p>
+                    <a href="index.html#orders" class="btn btn-primary" style="margin-top: 1rem;">← Back to Orders</a>
+                </div>
+            `;
+        }
+
+        // =====================================================
+        // Render Order Details
+        // =====================================================
+        function renderOrderDetails() {
+            const order = currentOrder;
+            document.getElementById('breadcrumbOrderNo').textContent = order.po_number;
+            document.title = `${order.po_number} - Supplier Portal`;
+            
+            const statusClass = order.status.toLowerCase();
+            const statusIcon = { 'Pending': '⏳', 'Confirmed': '✔️', 'Shipped': '🚚', 'Received': '✅' }[order.status] || '📋';
+            const paymentIcon = order.payment_status === 'Paid' ? '✅' : '⏳';
+            
+            let html = `
+            <!-- 订单详情头部 -->
+            <div class="order-detail-header">
+                    <div class="order-number">📋 Purchase Order #${order.po_number}</div>
+                    <div class="order-status ${statusClass}">${statusIcon} ${order.status}</div>
+                
+                <div class="order-info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Order Date</div>
+                            <div class="info-value">${formatDate(order.order_date)}</div>
+                    </div>
+                    <div class="info-item">
+                            <div class="info-label">Expected Delivery</div>
+                            <div class="info-value">${formatDate(order.expected_date)}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Order Amount</div>
+                            <div class="info-value">£${parseFloat(order.total_amount).toFixed(2)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Payment Status</div>
+                            <div class="info-value">${paymentIcon} ${order.payment_status}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Delivery Branch</div>
+                            <div class="info-value">${order.branch_name || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Ordered By</div>
+                            <div class="info-value">${order.ordered_by || 'N/A'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单商品列表 -->
+            <div class="items-table">
+                    <h2>📦 Order Items</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                    <th>SKU</th>
+                                    <th>Product Name</th>
+                                    <th>Brand</th>
+                                    <th>Unit Price</th>
+                                    <th>Quantity</th>
+                                    <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                ${(order.items || []).map(item => `
+                            <tr>
+                                        <td>${item.sku || 'N/A'}</td>
+                                        <td>${item.product_name}</td>
+                                        <td>${item.brand || 'N/A'}</td>
+                                        <td>£${parseFloat(item.unit_price).toFixed(2)}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>£${parseFloat(item.total_price).toFixed(2)}</td>
+                            </tr>
+                                `).join('')}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                    <td colspan="5" style="text-align: right; font-weight: bold;">Total:</td>
+                                    <td style="font-weight: bold; color: var(--primary-color);">£${parseFloat(order.total_amount).toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            `;
+            
+            // Add shipping form if order is Confirmed
+            if (order.status === 'Confirmed') {
+                html += `
+                    <div class="shipping-form">
+                        <h2>📦 Ship This Order</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                                <label>Tracking Number *</label>
+                                <input type="text" id="trackingNumber" placeholder="Enter tracking number" required>
+                    </div>
+                    <div class="form-group">
+                                <label>Carrier *</label>
+                                <select id="carrierSelect">
+                                    <option value="DHL Express">DHL Express</option>
+                                    <option value="UPS">UPS</option>
+                                    <option value="FedEx">FedEx</option>
+                                    <option value="Royal Mail">Royal Mail</option>
+                                    <option value="Parcelforce">Parcelforce</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                                <label>Estimated Delivery Date</label>
+                                <input type="date" id="estimatedDelivery" value="${order.expected_date?.split('T')[0] || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Shipping Notes</label>
+                            <textarea id="shippingNotes" placeholder="Enter any shipping notes..."></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="submitShipping()">📦 Confirm Shipment</button>
+                    </div>
+                `;
+            }
+            
+            // Add pending confirmation actions
+            if (order.status === 'Pending') {
+                html += `
+                    <div class="shipping-form">
+                        <h2>⏳ Action Required</h2>
+                        <p style="margin-bottom: 1rem;">This order is awaiting your confirmation. Please review the items and confirm or reject the order.</p>
+                        <div style="display: flex; gap: 1rem;">
+                            <button class="btn btn-primary" onclick="confirmOrder()">✅ Confirm Order</button>
+                            <button class="btn btn-danger" onclick="rejectOrder()">❌ Reject Order</button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Delivery address
+            html += `
+                <div class="items-table">
+                    <h2>📍 Delivery Address</h2>
+                    <p><strong>${order.branch_name}</strong></p>
+                    <p>${order.branch_address || ''}</p>
+                    <p>${order.branch_city || ''}</p>
+                </div>
+            `;
+            
+            // Action buttons
+            html += `
+                <div class="action-buttons">
+                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print Order</button>
+                    <button class="btn btn-secondary" onclick="alert('PDF generation feature coming soon!')">📥 Download PDF</button>
+                    <a href="index.html#orders" class="btn btn-secondary">← Back to Orders</a>
+                </div>
+            `;
+            
+            document.getElementById('orderContent').innerHTML = html;
+        }
+
+        // =====================================================
+        // Order Actions
+        // =====================================================
+        async function confirmOrder() {
+            if (!confirm(`Confirm order ${currentOrder.po_number}?`)) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/purchase-orders.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        po_id: currentOrder.po_id,
+                        status: 'Confirmed'
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Order confirmed successfully!');
+                    location.reload();
+                } else {
+                    alert('❌ Failed to confirm order: ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function rejectOrder() {
+            const reason = prompt('Please enter reason for rejection:');
+            if (!reason) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/purchase-orders.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        po_id: currentOrder.po_id,
+                        status: 'Cancelled',
+                        notes: 'Rejected by supplier: ' + reason
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert('Order rejected');
+                    window.location.href = 'index.html#orders';
+                } else {
+                    alert('❌ Failed to reject order: ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function submitShipping() {
+            const trackingNumber = document.getElementById('trackingNumber').value.trim();
+            const carrier = document.getElementById('carrierSelect').value;
+            
+            if (!trackingNumber) {
+                alert('Please enter a tracking number');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/purchase-orders.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        po_id: currentOrder.po_id,
+                        status: 'Shipped',
+                        tracking_number: trackingNumber,
+                        carrier: carrier
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    alert(`✅ Order shipped successfully!\n\nTracking: ${trackingNumber}\nCarrier: ${carrier}`);
+                    location.reload();
+                } else {
+                    alert('❌ Failed to update shipping: ' + result.message);
+        }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+        }
+        }
+
+        // =====================================================
+        // Utility Functions
+        // =====================================================
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+    </script>
+</body>
+</html>

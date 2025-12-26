@@ -1,0 +1,1763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Admin - Summit Gear</title>
+    <!-- Chart.js for advanced visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #3b82f6; --primary-dark: #2563eb; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f3f4f6; }
+        
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.25rem; }
+        .header-right { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; }
+        .btn-logout { background: #dc2626; color: white; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        .tabs { display: flex; background: white; border-radius: 0.75rem 0.75rem 0 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 1rem; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; color: #6b7280; white-space: nowrap; }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #eff6ff; }
+        
+        .tab-content { display: none; background: white; padding: 1.5rem; border-radius: 0 0 0.75rem 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6; }
+        .section-header h2 { font-size: 1.1rem; color: #1f2937; }
+        
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+        
+        .card { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1.25rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+        .card-title { font-weight: 600; color: #1f2937; }
+        .card-status { font-size: 0.75rem; }
+        .card-body { font-size: 0.9rem; color: #6b7280; }
+        .card-footer { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #e5e7eb; display: flex; gap: 0.5rem; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #e5e7eb; color: #374151; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f9fafb; }
+        th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: #374151; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 0.75rem 1rem; border-top: 1px solid #e5e7eb; font-size: 0.9rem; }
+        tbody tr:hover { background: #f9fafb; }
+        
+        .loading { text-align: center; padding: 3rem; color: #6b7280; }
+        .alert { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+        .alert-warning { background: #fef3c7; color: #92400e; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-info { background: #dbeafe; color: #1e40af; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 1rem; padding: 1.5rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .modal-header h3 { font-size: 1.1rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.9rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.625rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.9rem; }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { background: #f9fafb; padding: 1rem; border-radius: 0.5rem; text-align: center; }
+        .stat-box .value { font-size: 1.5rem; font-weight: 700; color: #1f2937; }
+        .stat-box .label { font-size: 0.75rem; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>💼 Business Admin Dashboard</h1>
+        <div class="header-right">
+            <span id="adminName">Loading...</span>
+            <button class="btn btn-back" onclick="location.href='index.html'">← Back</button>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="analytics">📊 Business Analytics</button>
+            <button class="tab-btn" data-tab="promotions">🎉 Promotions</button>
+            <button class="tab-btn" data-tab="banners">🖼️ Homepage Banners</button>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div class="tab-content active" id="tab-analytics">
+            <div class="section-header">
+                <h2>📊 Business Analytics Dashboard</h2>
+                <div style="display:flex; gap:0.5rem;">
+                    <select id="analyticsPeriod" onchange="loadAnalytics()">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month" selected>This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="generateBusinessReport()">📄 Generate Report</button>
+                </div>
+            </div>
+
+            <!-- KPI Overview -->
+            <div class="kpi-grid" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:1rem; margin-bottom:2rem;">
+                <div class="kpi-card" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">💰 Total Revenue</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiRevenue">£0</div>
+                    <div style="font-size:0.7rem; opacity:0.8;" id="kpiRevenueChange">vs last period</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #10b981, #059669); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">📦 Orders</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiOrders">0</div>
+                    <div style="font-size:0.7rem; opacity:0.8;" id="kpiOrdersChange">vs last period</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">🛒 Avg Order Value</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiAOV">£0</div>
+                    <div style="font-size:0.7rem; opacity:0.8;" id="kpiAOVChange">vs last period</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">👥 Active Customers</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiCustomers">0</div>
+                    <div style="font-size:0.7rem; opacity:0.8;" id="kpiCustomersChange">vs last period</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #ef4444, #dc2626); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">📦 Products Sold</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiProductsSold">0</div>
+                    <div style="font-size:0.7rem; opacity:0.8;">units</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #06b6d4, #0891b2); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">⭐ Completion Rate</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiCompletionRate">0%</div>
+                    <div style="font-size:0.7rem; opacity:0.8;">orders completed</div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, #f97316, #ea580c); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                    <div style="font-size:0.75rem; opacity:0.9;">↩️ Returns</div>
+                    <div style="font-size:1.75rem; font-weight:700;" id="kpiReturns">0</div>
+                    <div style="font-size:0.7rem; opacity:0.8;" id="kpiReturnsAmount">£0 refunded</div>
+                </div>
+            </div>
+
+            <!-- Charts Row 1: Line Chart + Doughnut Chart -->
+            <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                <!-- Sales Trend - LINE CHART -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">📈 Sales Trend (Line Chart)</h3>
+                    <div style="height:280px; position:relative;">
+                        <canvas id="salesTrendChart"></canvas>
+                    </div>
+                </div>
+                
+                <!-- Sales by Branch - DOUGHNUT CHART or Summary -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">🏪 Store Performance</h3>
+                    <div id="branchSalesChart" style="min-height:280px;"></div>
+                </div>
+            </div>
+
+            <!-- Charts Row 2: Pie + Bar + Doughnut -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                <!-- Sales by Category - PIE CHART -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">📂 Sales by Category (Pie)</h3>
+                    <div style="height:220px; position:relative;">
+                        <canvas id="categorySalesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Sales by Brand - BAR CHART -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">🏷️ Sales by Brand (Bar)</h3>
+                    <div style="height:220px; position:relative;">
+                        <canvas id="brandSalesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Order Status Distribution - DOUGHNUT CHART -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">📋 Order Status (Doughnut)</h3>
+                    <div style="height:220px; position:relative;">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Tables Row -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                <!-- Top Products -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">🔥 Top Selling Products</h3>
+                    <table>
+                        <thead><tr><th>#</th><th>Product</th><th>Qty Sold</th><th>Revenue</th></tr></thead>
+                        <tbody id="topProductsTable"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+
+                <!-- Top Customers -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">👑 Top Customers</h3>
+                    <table>
+                        <thead><tr><th>#</th><th>Customer</th><th>Orders</th><th>Total Spent</th></tr></thead>
+                        <tbody id="topCustomersTable"><tr><td colspan="4" class="loading">Loading...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customer & Membership Analysis -->
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem; margin-bottom:1.5rem;">
+                <!-- Membership Distribution -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">🎖️ Customer Membership Tiers</h3>
+                    <div id="membershipChart" style="min-height:180px;"></div>
+                </div>
+
+                <!-- New Customers Trend -->
+                <div class="card" style="padding:1.5rem;">
+                    <h3 style="margin-bottom:1rem; font-size:1rem;">📈 Customer Growth</h3>
+                    <div class="stats-row" style="grid-template-columns: repeat(3, 1fr);">
+                        <div class="stat-box">
+                            <div class="value" id="newCustomersMonth">0</div>
+                            <div class="label">New This Month</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" id="totalCustomers">0</div>
+                            <div class="label">Total Customers</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="value" id="repeatCustomerRate">0%</div>
+                            <div class="label">Repeat Rate</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Insights -->
+            <div class="card" style="padding:1.5rem; margin-bottom:1.5rem;">
+                <h3 style="margin-bottom:1rem; font-size:1rem;">📦 Inventory Insights</h3>
+                <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap:1rem;">
+                    <div class="stat-box" style="background:#d1fae5;">
+                        <div class="value" style="color:#065f46;" id="invHealthy">0</div>
+                        <div class="label">Healthy Stock</div>
+                    </div>
+                    <div class="stat-box" style="background:#fef3c7;">
+                        <div class="value" style="color:#92400e;" id="invLow">0</div>
+                        <div class="label">Low Stock</div>
+                    </div>
+                    <div class="stat-box" style="background:#fee2e2;">
+                        <div class="value" style="color:#991b1b;" id="invOut">0</div>
+                        <div class="label">Out of Stock</div>
+                    </div>
+                    <div class="stat-box" style="background:#dbeafe;">
+                        <div class="value" style="color:#1e40af;" id="invTotalValue">£0</div>
+                        <div class="label">Inventory Value</div>
+                    </div>
+                    <div class="stat-box" style="background:#f3e8ff;">
+                        <div class="value" style="color:#7c3aed;" id="invTurnover">0x</div>
+                        <div class="label">Turnover Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profit Analysis -->
+            <div class="card" style="padding:1.5rem; margin-bottom:1.5rem;">
+                <h3 style="margin-bottom:1rem; font-size:1rem;">💰 Profit Analysis</h3>
+                
+                <!-- Profit KPIs -->
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem; margin-bottom:1.5rem;">
+                    <div style="background: linear-gradient(135deg, #10b981, #059669); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                        <div style="font-size:0.75rem; opacity:0.9;">💵 Total Revenue</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="profitRevenue">£0</div>
+                        <div style="font-size:0.7rem; opacity:0.8;">Customer payments</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                        <div style="font-size:0.75rem; opacity:0.9;">📦 Total Cost</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="profitCost">£0</div>
+                        <div style="font-size:0.7rem; opacity:0.8;">Product costs</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #3b82f6, #2563eb); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                        <div style="font-size:0.75rem; opacity:0.9;">📈 Gross Profit</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="profitGross">£0</div>
+                        <div style="font-size:0.7rem; opacity:0.8;">Revenue - Cost</div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color:white; padding:1.25rem; border-radius:0.75rem; text-align:center;">
+                        <div style="font-size:0.75rem; opacity:0.9;">📊 Profit Margin</div>
+                        <div style="font-size:1.5rem; font-weight:700;" id="profitMargin">0%</div>
+                        <div style="font-size:0.7rem; opacity:0.8;">Profit / Revenue</div>
+                    </div>
+                </div>
+
+                <!-- Profit by Category & Brand - HORIZONTAL BAR CHARTS -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;">
+                    <div>
+                        <h4 style="font-size:0.9rem; margin-bottom:0.75rem; color:#374151;">📂 Profit by Category (H-Bar)</h4>
+                        <div style="height:200px; position:relative;">
+                            <canvas id="profitByCategoryChart"></canvas>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 style="font-size:0.9rem; margin-bottom:0.75rem; color:#374151;">🏷️ Profit by Brand (H-Bar)</h4>
+                        <div style="height:200px; position:relative;">
+                            <canvas id="profitByBrandChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profit by Product Table -->
+                <div style="margin-top:1.5rem;">
+                    <h4 style="font-size:0.9rem; margin-bottom:0.75rem; color:#374151;">🔥 Most Profitable Products</h4>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Product</th>
+                                <th>Qty Sold</th>
+                                <th>Revenue</th>
+                                <th>Cost</th>
+                                <th>Profit</th>
+                                <th>Margin</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profitByProductTable">
+                            <tr><td colspan="7" class="loading">Loading...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Report Export Options -->
+            <div class="card" style="padding:1.5rem;">
+                <h3 style="margin-bottom:1rem; font-size:1rem;">📄 Generate Reports</h3>
+                <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:1rem;">
+                    <button class="btn btn-primary" onclick="exportBusinessReport('pdf')">📄 Export as PDF</button>
+                    <button class="btn btn-success" onclick="exportBusinessReport('excel')">📊 Export as Excel</button>
+                    <button class="btn btn-secondary" onclick="emailReport()">📧 Email Report</button>
+                    <button class="btn btn-secondary" onclick="scheduleReport()">🕐 Schedule Report</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promotions Tab -->
+        <div class="tab-content" id="tab-promotions">
+            <div class="section-header">
+                <h2>🎉 Promotion Campaigns</h2>
+                <button class="btn btn-primary" onclick="openPromotionModal()">+ New Promotion</button>
+            </div>
+            <p style="color:#6b7280; margin-bottom:1rem;">Manage sales promotions that customers see on the website.</p>
+            <div class="cards-grid" id="promotionsGrid"><p class="loading">Loading...</p></div>
+        </div>
+
+        <!-- Banners Tab -->
+        <div class="tab-content" id="tab-banners">
+            <div class="section-header">
+                <h2>🖼️ Homepage Banners</h2>
+                <button class="btn btn-primary" onclick="openBannerModal()">+ New Banner</button>
+            </div>
+            <p style="color:#6b7280; margin-bottom:1rem;">Manage promotional banners displayed on the customer homepage.</p>
+            <div class="cards-grid" id="bannersGrid"><p class="loading">Loading...</p></div>
+        </div>
+
+    </div>
+
+    <!-- Promotion Modal (Simplified - Store-wide discount only) -->
+    <div class="modal" id="promotionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="promotionModalTitle">New Store Promotion</h3>
+                <button class="modal-close" onclick="closeModal('promotionModal')">&times;</button>
+            </div>
+            <form id="promotionForm" onsubmit="savePromotion(event)">
+                <input type="hidden" id="promotionId">
+                <div class="form-group">
+                    <label>Promotion Title *</label>
+                    <input type="text" id="promoTitle" required placeholder="e.g., Christmas Sale">
+                </div>
+                <div class="form-group">
+                    <label>Description (Optional)</label>
+                    <textarea id="promoDesc" placeholder="Promotion details..." rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Store-wide Discount (%) *</label>
+                    <input type="number" id="promoDiscountValue" required step="1" min="1" max="100" placeholder="e.g., 10 for 10% off">
+                    <small style="color:#6b7280;">Enter the percentage discount for ALL products in your store</small>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" id="promoStartDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date *</label>
+                        <input type="date" id="promoEndDate" required>
+                    </div>
+                </div>
+                <!-- Hidden fields with default values -->
+                <input type="hidden" id="promoDiscountType" value="Percentage">
+                <input type="hidden" id="promoAppliesTo" value="All">
+                <input type="hidden" id="promoCategory" value="">
+                <input type="hidden" id="promoMinPurchase" value="0">
+                
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('promotionModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Promotion</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Banner Modal -->
+    <div class="modal" id="bannerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="bannerModalTitle">New Banner</h3>
+                <button class="modal-close" onclick="closeModal('bannerModal')">&times;</button>
+            </div>
+            <form id="bannerForm" onsubmit="saveBanner(event)">
+                <input type="hidden" id="bannerId">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="bannerTitle" required placeholder="e.g., Winter Sale">
+                </div>
+                <div class="form-group">
+                    <label>Subtitle</label>
+                    <input type="text" id="bannerSubtitle" placeholder="e.g., Up to 50% off!">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Link URL</label>
+                        <input type="text" id="bannerLinkUrl" placeholder="/customer-portal/products.html">
+                    </div>
+                    <div class="form-group">
+                        <label>Button Text</label>
+                        <input type="text" id="bannerLinkText" placeholder="Shop Now">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Display Position</label>
+                        <input type="number" id="bannerPosition" min="1" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL</label>
+                        <input type="text" id="bannerImageUrl" placeholder="/images/banner.jpg">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="bannerStartDate">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="bannerEndDate">
+                    </div>
+                </div>
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('bannerModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Banner</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+        let currentAdmin = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || 'null');
+            if (!currentAdmin || localStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('adminName').textContent = currentAdmin.name;
+            setupTabs();
+            loadAnalytics();
+        });
+
+        function logout() { if(confirm('Logout?')) { localStorage.clear(); window.location.href = '../index.html'; } }
+        
+        let currentBranchName = '';
+        
+        async function updateBranchHeader() {
+            if (!currentAdmin?.branch_id) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/branches.php`);
+                const branches = await res.json();
+                const branchList = Array.isArray(branches) ? branches : (branches.data || []);
+                const branch = branchList.find(b => b.branch_id == currentAdmin.branch_id);
+                
+                if (branch) {
+                    currentBranchName = branch.name || branch.branch_name;
+                    // Update the analytics header to show branch name
+                    const header = document.querySelector('#tab-analytics .section-header h2');
+                    if (header) {
+                        header.innerHTML = `📊 Business Analytics - <span style="color:#3b82f6;">${currentBranchName}</span>`;
+                    }
+                }
+            } catch(e) {
+                console.error('Failed to load branch info:', e);
+            }
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                    
+                    switch(this.dataset.tab) {
+                        case 'analytics': loadAnalytics(); break;
+                        case 'promotions': loadPromotions(); break;
+                        case 'banners': loadBanners(); break;
+                    }
+                });
+            });
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // =====================================================
+        // PROMOTIONS
+        // =====================================================
+        async function loadPromotions() {
+            const container = document.getElementById('promotionsGrid');
+            container.innerHTML = '<p class="loading">Loading...</p>';
+            try {
+                // Only load promotions from this admin's branch
+                const branchId = currentAdmin?.branch_id;
+                const res = await fetch(`${API_BASE}/promotions.php?type=promotions${branchId ? '&branch_id=' + branchId : ''}`);
+                const data = await res.json();
+                if (data.success) {
+                    if (data.data.length === 0) {
+                        container.innerHTML = '<div class="empty-state"><div class="icon">🎉</div><p>No promotions yet. Create your first promotion!</p></div>';
+                        return;
+                    }
+                    container.innerHTML = data.data.map(p => {
+                        const isActive = p.is_active && new Date(p.start_date) <= new Date() && new Date(p.end_date) >= new Date();
+                        return `
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">#${p.promotion_id} - ${p.title}</div>
+                                <span class="badge badge-${isActive ? 'success' : 'warning'}">${isActive ? 'Active' : 'Inactive'}</span>
+                            </div>
+                            <div class="card-body">
+                                <p style="font-size:1.5rem; font-weight:bold; color:#059669;">🎉 ${p.discount_value}% OFF</p>
+                                <p style="color:#6b7280; margin-top:0.5rem;">${p.description || 'Store-wide discount'}</p>
+                                <p style="font-size:0.85rem; color:#9ca3af; margin-top:0.5rem;">📅 ${p.start_date} to ${p.end_date}</p>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-sm btn-secondary" onclick="editPromotion(${p.promotion_id})">Edit</button>
+                                <button class="btn btn-sm ${p.is_active ? 'btn-danger' : 'btn-success'}" onclick="togglePromotion(${p.promotion_id}, ${!p.is_active})">${p.is_active ? 'Deactivate' : 'Activate'}</button>
+                            </div>
+                        </div>
+                    `}).join('');
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load promotions</div>'; }
+        }
+
+        function openPromotionModal(promo = null) {
+            document.getElementById('promotionModalTitle').textContent = promo ? 'Edit Promotion' : 'New Promotion';
+            document.getElementById('promotionId').value = promo?.promotion_id || '';
+            document.getElementById('promoTitle').value = promo?.title || '';
+            document.getElementById('promoDesc').value = promo?.description || '';
+            document.getElementById('promoDiscountType').value = promo?.discount_type || 'Percentage';
+            document.getElementById('promoDiscountValue').value = promo?.discount_value || '';
+            document.getElementById('promoStartDate').value = promo?.start_date || '';
+            document.getElementById('promoEndDate').value = promo?.end_date || '';
+            document.getElementById('promoAppliesTo').value = promo?.applies_to || 'All';
+            document.getElementById('promoCategory').value = promo?.category || '';
+            document.getElementById('promoMinPurchase').value = promo?.min_purchase || 0;
+            document.getElementById('promotionModal').classList.add('active');
+        }
+
+        async function savePromotion(e) {
+            e.preventDefault();
+            const id = document.getElementById('promotionId').value;
+            const data = {
+                title: document.getElementById('promoTitle').value,
+                description: document.getElementById('promoDesc').value,
+                discount_type: document.getElementById('promoDiscountType').value,
+                discount_value: document.getElementById('promoDiscountValue').value,
+                start_date: document.getElementById('promoStartDate').value,
+                end_date: document.getElementById('promoEndDate').value,
+                applies_to: document.getElementById('promoAppliesTo').value,
+                category: document.getElementById('promoCategory').value || null,
+                min_purchase: document.getElementById('promoMinPurchase').value,
+                created_by: currentAdmin.employee_id
+            };
+            
+            if (id) data.promotion_id = id;
+            
+            try {
+                const res = await fetch(`${API_BASE}/promotions.php?type=promotions`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    closeModal('promotionModal');
+                    loadPromotions();
+                    alert('✅ Promotion saved!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch(e) { alert('Failed to save promotion'); }
+        }
+
+        async function togglePromotion(id, active) {
+            try {
+                await fetch(`${API_BASE}/promotions.php?type=promotions`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ promotion_id: id, is_active: active })
+                });
+                loadPromotions();
+            } catch(e) { alert('Failed to update promotion'); }
+        }
+
+        async function editPromotion(id) {
+            const branchId = currentAdmin?.branch_id;
+            const res = await fetch(`${API_BASE}/promotions.php?type=promotions${branchId ? '&branch_id=' + branchId : ''}`);
+            const data = await res.json();
+            const promo = data.data.find(p => p.promotion_id == id);
+            if (promo) openPromotionModal(promo);
+        }
+
+        // =====================================================
+        // BANNERS
+        // =====================================================
+        async function loadBanners() {
+            const container = document.getElementById('bannersGrid');
+            container.innerHTML = '<p class="loading">Loading...</p>';
+            try {
+                // Only load banners from this admin's branch
+                const branchId = currentAdmin?.branch_id;
+                const res = await fetch(`${API_BASE}/promotions.php?type=banners${branchId ? '&branch_id=' + branchId : ''}`);
+                const data = await res.json();
+                if (data.success) {
+                    if (data.data.length === 0) {
+                        container.innerHTML = '<div class="empty-state"><div class="icon">🖼️</div><p>No banners yet. Create your first banner!</p></div>';
+                        return;
+                    }
+                    container.innerHTML = data.data.map(b => `
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">#${b.position} - ${b.title}</div>
+                                <span class="badge badge-${b.is_active ? 'success' : 'warning'}">${b.is_active ? 'Active' : 'Hidden'}</span>
+                            </div>
+                            <div class="card-body">
+                                <p>${b.subtitle || 'No subtitle'}</p>
+                                ${b.link_url ? `<p style="font-size:0.8rem; margin-top:0.5rem;">🔗 ${b.link_text || 'Link'}: ${b.link_url}</p>` : ''}
+                                ${b.start_date ? `<p style="font-size:0.8rem; color:#9ca3af;">📅 ${b.start_date} to ${b.end_date || 'ongoing'}</p>` : ''}
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-sm btn-secondary" onclick="editBanner(${b.banner_id})">Edit</button>
+                                <button class="btn btn-sm ${b.is_active ? 'btn-danger' : 'btn-success'}" onclick="toggleBanner(${b.banner_id}, ${!b.is_active})">${b.is_active ? 'Hide' : 'Show'}</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load banners</div>'; }
+        }
+
+        function openBannerModal(banner = null) {
+            document.getElementById('bannerModalTitle').textContent = banner ? 'Edit Banner' : 'New Banner';
+            document.getElementById('bannerId').value = banner?.banner_id || '';
+            document.getElementById('bannerTitle').value = banner?.title || '';
+            document.getElementById('bannerSubtitle').value = banner?.subtitle || '';
+            document.getElementById('bannerLinkUrl').value = banner?.link_url || '';
+            document.getElementById('bannerLinkText').value = banner?.link_text || '';
+            document.getElementById('bannerPosition').value = banner?.position || 1;
+            document.getElementById('bannerImageUrl').value = banner?.image_url || '';
+            document.getElementById('bannerStartDate').value = banner?.start_date || '';
+            document.getElementById('bannerEndDate').value = banner?.end_date || '';
+            document.getElementById('bannerModal').classList.add('active');
+        }
+
+        async function saveBanner(e) {
+            e.preventDefault();
+            const id = document.getElementById('bannerId').value;
+            const data = {
+                title: document.getElementById('bannerTitle').value,
+                subtitle: document.getElementById('bannerSubtitle').value,
+                link_url: document.getElementById('bannerLinkUrl').value,
+                link_text: document.getElementById('bannerLinkText').value,
+                position: document.getElementById('bannerPosition').value,
+                image_url: document.getElementById('bannerImageUrl').value,
+                start_date: document.getElementById('bannerStartDate').value || null,
+                end_date: document.getElementById('bannerEndDate').value || null,
+                created_by: currentAdmin.employee_id
+            };
+            
+            if (id) data.banner_id = id;
+            
+            try {
+                const res = await fetch(`${API_BASE}/promotions.php?type=banners`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    closeModal('bannerModal');
+                    loadBanners();
+                    alert('✅ Banner saved!');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            } catch(e) { alert('Failed to save banner'); }
+        }
+
+        async function editBanner(id) {
+            const branchId = currentAdmin?.branch_id;
+            const res = await fetch(`${API_BASE}/promotions.php?type=banners${branchId ? '&branch_id=' + branchId : ''}`);
+            const data = await res.json();
+            const banner = data.data.find(b => b.banner_id == id);
+            if (banner) openBannerModal(banner);
+        }
+
+        async function toggleBanner(id, active) {
+            try {
+                await fetch(`${API_BASE}/promotions.php?type=banners`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ banner_id: id, is_active: active })
+                });
+                loadBanners();
+            } catch(e) { alert('Failed to update banner'); }
+        }
+
+        // =====================================================
+        // BUSINESS ANALYTICS
+        // =====================================================
+        let analyticsData = null;
+
+        async function loadAnalytics() {
+            const period = document.getElementById('analyticsPeriod')?.value || 'month';
+            const branchId = currentAdmin?.branch_id;
+            
+            // Update header to show branch name
+            updateBranchHeader();
+            
+            try {
+                // Load all data in parallel - filter by branch_id for this admin
+                const [ordersRes, customersRes, productsRes, branchesRes, returnsRes] = await Promise.all([
+                    fetch(`${API_BASE}/admin.php?action=orders&branch_id=${branchId}`),
+                    fetch(`${API_BASE}/admin.php?action=customers&branch_id=${branchId}`),
+                    fetch(`${API_BASE}/admin.php?action=products&branch_id=${branchId}`),
+                    fetch(`${API_BASE}/branches.php`),
+                    fetch(`${API_BASE}/returns.php?branch_id=${branchId}`)
+                ]);
+
+                const ordersData = await ordersRes.json();
+                const customersData = await customersRes.json();
+                const productsData = await productsRes.json();
+                const branchesData = await branchesRes.json();
+                const returnsData = await returnsRes.json();
+
+                let orders = ordersData.success ? ordersData.data : [];
+                let customers = customersData.success ? customersData.data : [];
+                const products = productsData.success ? productsData.data : [];
+                const branches = Array.isArray(branchesData) ? branchesData : (branchesData.data || []);
+                const returns = returnsData.success ? returnsData.data : [];
+                
+                // Filter orders by this admin's branch
+                if (branchId) {
+                    orders = orders.filter(o => o.branch_id == branchId);
+                }
+                
+                // Update returns KPI
+                updateReturnsKPI(returns, period);
+
+                // Filter orders by period
+                const now = new Date();
+                const filteredOrders = filterByPeriod(orders, period, 'order_date');
+                const previousOrders = filterByPreviousPeriod(orders, period, 'order_date');
+
+                // Calculate KPIs
+                updateKPIs(filteredOrders, previousOrders, customers, period);
+                
+                // Render charts
+                renderSalesTrend(orders, period);
+                renderBranchSales(filteredOrders, branches);
+                renderCategorySales(filteredOrders);
+                renderBrandSales(filteredOrders);
+                renderOrderStatus(filteredOrders);
+                renderTopProducts(filteredOrders);
+                renderTopCustomers(customers);
+                renderMembershipChart(customers);
+                renderCustomerGrowth(customers);
+                renderInventoryInsights(products);
+                renderProfitAnalysis(filteredOrders);
+
+                analyticsData = { orders: filteredOrders, customers, products, branches, period };
+            } catch(e) {
+                console.error('Analytics error:', e);
+            }
+        }
+
+        function filterByPeriod(data, period, dateField) {
+            const now = new Date();
+            let startDate;
+            
+            switch(period) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                    break;
+                case 'quarter':
+                    startDate = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+                    break;
+                case 'year':
+                    startDate = new Date(now.getFullYear(), 0, 1);
+                    break;
+                default:
+                    startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+            }
+            
+            return data.filter(item => new Date(item[dateField]) >= startDate);
+        }
+
+        function filterByPreviousPeriod(data, period, dateField) {
+            const now = new Date();
+            let startDate, endDate;
+            
+            switch(period) {
+                case 'today':
+                    startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                    break;
+                case 'week':
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - 14);
+                    endDate = new Date(now);
+                    endDate.setDate(now.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+                    break;
+                case 'quarter':
+                    const currentQ = Math.floor(now.getMonth() / 3);
+                    startDate = new Date(now.getFullYear(), (currentQ - 1) * 3, 1);
+                    endDate = new Date(now.getFullYear(), currentQ * 3, 0);
+                    break;
+                case 'year':
+                    startDate = new Date(now.getFullYear() - 1, 0, 1);
+                    endDate = new Date(now.getFullYear() - 1, 11, 31);
+                    break;
+                default:
+                    startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                    endDate = new Date(now.getFullYear(), now.getMonth(), 0);
+            }
+            
+            return data.filter(item => {
+                const d = new Date(item[dateField]);
+                return d >= startDate && d < endDate;
+            });
+        }
+
+        function updateKPIs(orders, previousOrders, customers, period) {
+            // Filter out returned and cancelled orders for revenue calculation
+            const validOrders = orders.filter(o => !['Returned', 'Cancelled'].includes(o.status));
+            const validPrevOrders = previousOrders.filter(o => !['Returned', 'Cancelled'].includes(o.status));
+            
+            // Revenue (excluding returned/cancelled)
+            const revenue = validOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+            const prevRevenue = validPrevOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+            const revenueChange = prevRevenue > 0 ? ((revenue - prevRevenue) / prevRevenue * 100).toFixed(1) : 0;
+            
+            document.getElementById('kpiRevenue').textContent = formatPrice(revenue);
+            document.getElementById('kpiRevenueChange').innerHTML = prevRevenue > 0 
+                ? `<span style="color:${revenueChange >= 0 ? '#10b981' : '#ef4444'}">${revenueChange >= 0 ? '↑' : '↓'} ${Math.abs(revenueChange)}%</span> vs last period`
+                : 'No previous data';
+
+            // Orders
+            const orderCount = orders.length;
+            const prevOrderCount = previousOrders.length;
+            const orderChange = prevOrderCount > 0 ? ((orderCount - prevOrderCount) / prevOrderCount * 100).toFixed(1) : 0;
+            
+            document.getElementById('kpiOrders').textContent = orderCount;
+            document.getElementById('kpiOrdersChange').innerHTML = prevOrderCount > 0
+                ? `<span style="color:${orderChange >= 0 ? '#10b981' : '#ef4444'}">${orderChange >= 0 ? '↑' : '↓'} ${Math.abs(orderChange)}%</span> vs last period`
+                : 'No previous data';
+
+            // AOV
+            const aov = orderCount > 0 ? revenue / orderCount : 0;
+            const prevAov = prevOrderCount > 0 ? prevRevenue / prevOrderCount : 0;
+            const aovChange = prevAov > 0 ? ((aov - prevAov) / prevAov * 100).toFixed(1) : 0;
+            
+            document.getElementById('kpiAOV').textContent = formatPrice(aov);
+            document.getElementById('kpiAOVChange').innerHTML = prevAov > 0
+                ? `<span style="color:${aovChange >= 0 ? '#10b981' : '#ef4444'}">${aovChange >= 0 ? '↑' : '↓'} ${Math.abs(aovChange)}%</span> vs last period`
+                : 'No previous data';
+
+            // Active Customers (customers who placed orders in this period)
+            const activeCustomerIds = new Set(orders.map(o => o.customer_id));
+            const prevActiveCustomerIds = new Set(previousOrders.map(o => o.customer_id));
+            document.getElementById('kpiCustomers').textContent = activeCustomerIds.size;
+            const custChange = prevActiveCustomerIds.size > 0 
+                ? ((activeCustomerIds.size - prevActiveCustomerIds.size) / prevActiveCustomerIds.size * 100).toFixed(1) : 0;
+            document.getElementById('kpiCustomersChange').innerHTML = prevActiveCustomerIds.size > 0
+                ? `<span style="color:${custChange >= 0 ? '#10b981' : '#ef4444'}">${custChange >= 0 ? '↑' : '↓'} ${Math.abs(custChange)}%</span> vs last period`
+                : 'No previous data';
+
+            // Products Sold
+            const productsSold = orders.reduce((sum, o) => {
+                const items = o.items || [];
+                return sum + items.reduce((s, i) => s + parseInt(i.quantity || 0), 0);
+            }, 0);
+            document.getElementById('kpiProductsSold').textContent = productsSold;
+
+            // Completion Rate
+            const completedOrders = orders.filter(o => o.status === 'Completed').length;
+            const completionRate = orderCount > 0 ? (completedOrders / orderCount * 100).toFixed(1) : 0;
+            document.getElementById('kpiCompletionRate').textContent = completionRate + '%';
+        }
+
+        // Chart.js instances storage
+        let chartInstances = {};
+        
+        function destroyChart(chartId) {
+            if (chartInstances[chartId]) {
+                chartInstances[chartId].destroy();
+                delete chartInstances[chartId];
+            }
+        }
+        
+        // Update Returns KPI
+        function updateReturnsKPI(returns, period) {
+            // Filter returns by period
+            const filteredReturns = filterByPeriod(returns, period, 'requested_at');
+            
+            // Count approved returns
+            const approvedReturns = filteredReturns.filter(r => r.status === 'Approved');
+            const pendingReturns = filteredReturns.filter(r => r.status === 'Pending');
+            const totalRefunded = approvedReturns.reduce((sum, r) => sum + parseFloat(r.refund_amount || r.order_amount || 0), 0);
+            
+            const kpiReturns = document.getElementById('kpiReturns');
+            const kpiReturnsAmount = document.getElementById('kpiReturnsAmount');
+            
+            if (kpiReturns) {
+                kpiReturns.textContent = approvedReturns.length;
+            }
+            if (kpiReturnsAmount) {
+                const pendingText = pendingReturns.length > 0 ? ` (${pendingReturns.length} pending)` : '';
+                kpiReturnsAmount.textContent = `£${totalRefunded.toFixed(2)} refunded${pendingText}`;
+            }
+        }
+
+        function renderSalesTrend(orders, period) {
+            const canvas = document.getElementById('salesTrendChart');
+            if (!canvas) return;
+            
+            destroyChart('salesTrend');
+            
+            // Group by day/week/month based on period
+            const grouped = {};
+            const labels = [];
+            const now = new Date();
+            
+            switch(period) {
+                case 'today':
+                    for(let i = 0; i < 24; i++) {
+                        labels.push(i + ':00');
+                        grouped[i] = 0;
+                    }
+                    orders.forEach(o => {
+                        const d = new Date(o.order_date);
+                        if (d.toDateString() === now.toDateString()) {
+                            grouped[d.getHours()] += parseFloat(o.total_amount || 0);
+                        }
+                    });
+                    break;
+                case 'week':
+                    for(let i = 6; i >= 0; i--) {
+                        const d = new Date(now);
+                        d.setDate(now.getDate() - i);
+                        const key = d.toISOString().split('T')[0];
+                        labels.push(d.toLocaleDateString('en', {weekday: 'short'}));
+                        grouped[key] = 0;
+                    }
+                    orders.forEach(o => {
+                        const key = o.order_date.split(' ')[0];
+                        if (grouped[key] !== undefined) {
+                            grouped[key] += parseFloat(o.total_amount || 0);
+                        }
+                    });
+                    break;
+                case 'month':
+                default:
+                    const numPoints = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                    for(let i = 1; i <= numPoints; i++) {
+                        const d = new Date(now.getFullYear(), now.getMonth(), i);
+                        const key = d.toISOString().split('T')[0];
+                        labels.push(i);
+                        grouped[key] = 0;
+                    }
+                    orders.forEach(o => {
+                        const key = o.order_date.split(' ')[0];
+                        if (grouped[key] !== undefined) {
+                            grouped[key] += parseFloat(o.total_amount || 0);
+                        }
+                    });
+                    break;
+            }
+
+            const values = Object.values(grouped);
+            
+            // Create LINE CHART with gradient fill
+            const ctx = canvas.getContext('2d');
+            const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+            gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)');
+            gradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+            chartInstances['salesTrend'] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Revenue (£)',
+                        data: values,
+                        borderColor: '#3b82f6',
+                        backgroundColor: gradient,
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: values.length > 15 ? 0 : 3,
+                        pointHoverRadius: 5,
+                        pointBackgroundColor: '#3b82f6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `£${ctx.parsed.y.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: (v) => '£' + v.toLocaleString() }
+                        },
+                        x: {
+                            ticks: { maxTicksLimit: 10 }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBranchSales(orders, branches) {
+            const container = document.getElementById('branchSalesChart');
+            const branchId = currentAdmin?.branch_id;
+            
+            // For single branch admin, show store performance summary
+            if (branchId) {
+                const branch = branches.find(b => b.branch_id == branchId);
+                const branchName = branch?.name || branch?.branch_name || 'Your Store';
+                const totalSales = orders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+                const completedOrders = orders.filter(o => o.status === 'Completed').length;
+                const pendingOrders = orders.filter(o => o.status === 'Pending').length;
+                const avgOrderValue = orders.length > 0 ? totalSales / orders.length : 0;
+                
+                container.innerHTML = `
+                    <div style="text-align:center; padding:1rem 0;">
+                        <div style="font-size:0.9rem; color:#6b7280; margin-bottom:0.5rem;">📍 ${branchName}</div>
+                        <div style="font-size:2rem; font-weight:700; color:#1e40af; margin-bottom:1rem;">${formatPrice(totalSales)}</div>
+                        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:0.5rem; font-size:0.8rem;">
+                            <div style="background:#d1fae5; padding:0.5rem; border-radius:0.5rem;">
+                                <div style="font-weight:600; color:#065f46;">${completedOrders}</div>
+                                <div style="color:#059669;">Completed</div>
+                            </div>
+                            <div style="background:#fef3c7; padding:0.5rem; border-radius:0.5rem;">
+                                <div style="font-weight:600; color:#92400e;">${pendingOrders}</div>
+                                <div style="color:#d97706;">Pending</div>
+                            </div>
+                            <div style="background:#dbeafe; padding:0.5rem; border-radius:0.5rem;">
+                                <div style="font-weight:600; color:#1e40af;">${formatPrice(avgOrderValue)}</div>
+                                <div style="color:#3b82f6;">Avg Order</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            // For global admin, show all branches comparison
+            const branchTotals = {};
+            
+            branches.forEach(b => branchTotals[b.branch_id] = { name: b.name || b.branch_name, total: 0 });
+            orders.forEach(o => {
+                if (branchTotals[o.branch_id]) {
+                    branchTotals[o.branch_id].total += parseFloat(o.total_amount || 0);
+                }
+            });
+
+            const data = Object.values(branchTotals).sort((a, b) => b.total - a.total);
+            const max = Math.max(...data.map(d => d.total), 1);
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+            container.innerHTML = data.map((d, i) => `
+                <div style="margin-bottom:0.75rem;">
+                    <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:0.25rem;">
+                        <span>${d.name}</span>
+                        <strong>${formatPrice(d.total)}</strong>
+                    </div>
+                    <div style="background:#e5e7eb; border-radius:4px; height:8px; overflow:hidden;">
+                        <div style="background:${colors[i % colors.length]}; height:100%; width:${d.total/max*100}%; border-radius:4px;"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCategorySales(orders) {
+            const canvas = document.getElementById('categorySalesChart');
+            if (!canvas) return;
+            
+            destroyChart('categorySales');
+            
+            const categories = {};
+            orders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    const cat = item.category || 'Other';
+                    categories[cat] = (categories[cat] || 0) + parseFloat(item.subtotal || 0);
+                });
+            });
+
+            const data = Object.entries(categories).sort((a, b) => b[1] - a[1]).slice(0, 6);
+            
+            if (data.length === 0) {
+                canvas.parentElement.innerHTML = '<p style="color:#6b7280; text-align:center; padding:3rem;">No data</p>';
+                return;
+            }
+
+            const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+            
+            // PIE CHART
+            chartInstances['categorySales'] = new Chart(canvas.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: data.map(d => d[0]),
+                    datasets: [{
+                        data: data.map(d => d[1]),
+                        backgroundColor: colors,
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.label}: £${ctx.parsed.toFixed(2)} (${(ctx.parsed / ctx.dataset.data.reduce((a,b) => a+b, 0) * 100).toFixed(1)}%)`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderBrandSales(orders) {
+            const canvas = document.getElementById('brandSalesChart');
+            if (!canvas) return;
+            
+            destroyChart('brandSales');
+            
+            const brands = {};
+            orders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    const brand = item.brand || 'Other';
+                    brands[brand] = (brands[brand] || 0) + parseFloat(item.subtotal || 0);
+                });
+            });
+
+            const data = Object.entries(brands).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            
+            if (data.length === 0) {
+                canvas.parentElement.innerHTML = '<p style="color:#6b7280; text-align:center; padding:3rem;">No data</p>';
+                return;
+            }
+
+            const colors = ['#1e40af', '#059669', '#b45309', '#b91c1c', '#6d28d9'];
+            
+            // VERTICAL BAR CHART
+            chartInstances['brandSales'] = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d[0]),
+                    datasets: [{
+                        label: 'Sales (£)',
+                        data: data.map(d => d[1]),
+                        backgroundColor: colors,
+                        borderRadius: 4,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `£${ctx.parsed.y.toFixed(2)}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: (v) => '£' + v.toLocaleString() }
+                        },
+                        x: {
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderOrderStatus(orders) {
+            const canvas = document.getElementById('orderStatusChart');
+            if (!canvas) return;
+            
+            destroyChart('orderStatus');
+            
+            const statuses = {};
+            orders.forEach(o => {
+                statuses[o.status] = (statuses[o.status] || 0) + 1;
+            });
+
+            const statusColors = {
+                'Pending': '#f59e0b',
+                'Confirmed': '#3b82f6',
+                'Completed': '#10b981',
+                'Cancelled': '#ef4444',
+                'Returned': '#8b5cf6'
+            };
+
+            const data = Object.entries(statuses).sort((a, b) => b[1] - a[1]);
+            
+            if (data.length === 0) {
+                canvas.parentElement.innerHTML = '<p style="color:#6b7280; text-align:center; padding:3rem;">No orders</p>';
+                return;
+            }
+
+            // DOUGHNUT CHART
+            chartInstances['orderStatus'] = new Chart(canvas.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: data.map(d => d[0]),
+                    datasets: [{
+                        data: data.map(d => d[1]),
+                        backgroundColor: data.map(d => statusColors[d[0]] || '#6b7280'),
+                        borderWidth: 3,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `${ctx.label}: ${ctx.parsed} (${(ctx.parsed / ctx.dataset.data.reduce((a,b) => a+b, 0) * 100).toFixed(0)}%)`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderTopProducts(orders) {
+            const container = document.getElementById('topProductsTable');
+            const products = {};
+            
+            orders.forEach(o => {
+                (o.items || []).forEach(item => {
+                    const id = item.product_id;
+                    if (!products[id]) {
+                        products[id] = { name: item.name || 'Unknown', qty: 0, revenue: 0 };
+                    }
+                    products[id].qty += parseInt(item.quantity || 0);
+                    products[id].revenue += parseFloat(item.subtotal || 0);
+                });
+            });
+
+            const data = Object.values(products).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+
+            if (data.length === 0) {
+                container.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#6b7280;">No sales data</td></tr>';
+                return;
+            }
+
+            container.innerHTML = data.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">${p.name}</td>
+                    <td>${p.qty}</td>
+                    <td><strong>${formatPrice(p.revenue)}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTopCustomers(customers) {
+            const container = document.getElementById('topCustomersTable');
+            const sorted = [...customers].sort((a, b) => parseFloat(b.total_spent || 0) - parseFloat(a.total_spent || 0)).slice(0, 10);
+
+            if (sorted.length === 0) {
+                container.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#6b7280;">No customer data</td></tr>';
+                return;
+            }
+
+            container.innerHTML = sorted.map((c, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td>${c.first_name} ${c.last_name}<br><small style="color:#6b7280;">${c.email}</small></td>
+                    <td>${c.total_orders || 0}</td>
+                    <td><strong>${formatPrice(c.total_spent)}</strong></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderMembershipChart(customers) {
+            const container = document.getElementById('membershipChart');
+            const tiers = { 'Bronze': 0, 'Silver': 0, 'Gold': 0, 'Platinum': 0 };
+            const tierColors = { 'Bronze': '#cd7f32', 'Silver': '#c0c0c0', 'Gold': '#ffd700', 'Platinum': '#e5e4e2' };
+            
+            customers.forEach(c => {
+                const tier = c.membership_name || 'Bronze';
+                tiers[tier] = (tiers[tier] || 0) + 1;
+            });
+
+            const total = customers.length || 1;
+
+            container.innerHTML = Object.entries(tiers).map(([tier, count]) => `
+                <div style="display:flex; align-items:center; margin-bottom:0.75rem;">
+                    <div style="width:20px; height:20px; background:${tierColors[tier]}; border-radius:50%; margin-right:0.75rem; border:2px solid #e5e7eb;"></div>
+                    <span style="flex:1; font-weight:600;">${tier}</span>
+                    <span>${count} (${(count/total*100).toFixed(0)}%)</span>
+                </div>
+            `).join('');
+        }
+
+        function renderCustomerGrowth(customers) {
+            const now = new Date();
+            const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+            
+            const newThisMonth = customers.filter(c => new Date(c.created_at) >= thisMonth).length;
+            const repeatCustomers = customers.filter(c => parseInt(c.total_orders || 0) > 1).length;
+            const repeatRate = customers.length > 0 ? (repeatCustomers / customers.length * 100).toFixed(1) : 0;
+
+            document.getElementById('newCustomersMonth').textContent = newThisMonth;
+            document.getElementById('totalCustomers').textContent = customers.length;
+            document.getElementById('repeatCustomerRate').textContent = repeatRate + '%';
+        }
+
+        function renderInventoryInsights(products) {
+            let healthy = 0, low = 0, out = 0, totalValue = 0;
+            
+            products.forEach(p => {
+                const qty = parseInt(p.stock_quantity || 0);
+                const price = parseFloat(p.cost_price || p.retail_price || 0);
+                totalValue += qty * price;
+                
+                if (qty === 0) out++;
+                else if (qty < 20) low++;
+                else healthy++;
+            });
+
+            document.getElementById('invHealthy').textContent = healthy;
+            document.getElementById('invLow').textContent = low;
+            document.getElementById('invOut').textContent = out;
+            document.getElementById('invTotalValue').textContent = formatPrice(totalValue);
+            document.getElementById('invTurnover').textContent = '~2.5x'; // Placeholder
+        }
+
+        function renderProfitAnalysis(orders) {
+            // Calculate totals from order items
+            let totalRevenue = 0;
+            let totalCost = 0;
+            const categoryProfit = {};
+            const brandProfit = {};
+            const productProfit = {};
+
+            orders.forEach(order => {
+                const items = order.items || [];
+                items.forEach(item => {
+                    const revenue = parseFloat(item.subtotal || 0);
+                    const cost = parseFloat(item.cost_price || 0) * parseInt(item.quantity || 0);
+                    const profit = revenue - cost;
+                    
+                    totalRevenue += revenue;
+                    totalCost += cost;
+
+                    // By category
+                    const cat = item.category || 'Other';
+                    if (!categoryProfit[cat]) categoryProfit[cat] = { revenue: 0, cost: 0, profit: 0 };
+                    categoryProfit[cat].revenue += revenue;
+                    categoryProfit[cat].cost += cost;
+                    categoryProfit[cat].profit += profit;
+
+                    // By brand
+                    const brand = item.brand || 'Other';
+                    if (!brandProfit[brand]) brandProfit[brand] = { revenue: 0, cost: 0, profit: 0 };
+                    brandProfit[brand].revenue += revenue;
+                    brandProfit[brand].cost += cost;
+                    brandProfit[brand].profit += profit;
+
+                    // By product
+                    const pid = item.product_id;
+                    if (!productProfit[pid]) {
+                        productProfit[pid] = { name: item.name, qty: 0, revenue: 0, cost: 0, profit: 0 };
+                    }
+                    productProfit[pid].qty += parseInt(item.quantity || 0);
+                    productProfit[pid].revenue += revenue;
+                    productProfit[pid].cost += cost;
+                    productProfit[pid].profit += profit;
+                });
+            });
+
+            const grossProfit = totalRevenue - totalCost;
+            const profitMargin = totalRevenue > 0 ? (grossProfit / totalRevenue * 100) : 0;
+
+            // Update KPIs
+            document.getElementById('profitRevenue').textContent = formatPrice(totalRevenue);
+            document.getElementById('profitCost').textContent = formatPrice(totalCost);
+            document.getElementById('profitGross').textContent = formatPrice(grossProfit);
+            document.getElementById('profitMargin').textContent = profitMargin.toFixed(1) + '%';
+
+            // Render category profit chart
+            renderProfitByCategory(categoryProfit);
+            
+            // Render brand profit chart
+            renderProfitByBrand(brandProfit);
+            
+            // Render product profit table
+            renderProfitByProduct(productProfit);
+        }
+
+        function renderProfitByCategory(categoryProfit) {
+            const canvas = document.getElementById('profitByCategoryChart');
+            if (!canvas) return;
+            
+            destroyChart('profitCategory');
+            
+            const data = Object.entries(categoryProfit)
+                .map(([name, d]) => ({ name, ...d, margin: d.revenue > 0 ? (d.profit / d.revenue * 100) : 0 }))
+                .sort((a, b) => b.profit - a.profit)
+                .slice(0, 6);
+            
+            if (data.length === 0) {
+                canvas.parentElement.innerHTML = '<p style="color:#6b7280; text-align:center; padding:3rem;">No data</p>';
+                return;
+            }
+
+            // HORIZONTAL BAR CHART
+            chartInstances['profitCategory'] = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.name),
+                    datasets: [{
+                        label: 'Profit (£)',
+                        data: data.map(d => d.profit),
+                        backgroundColor: data.map(d => d.profit >= 0 ? '#10b981' : '#ef4444'),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `Profit: £${ctx.parsed.x.toFixed(2)} (${data[ctx.dataIndex].margin.toFixed(1)}% margin)`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { callback: (v) => '£' + v.toLocaleString() }
+                        },
+                        y: {
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderProfitByBrand(brandProfit) {
+            const canvas = document.getElementById('profitByBrandChart');
+            if (!canvas) return;
+            
+            destroyChart('profitBrand');
+            
+            const data = Object.entries(brandProfit)
+                .map(([name, d]) => ({ name, ...d, margin: d.revenue > 0 ? (d.profit / d.revenue * 100) : 0 }))
+                .sort((a, b) => b.profit - a.profit)
+                .slice(0, 5);
+            
+            if (data.length === 0) {
+                canvas.parentElement.innerHTML = '<p style="color:#6b7280; text-align:center; padding:3rem;">No data</p>';
+                return;
+            }
+
+            const colors = ['#1e40af', '#059669', '#b45309', '#b91c1c', '#6d28d9'];
+            
+            // HORIZONTAL BAR CHART
+            chartInstances['profitBrand'] = new Chart(canvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.name),
+                    datasets: [{
+                        label: 'Profit (£)',
+                        data: data.map(d => d.profit),
+                        backgroundColor: colors,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => `Profit: £${ctx.parsed.x.toFixed(2)} (${data[ctx.dataIndex].margin.toFixed(1)}% margin)`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { callback: (v) => '£' + v.toLocaleString() }
+                        },
+                        y: {
+                            ticks: { font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderProfitByProduct(productProfit) {
+            const container = document.getElementById('profitByProductTable');
+            const data = Object.values(productProfit)
+                .map(d => ({ ...d, margin: d.revenue > 0 ? (d.profit / d.revenue * 100) : 0 }))
+                .sort((a, b) => b.profit - a.profit)
+                .slice(0, 10);
+            
+            if (data.length === 0) {
+                container.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#6b7280;">No sales data</td></tr>';
+                return;
+            }
+
+            container.innerHTML = data.map((p, i) => `
+                <tr>
+                    <td>${i + 1}</td>
+                    <td style="max-width:200px; overflow:hidden; text-overflow:ellipsis;">${p.name}</td>
+                    <td>${p.qty}</td>
+                    <td>${formatPrice(p.revenue)}</td>
+                    <td style="color:#6b7280;">${formatPrice(p.cost)}</td>
+                    <td style="color:${p.profit >= 0 ? '#10b981' : '#ef4444'}; font-weight:600;">
+                        ${p.profit >= 0 ? '+' : ''}${formatPrice(p.profit)}
+                    </td>
+                    <td>
+                        <span style="display:inline-block; padding:0.125rem 0.5rem; border-radius:1rem; font-size:0.75rem; 
+                            background:${p.margin >= 30 ? '#d1fae5' : p.margin >= 15 ? '#fef3c7' : '#fee2e2'};
+                            color:${p.margin >= 30 ? '#065f46' : p.margin >= 15 ? '#92400e' : '#991b1b'};">
+                            ${p.margin.toFixed(1)}%
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function formatPrice(amount) {
+            return '£' + parseFloat(amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function generateBusinessReport() {
+            const period = document.getElementById('analyticsPeriod')?.value || 'month';
+            alert(`📊 Business Report Summary (${period.toUpperCase()})
+
+This will generate a comprehensive report including:
+• Revenue & Order Analytics
+• Customer Insights
+• Product Performance
+• Inventory Status
+
+Use the Export buttons below for detailed reports.`);
+        }
+
+        function exportBusinessReport(format) {
+            if (!analyticsData) {
+                alert('Please wait for data to load');
+                return;
+            }
+
+            const { orders, customers, products, period } = analyticsData;
+            const revenue = orders.reduce((s, o) => s + parseFloat(o.total_amount || 0), 0);
+            const completedOrders = orders.filter(o => o.status === 'Completed').length;
+            const branchInfo = currentBranchName ? ` - ${currentBranchName}` : ' - All Stores';
+
+            if (format === 'pdf') {
+                const printContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Business Report - Summit Gear</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 20px; max-width: 1000px; margin: 0 auto; }
+                            h1 { color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px; }
+                            h2 { color: #374151; margin-top: 30px; border-bottom: 1px solid #e5e7eb; padding-bottom: 5px; }
+                            .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+                            .kpi { background: #f3f4f6; padding: 15px; border-radius: 8px; text-align: center; }
+                            .kpi-value { font-size: 24px; font-weight: bold; color: #1e40af; }
+                            .kpi-label { font-size: 12px; color: #6b7280; }
+                            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                            th, td { border: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+                            th { background: #1e40af; color: white; }
+                            tr:nth-child(even) { background: #f9fafb; }
+                            .footer { margin-top: 40px; text-align: center; color: #6b7280; font-size: 12px; border-top: 1px solid #e5e7eb; padding-top: 20px; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>📊 Business Analytics Report${branchInfo}</h1>
+                        <p><strong>Period:</strong> ${period.charAt(0).toUpperCase() + period.slice(1)} | <strong>Generated:</strong> ${new Date().toLocaleString()}</p>
+                        
+                        <h2>Key Performance Indicators</h2>
+                        <div class="kpi-grid">
+                            <div class="kpi"><div class="kpi-value">${formatPrice(revenue)}</div><div class="kpi-label">Total Revenue</div></div>
+                            <div class="kpi"><div class="kpi-value">${orders.length}</div><div class="kpi-label">Total Orders</div></div>
+                            <div class="kpi"><div class="kpi-value">${formatPrice(orders.length > 0 ? revenue / orders.length : 0)}</div><div class="kpi-label">Avg Order Value</div></div>
+                            <div class="kpi"><div class="kpi-value">${orders.length > 0 ? (completedOrders/orders.length*100).toFixed(1) : 0}%</div><div class="kpi-label">Completion Rate</div></div>
+                        </div>
+
+                        <h2>Customer Overview</h2>
+                        <div class="kpi-grid">
+                            <div class="kpi"><div class="kpi-value">${customers.length}</div><div class="kpi-label">Total Customers</div></div>
+                            <div class="kpi"><div class="kpi-value">${customers.filter(c => parseInt(c.total_orders || 0) > 1).length}</div><div class="kpi-label">Repeat Customers</div></div>
+                            <div class="kpi"><div class="kpi-value">${formatPrice(customers.reduce((s,c) => s + parseFloat(c.total_spent || 0), 0) / (customers.length || 1))}</div><div class="kpi-label">Avg Customer Value</div></div>
+                            <div class="kpi"><div class="kpi-value">${customers.reduce((s,c) => s + parseInt(c.total_points || 0), 0)}</div><div class="kpi-label">Total Points Issued</div></div>
+                        </div>
+
+                        <h2>Inventory Summary</h2>
+                        <div class="kpi-grid">
+                            <div class="kpi"><div class="kpi-value">${products.length}</div><div class="kpi-label">Total Products</div></div>
+                            <div class="kpi"><div class="kpi-value">${products.filter(p => parseInt(p.stock_quantity || 0) === 0).length}</div><div class="kpi-label">Out of Stock</div></div>
+                            <div class="kpi"><div class="kpi-value">${products.filter(p => parseInt(p.stock_quantity || 0) > 0 && parseInt(p.stock_quantity || 0) < 20).length}</div><div class="kpi-label">Low Stock</div></div>
+                            <div class="kpi"><div class="kpi-value">${products.filter(p => parseInt(p.stock_quantity || 0) >= 20).length}</div><div class="kpi-label">Healthy Stock</div></div>
+                        </div>
+
+                        <h2>Top 10 Customers</h2>
+                        <table>
+                            <thead><tr><th>#</th><th>Customer</th><th>Email</th><th>Orders</th><th>Total Spent</th></tr></thead>
+                            <tbody>
+                                ${customers.sort((a,b) => parseFloat(b.total_spent || 0) - parseFloat(a.total_spent || 0)).slice(0,10).map((c,i) => `
+                                    <tr><td>${i+1}</td><td>${c.first_name} ${c.last_name}</td><td>${c.email}</td><td>${c.total_orders || 0}</td><td>${formatPrice(c.total_spent)}</td></tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div class="footer">
+                            <p>Summit Gear & Adventures - Business Analytics Report</p>
+                            <p>Generated on ${new Date().toLocaleString()} by ${currentAdmin?.name || 'Admin'}</p>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                setTimeout(() => printWindow.print(), 500);
+            } else if (format === 'excel') {
+                let csv = `Summit Gear Business Report${branchInfo}\n`;
+                csv += `Period,${period}\n`;
+                csv += `Generated,${new Date().toLocaleString()}\n\n`;
+                
+                csv += 'KEY METRICS\n';
+                csv += `Total Revenue,${formatPrice(revenue)}\n`;
+                csv += `Total Orders,${orders.length}\n`;
+                csv += `Avg Order Value,${formatPrice(orders.length > 0 ? revenue / orders.length : 0)}\n`;
+                csv += `Completion Rate,${orders.length > 0 ? (completedOrders/orders.length*100).toFixed(1) : 0}%\n\n`;
+
+                csv += 'TOP CUSTOMERS\n';
+                csv += 'Rank,Name,Email,Orders,Total Spent\n';
+                customers.sort((a,b) => parseFloat(b.total_spent || 0) - parseFloat(a.total_spent || 0)).slice(0,20).forEach((c,i) => {
+                    csv += `${i+1},"${c.first_name} ${c.last_name}",${c.email},${c.total_orders || 0},${formatPrice(c.total_spent)}\n`;
+                });
+
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `BusinessReport_${period}_${new Date().toISOString().split('T')[0]}.csv`;
+                link.click();
+            }
+        }
+
+        function emailReport() {
+            alert('📧 Email Report\n\nThis feature would send the report to:\n• finance@summitgear.co.uk\n• management@summitgear.co.uk\n\nConfigure email settings in admin panel.');
+        }
+
+        function scheduleReport() {
+            alert('🕐 Schedule Report\n\nOptions:\n• Daily (9:00 AM)\n• Weekly (Monday)\n• Monthly (1st of month)\n\nConfigure schedule in admin settings.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Manager Dashboard - Summit Gear</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #f59e0b; --primary-dark: #d97706; --success: #10b981; --danger: #ef4444; --info: #3b82f6; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f3f4f6; min-height: 100vh; }
+        
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .header h1 { font-size: 1.25rem; }
+        .branch-badge { background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.8rem; }
+        .header-right { display: flex; gap: 1rem; align-items: center; }
+        .admin-info { text-align: right; font-size: 0.85rem; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .btn-logout { background: rgba(220,38,38,0.9); color: white; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .stat-card { background: white; padding: 1.25rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: relative; overflow: hidden; }
+        .stat-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent, var(--primary)); }
+        .stat-card .icon { font-size: 2rem; position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.15; }
+        .stat-card .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #1f2937; margin: 0.25rem 0; }
+        .stat-card .trend { font-size: 0.75rem; color: var(--success); }
+        .stat-card .trend.down { color: var(--danger); }
+        
+        .stat-card.revenue { --accent: #10b981; }
+        .stat-card.orders { --accent: #3b82f6; }
+        .stat-card.customers { --accent: #8b5cf6; }
+        .stat-card.stock { --accent: #ef4444; }
+        .stat-card.staff { --accent: #ec4899; }
+        
+        /* Tabs */
+        .tabs { display: flex; background: white; border-radius: 0.75rem 0.75rem 0 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; }
+        .tab-btn { flex: 1; padding: 1rem; background: none; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: 600; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap; }
+        .tab-btn:hover { color: var(--primary); background: #fffbeb; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); background: #fffbeb; }
+        .tab-btn .badge { background: var(--danger); color: white; padding: 0.125rem 0.5rem; border-radius: 1rem; font-size: 0.7rem; }
+        
+        .tab-content { display: none; background: white; padding: 1.5rem; border-radius: 0 0 0.75rem 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .tab-content.active { display: block; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6; }
+        .section-header h2 { font-size: 1.1rem; color: #1f2937; display: flex; align-items: center; gap: 0.5rem; }
+        .section-header .actions { display: flex; gap: 0.5rem; }
+        
+        .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+        .filters select, .filters input { padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.9rem; background: white; }
+        .filters input { flex: 1; min-width: 200px; }
+        
+        /* Table */
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f9fafb; }
+        th { padding: 0.875rem 1rem; text-align: left; font-weight: 600; color: #374151; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #e5e7eb; }
+        td { padding: 0.875rem 1rem; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 0.9rem; vertical-align: middle; }
+        tbody tr:hover { background: #f9fafb; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #ede9fe; color: #5b21b6; }
+        
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: #e5e7eb; color: #374151; }
+        
+        .loading { text-align: center; padding: 3rem; color: #6b7280; }
+        .alert { padding: 1rem 1.25rem; border-radius: 0.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .alert-warning { background: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; }
+        .alert-success { background: #d1fae5; border-left: 4px solid #10b981; color: #065f46; }
+        .alert-info { background: #dbeafe; border-left: 4px solid #3b82f6; color: #1e40af; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        /* Customer tier colors */
+        .tier-bronze { color: #92400e; }
+        .tier-silver { color: #6b7280; }
+        .tier-gold { color: #d97706; }
+        .tier-platinum { color: #7c3aed; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <h1>👑 Store Manager Dashboard</h1>
+            <span class="branch-badge" id="branchBadge">Loading...</span>
+        </div>
+        <div class="header-right">
+            <div class="admin-info">
+                <div id="adminName" style="font-weight:600;">Loading...</div>
+                <div id="loginTime" style="opacity:0.8;font-size:0.75rem;"></div>
+            </div>
+            <button class="btn btn-back" onclick="location.href='index.html'">← Role Select</button>
+            <button class="btn btn-logout" onclick="logout()">🚪 Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Stats Overview - Store Manager sees everything -->
+        <div class="stats-grid">
+            <div class="stat-card revenue">
+                <span class="icon">💰</span>
+                <div class="label">Today's Revenue</div>
+                <div class="value" id="todayRevenue">£0</div>
+                <div class="trend" id="revenueTrend">↑ vs yesterday</div>
+            </div>
+            <div class="stat-card orders">
+                <span class="icon">📋</span>
+                <div class="label">Pending Orders</div>
+                <div class="value" id="pendingOrders">0</div>
+                <div class="trend">Awaiting processing</div>
+            </div>
+            <div class="stat-card customers">
+                <span class="icon">👥</span>
+                <div class="label">Total Customers</div>
+                <div class="value" id="totalCustomers">0</div>
+                <div class="trend" id="newCustomers">+0 this month</div>
+            </div>
+            <div class="stat-card stock">
+                <span class="icon">⚠️</span>
+                <div class="label">Low Stock Items</div>
+                <div class="value" id="lowStockCount">0</div>
+                <div class="trend down">Need restocking</div>
+            </div>
+            <div class="stat-card staff">
+                <span class="icon">👔</span>
+                <div class="label">Active Staff</div>
+                <div class="value" id="totalStaff">0</div>
+                <div class="trend">Across all branches</div>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+            <button class="tab-btn" data-tab="orders">📋 Orders <span class="badge" id="ordersBadge">0</span></button>
+            <button class="tab-btn" data-tab="customers">👥 Customers</button>
+            <button class="tab-btn" data-tab="inventory">📦 Inventory</button>
+            <button class="tab-btn" data-tab="staff">👔 Staff</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="section-header">
+                <h2>📊 Business Overview</h2>
+                <div class="actions">
+                    <button class="btn btn-secondary btn-sm" onclick="loadDashboard()">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div>
+                    <h3 style="margin-bottom: 1rem; color: #374151;">📋 Recent Orders</h3>
+                    <div id="recentOrders"><p class="loading">Loading...</p></div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 1rem; color: #374151;">⚠️ Alerts & Actions</h3>
+                    <div id="alertsPanel">
+                        <div class="alert alert-warning">📦 <strong id="lowStockAlert">0</strong> products need restocking</div>
+                        <div class="alert alert-info">📋 <strong id="pendingAlert">0</strong> orders awaiting processing</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="tab-content" id="tab-orders">
+            <div class="section-header">
+                <h2>📋 Order Management</h2>
+                <div class="actions">
+                    <button class="btn btn-primary btn-sm" onclick="loadOrders()">🔄 Refresh</button>
+                </div>
+            </div>
+            <div class="filters">
+                <select id="orderStatus" onchange="loadOrders()">
+                    <option value="">All Status</option>
+                    <option value="Pending">⏳ Pending</option>
+                    <option value="Completed">✅ Completed</option>
+                    <option value="Cancelled">❌ Cancelled</option>
+                </select>
+                <input type="text" id="orderSearch" placeholder="Search by order number or customer..." onkeyup="filterOrders()">
+            </div>
+            <div class="table-container" id="ordersTable"><p class="loading">Loading orders...</p></div>
+        </div>
+
+        <!-- Customers Tab -->
+        <div class="tab-content" id="tab-customers">
+            <div class="section-header">
+                <h2>👥 Customer Management</h2>
+                <div class="actions">
+                    <button class="btn btn-primary btn-sm" onclick="loadCustomers()">🔄 Refresh</button>
+                </div>
+            </div>
+            <div class="filters">
+                <select id="membershipFilter" onchange="filterCustomers()">
+                    <option value="">All Tiers</option>
+                    <option value="Bronze">🥉 Bronze</option>
+                    <option value="Silver">🥈 Silver</option>
+                    <option value="Gold">🥇 Gold</option>
+                    <option value="Platinum">💎 Platinum</option>
+                </select>
+                <input type="text" id="customerSearch" placeholder="Search by name, email or phone..." onkeyup="filterCustomers()">
+            </div>
+            <div class="table-container" id="customersTable"><p class="loading">Loading customers...</p></div>
+        </div>
+
+        <!-- Inventory Tab -->
+        <div class="tab-content" id="tab-inventory">
+            <div class="section-header">
+                <h2>📦 Product Inventory</h2>
+                <div class="actions">
+                    <button class="btn btn-primary btn-sm" onclick="loadProducts()">🔄 Refresh</button>
+                </div>
+            </div>
+            <div class="filters">
+                <select id="categoryFilter" onchange="filterProducts()">
+                    <option value="">All Categories</option>
+                </select>
+                <select id="stockFilter" onchange="filterProducts()">
+                    <option value="">All Stock Levels</option>
+                    <option value="low">⚠️ Low Stock (≤10)</option>
+                    <option value="out">❌ Out of Stock</option>
+                    <option value="ok">✅ In Stock (>10)</option>
+                </select>
+                <input type="text" id="productSearch" placeholder="Search products..." onkeyup="filterProducts()">
+            </div>
+            <div class="table-container" id="productsTable"><p class="loading">Loading products...</p></div>
+        </div>
+
+        <!-- Staff Tab -->
+        <div class="tab-content" id="tab-staff">
+            <div class="section-header">
+                <h2>👔 Employee Directory</h2>
+                <div class="actions">
+                    <button class="btn btn-primary btn-sm" onclick="loadEmployees()">🔄 Refresh</button>
+                </div>
+            </div>
+            <div class="filters">
+                <select id="branchFilter" onchange="filterEmployees()">
+                    <option value="">All Branches</option>
+                </select>
+                <select id="positionFilter" onchange="filterEmployees()">
+                    <option value="">All Positions</option>
+                </select>
+                <input type="text" id="employeeSearch" placeholder="Search employees..." onkeyup="filterEmployees()">
+            </div>
+            <div class="table-container" id="employeesTable"><p class="loading">Loading employees...</p></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+        let allOrders = [], allCustomers = [], allProducts = [], allEmployees = [];
+
+        // =====================================================
+        // Initialization
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            const admin = JSON.parse(localStorage.getItem('currentAdmin') || 'null');
+            if (!admin || localStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Check permission
+            if (admin.position !== 'Store Manager') {
+                alert('Access denied. Store Manager only.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            document.getElementById('adminName').textContent = admin.name;
+            document.getElementById('branchBadge').textContent = '📍 ' + admin.branch_name;
+            document.getElementById('loginTime').textContent = 'Login: ' + new Date().toLocaleTimeString();
+            
+            setupTabs();
+            loadDashboard();
+            loadRecentOrders();
+        });
+
+        function logout() {
+            if (confirm('Logout from Admin Portal?')) {
+                localStorage.removeItem('adminLoggedIn');
+                localStorage.removeItem('currentAdmin');
+                window.location.href = '../index.html';
+            }
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+                    
+                    switch(this.dataset.tab) {
+                        case 'overview': loadRecentOrders(); break;
+                        case 'orders': loadOrders(); break;
+                        case 'customers': loadCustomers(); break;
+                        case 'inventory': loadProducts(); break;
+                        case 'staff': loadEmployees(); break;
+                    }
+                });
+            });
+        }
+
+        // =====================================================
+        // Dashboard Stats
+        // =====================================================
+        async function loadDashboard() {
+            try {
+                const res = await fetch(`${API_BASE}/admin.php?action=dashboard`);
+                const data = await res.json();
+                if (data.success) {
+                    const d = data.data;
+                    document.getElementById('todayRevenue').textContent = '£' + d.today_revenue.toLocaleString('en-GB', {minimumFractionDigits: 2});
+                    document.getElementById('pendingOrders').textContent = d.today_orders; // Will be updated by orders
+                    document.getElementById('totalCustomers').textContent = d.total_customers;
+                    document.getElementById('newCustomers').textContent = '+' + d.new_customers_month + ' this month';
+                    document.getElementById('lowStockCount').textContent = d.low_stock_count;
+                    document.getElementById('totalStaff').textContent = d.total_employees;
+                    document.getElementById('lowStockAlert').textContent = d.low_stock_count;
+                }
+            } catch(e) { console.error('Dashboard error:', e); }
+        }
+
+        async function loadRecentOrders() {
+            const container = document.getElementById('recentOrders');
+            try {
+                const res = await fetch(`${API_BASE}/admin.php?action=orders&limit=5`);
+                const data = await res.json();
+                if (data.success && data.data.length) {
+                    const pending = data.data.filter(o => o.status === 'Pending').length;
+                    document.getElementById('pendingOrders').textContent = pending;
+                    document.getElementById('ordersBadge').textContent = pending;
+                    document.getElementById('pendingAlert').textContent = pending;
+                    
+                    container.innerHTML = data.data.slice(0, 5).map(o => `
+                        <div style="display:flex; justify-content:space-between; padding:0.75rem; background:#f9fafb; border-radius:0.5rem; margin-bottom:0.5rem;">
+                            <div>
+                                <strong>${o.order_number}</strong>
+                                <div style="font-size:0.8rem; color:#6b7280;">${o.customer_name}</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-weight:600;">£${parseFloat(o.final_amount).toFixed(2)}</div>
+                                <span class="badge badge-${o.status === 'Pending' ? 'warning' : o.status === 'Completed' ? 'success' : 'danger'}">${o.status}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No recent orders</p></div>';
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load</div>'; }
+        }
+
+        // =====================================================
+        // Orders Management
+        // =====================================================
+        async function loadOrders() {
+            const container = document.getElementById('ordersTable');
+            const status = document.getElementById('orderStatus').value;
+            container.innerHTML = '<p class="loading">Loading orders...</p>';
+            
+            try {
+                let url = `${API_BASE}/admin.php?action=orders&limit=100`;
+                if (status) url += `&status=${status}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.success) {
+                    allOrders = data.data;
+                    const pending = allOrders.filter(o => o.status === 'Pending').length;
+                    document.getElementById('pendingOrders').textContent = pending;
+                    document.getElementById('ordersBadge').textContent = pending;
+                    renderOrders(allOrders);
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load orders</div>'; }
+        }
+
+        function filterOrders() {
+            const search = document.getElementById('orderSearch').value.toLowerCase();
+            const filtered = allOrders.filter(o => 
+                o.order_number.toLowerCase().includes(search) || 
+                (o.customer_name && o.customer_name.toLowerCase().includes(search))
+            );
+            renderOrders(filtered);
+        }
+
+        function renderOrders(orders) {
+            const container = document.getElementById('ordersTable');
+            if (!orders.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>No orders found</p></div>';
+                return;
+            }
+            
+            const statusBadge = s => {
+                const map = { 'Pending': 'warning', 'Completed': 'success', 'Cancelled': 'danger' };
+                return `<span class="badge badge-${map[s] || 'info'}">${s}</span>`;
+            };
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Order #</th><th>Customer</th><th>Items</th><th>Amount</th><th>Date</th><th>Branch</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        ${orders.map(o => `
+                            <tr>
+                                <td><strong>${o.order_number}</strong></td>
+                                <td>
+                                    ${o.customer_name}
+                                    ${o.membership_type ? `<br><span class="badge badge-purple">${o.membership_type}</span>` : ''}
+                                </td>
+                                <td>-</td>
+                                <td><strong>£${parseFloat(o.final_amount).toFixed(2)}</strong></td>
+                                <td>${new Date(o.order_date).toLocaleDateString('en-GB')}</td>
+                                <td>${o.branch_name || '-'}</td>
+                                <td>${statusBadge(o.status)}</td>
+                                <td>
+                                    ${o.status === 'Pending' ? `
+                                        <button class="btn btn-success btn-sm" onclick="updateOrderStatus(${o.order_id}, 'Completed', '${o.order_number}')">✅ Complete</button>
+                                        <button class="btn btn-danger btn-sm" onclick="updateOrderStatus(${o.order_id}, 'Cancelled', '${o.order_number}')">❌ Cancel</button>
+                                    ` : '<span style="color:#9ca3af;">—</span>'}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function updateOrderStatus(orderId, status, orderNumber) {
+            const action = status === 'Completed' ? 'complete' : 'cancel';
+            if (!confirm(`${action.charAt(0).toUpperCase() + action.slice(1)} order ${orderNumber}?`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/orders.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: orderId, status: status })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(`✅ Order ${orderNumber} ${status.toLowerCase()}!`);
+                    loadOrders();
+                    loadDashboard();
+                } else {
+                    alert('❌ Failed: ' + (data.message || 'Unknown error'));
+                }
+            } catch(e) { alert('❌ Error updating order'); }
+        }
+
+        // =====================================================
+        // Customer Management
+        // =====================================================
+        async function loadCustomers() {
+            const container = document.getElementById('customersTable');
+            container.innerHTML = '<p class="loading">Loading customers...</p>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin.php?action=customers`);
+                const data = await res.json();
+                if (data.success) {
+                    allCustomers = data.data;
+                    renderCustomers(allCustomers);
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load customers</div>'; }
+        }
+
+        function filterCustomers() {
+            const tier = document.getElementById('membershipFilter').value;
+            const search = document.getElementById('customerSearch').value.toLowerCase();
+            let filtered = allCustomers;
+            if (tier) filtered = filtered.filter(c => c.membership_type === tier);
+            if (search) filtered = filtered.filter(c => 
+                c.name.toLowerCase().includes(search) || 
+                c.email.toLowerCase().includes(search) ||
+                (c.phone && c.phone.includes(search))
+            );
+            renderCustomers(filtered);
+        }
+
+        function renderCustomers(customers) {
+            const container = document.getElementById('customersTable');
+            if (!customers.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No customers found</p></div>';
+                return;
+            }
+            
+            const tierEmoji = { 'Bronze': '🥉', 'Silver': '🥈', 'Gold': '🥇', 'Platinum': '💎' };
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Customer</th><th>Contact</th><th>Location</th><th>Membership</th><th>Points</th><th>Total Spent</th><th>Since</th></tr>
+                    </thead>
+                    <tbody>
+                        ${customers.map(c => `
+                            <tr>
+                                <td><strong>${c.name}</strong></td>
+                                <td>
+                                    <div>${c.email}</div>
+                                    <div style="color:#6b7280; font-size:0.8rem;">${c.phone}</div>
+                                </td>
+                                <td>${c.city || '-'}</td>
+                                <td><span class="badge badge-${c.membership_type === 'Platinum' ? 'purple' : c.membership_type === 'Gold' ? 'warning' : 'info'}">${tierEmoji[c.membership_type] || ''} ${c.membership_type}</span></td>
+                                <td>${c.total_points.toLocaleString()}</td>
+                                <td><strong>£${parseFloat(c.total_spent).toLocaleString('en-GB', {minimumFractionDigits: 2})}</strong></td>
+                                <td>${new Date(c.registration_date).toLocaleDateString('en-GB')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // =====================================================
+        // Inventory Management
+        // =====================================================
+        async function loadProducts() {
+            const container = document.getElementById('productsTable');
+            container.innerHTML = '<p class="loading">Loading products...</p>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin.php?action=products`);
+                const data = await res.json();
+                if (data.success) {
+                    allProducts = data.data;
+                    
+                    // Build category filter
+                    const categories = [...new Set(allProducts.map(p => p.category))].sort();
+                    document.getElementById('categoryFilter').innerHTML = '<option value="">All Categories</option>' + 
+                        categories.map(c => `<option value="${c}">${c}</option>`).join('');
+                    
+                    renderProducts(allProducts);
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load products</div>'; }
+        }
+
+        function filterProducts() {
+            const category = document.getElementById('categoryFilter').value;
+            const stockLevel = document.getElementById('stockFilter').value;
+            const search = document.getElementById('productSearch').value.toLowerCase();
+            
+            let filtered = allProducts;
+            if (category) filtered = filtered.filter(p => p.category === category);
+            if (stockLevel === 'low') filtered = filtered.filter(p => p.stock_quantity > 0 && p.stock_quantity <= 10);
+            if (stockLevel === 'out') filtered = filtered.filter(p => p.stock_quantity === 0);
+            if (stockLevel === 'ok') filtered = filtered.filter(p => p.stock_quantity > 10);
+            if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || p.sku.toLowerCase().includes(search));
+            
+            renderProducts(filtered);
+        }
+
+        function renderProducts(products) {
+            const container = document.getElementById('productsTable');
+            if (!products.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No products found</p></div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>SKU</th><th>Product</th><th>Category</th><th>Cost</th><th>Price</th><th>Margin</th><th>Stock</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(p => {
+                            const cost = parseFloat(p.cost_price);
+                            const price = parseFloat(p.retail_price);
+                            const margin = ((price - cost) / price * 100).toFixed(1);
+                            const stockClass = p.stock_quantity > 10 ? 'success' : p.stock_quantity > 0 ? 'warning' : 'danger';
+                            return `
+                            <tr>
+                                <td><code style="background:#f3f4f6; padding:0.25rem 0.5rem; border-radius:0.25rem;">${p.sku}</code></td>
+                                <td>
+                                    <strong>${p.name}</strong>
+                                    <div style="color:#6b7280; font-size:0.8rem;">${p.brand}</div>
+                                </td>
+                                <td>${p.category}</td>
+                                <td>£${cost.toFixed(2)}</td>
+                                <td><strong>£${price.toFixed(2)}</strong></td>
+                                <td><span style="color:${margin > 30 ? '#10b981' : '#f59e0b'}">${margin}%</span></td>
+                                <td><span class="badge badge-${stockClass}">${p.stock_quantity} units</span></td>
+                                <td><span class="badge badge-${p.status === 'Active' ? 'success' : 'danger'}">${p.status}</span></td>
+                            </tr>
+                        `}).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // =====================================================
+        // Employee Management
+        // =====================================================
+        async function loadEmployees() {
+            const container = document.getElementById('employeesTable');
+            container.innerHTML = '<p class="loading">Loading employees...</p>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin.php?action=employees`);
+                const data = await res.json();
+                if (data.success) {
+                    allEmployees = data.data;
+                    
+                    // Build filters
+                    const branches = [...new Set(allEmployees.map(e => e.branch_name))].sort();
+                    const positions = [...new Set(allEmployees.map(e => e.position))].sort();
+                    
+                    document.getElementById('branchFilter').innerHTML = '<option value="">All Branches</option>' + 
+                        branches.map(b => `<option value="${b}">${b}</option>`).join('');
+                    document.getElementById('positionFilter').innerHTML = '<option value="">All Positions</option>' + 
+                        positions.map(p => `<option value="${p}">${p}</option>`).join('');
+                    
+                    renderEmployees(allEmployees);
+                }
+            } catch(e) { container.innerHTML = '<div class="alert alert-warning">Failed to load employees</div>'; }
+        }
+
+        function filterEmployees() {
+            const branch = document.getElementById('branchFilter').value;
+            const position = document.getElementById('positionFilter').value;
+            const search = document.getElementById('employeeSearch').value.toLowerCase();
+            
+            let filtered = allEmployees;
+            if (branch) filtered = filtered.filter(e => e.branch_name === branch);
+            if (position) filtered = filtered.filter(e => e.position === position);
+            if (search) filtered = filtered.filter(e => e.name.toLowerCase().includes(search) || e.email.toLowerCase().includes(search));
+            
+            renderEmployees(filtered);
+        }
+
+        function renderEmployees(employees) {
+            const container = document.getElementById('employeesTable');
+            if (!employees.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">👔</div><p>No employees found</p></div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Employee</th><th>Contact</th><th>Position</th><th>Branch</th><th>Hire Date</th><th>Salary</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        ${employees.map(e => `
+                            <tr>
+                                <td><strong>${e.name}</strong></td>
+                                <td>
+                                    <div>${e.email}</div>
+                                    <div style="color:#6b7280; font-size:0.8rem;">${e.phone || '-'}</div>
+                                </td>
+                                <td><span class="badge badge-purple">${e.position}</span></td>
+                                <td>${e.branch_name}</td>
+                                <td>${new Date(e.hire_date).toLocaleDateString('en-GB')}</td>
+                                <td><strong>£${parseFloat(e.salary).toLocaleString()}</strong>/yr</td>
+                                <td><span class="badge badge-${e.is_active ? 'success' : 'danger'}">${e.is_active ? 'Active' : 'Inactive'}</span></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+    </script>
+</body>
+</html>

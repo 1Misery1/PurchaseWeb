@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .login-container {
+            max-width: 450px;
+            margin: 3rem auto;
+            padding: 2rem;
+        }
+        .login-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 1rem;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .login-header h2 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .login-header p {
+            color: #94a3b8;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #334155;
+            border-radius: 0.5rem;
+            background: #0f172a;
+            color: #fff;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #f97316;
+        }
+        .form-group input::placeholder {
+            color: #64748b;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+            border: none;
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(249, 115, 22, 0.3);
+        }
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #94a3b8;
+        }
+        .login-footer a {
+            color: #f97316;
+            text-decoration: none;
+        }
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            background: #7f1d1d;
+            color: #fecaca;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .success-message {
+            background: #14532d;
+            color: #bbf7d0;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .demo-accounts {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+        .demo-accounts h4 {
+            color: #f97316;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+        .demo-account {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 0.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .demo-account:last-child {
+            margin-bottom: 0;
+        }
+        .demo-account span {
+            color: #e2e8f0;
+            font-size: 0.85rem;
+        }
+        .demo-account button {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            background: #f97316;
+            border: none;
+            border-radius: 0.25rem;
+            color: #fff;
+            cursor: pointer;
+        }
+        .demo-account button:hover {
+            background: #ea580c;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2>🔐 Customer Login</h2>
+                <p>Welcome back! Please sign in to your account.</p>
+            </div>
+
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">📧 Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="your.email@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">🔑 Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="btn-login" id="loginBtn">
+                    Login
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Don't have an account? <a href="register.html">Register here</a></p>
+            </div>
+
+            <!-- Demo Accounts -->
+            <div class="demo-accounts">
+                <h4>🧪 Demo Accounts (for testing)</h4>
+                <div class="demo-account">
+                    <span>james.wilson@email.com</span>
+                    <button onclick="fillDemo('james.wilson@email.com', 'hash123')">Use</button>
+                </div>
+                <div class="demo-account">
+                    <span>emma.t@email.com</span>
+                    <button onclick="fillDemo('emma.t@email.com', 'hash123')">Use</button>
+                </div>
+                <div class="demo-account">
+                    <span>o.brown@email.com</span>
+                    <button onclick="fillDemo('o.brown@email.com', 'hash123')">Use</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fill demo account credentials
+        function fillDemo(email, password) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+        }
+
+        // Demo customers from database
+        const demoCustomers = {
+            'james.wilson@email.com': {
+                customer_id: 1,
+                name: 'James Wilson',
+                email: 'james.wilson@email.com',
+                membershipType: 'Gold',
+                points: 2450,
+                totalSpent: 2850.00
+            },
+            'emma.t@email.com': {
+                customer_id: 2,
+                name: 'Emma Thompson',
+                email: 'emma.t@email.com',
+                membershipType: 'Silver',
+                points: 680,
+                totalSpent: 890.00
+            },
+            'o.brown@email.com': {
+                customer_id: 3,
+                name: 'Oliver Brown',
+                email: 'o.brown@email.com',
+                membershipType: 'Platinum',
+                points: 5200,
+                totalSpent: 6100.00
+            },
+            's.clark@email.com': {
+                customer_id: 4,
+                name: 'Sophie Clark',
+                email: 's.clark@email.com',
+                membershipType: 'Bronze',
+                points: 120,
+                totalSpent: 150.00
+            }
+        };
+
+        // Handle login form submission
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            // Disable button
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            
+            // Use demo mode directly (since PHP API might not be running)
+            // Check if email exists and password is correct
+            console.log('Checking login for:', email, 'password length:', password.length);
+            
+            if (demoCustomers[email] && password === 'hash123') {
+                const customer = demoCustomers[email];
+                
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentCustomer', JSON.stringify(customer));
+                
+                successMessage.textContent = '✅ Login successful! Redirecting...';
+                successMessage.style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } else {
+                console.log('Login failed. Email found:', !!demoCustomers[email], 'Password match:', password === 'hash123');
+                errorMessage.textContent = '❌ Invalid email or password. Please check and try again.';
+                errorMessage.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>
+

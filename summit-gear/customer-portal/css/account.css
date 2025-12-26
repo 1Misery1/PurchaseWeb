@@ -1,0 +1,560 @@
+/* =====================================================
+   账户页面样式
+   ===================================================== */
+
+.account-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+/* 侧边栏菜单 */
+.account-sidebar {
+    background: var(--card-bg);
+    padding: var(--spacing-md);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+    height: fit-content;
+    position: sticky;
+    top: 100px;
+}
+
+.account-sidebar h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+}
+
+.account-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.account-menu a {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: all 0.3s;
+    font-weight: 500;
+}
+
+.account-menu a:hover,
+.account-menu a.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* 内容区域 */
+.account-content {
+    background: var(--card-bg);
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+    box-shadow: var(--shadow-sm);
+    min-height: 600px;
+}
+
+.content-section {
+    display: none;
+}
+
+.content-section.active {
+    display: block;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-lg);
+    color: var(--primary-color);
+}
+
+.welcome-text {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-lg);
+}
+
+/* 统计卡片网格 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.stat-card {
+    background: var(--background);
+    padding: var(--spacing-md);
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-card.gold-card {
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+}
+
+.stat-info h3 {
+    font-size: 1.125rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.stat-info p {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* 信息卡片 */
+.info-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-md);
+}
+
+.info-card {
+    background: var(--background);
+    padding: var(--spacing-md);
+    border-radius: 0.75rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.info-card.success-card {
+    border-left-color: var(--success-color);
+    background: #F0FDF4;
+}
+
+.info-card h4 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.info-card p {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+/* 筛选栏 */
+.filter-bar {
+    display: flex;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.filter-bar select,
+.filter-bar input {
+    padding: 0.625rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+    background: white;
+}
+
+/* 订单列表 */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.order-card {
+    background: var(--background);
+    padding: var(--spacing-md);
+    border-radius: 0.75rem;
+    border: 1px solid var(--border-color);
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-sm);
+}
+
+.order-header h3 {
+    font-size: 1.125rem;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.order-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.status-badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-badge.completed {
+    background: var(--success-color);
+    color: white;
+}
+
+.order-info {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.order-items {
+    background: white;
+    padding: var(--spacing-sm);
+    border-radius: 0.5rem;
+    margin-bottom: var(--spacing-sm);
+}
+
+.order-items p {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* 会员卡片 */
+.membership-card {
+    background: linear-gradient(135deg, var(--gold-color), #F59E0B);
+    color: white;
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.membership-header h3 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+}
+
+.membership-details p {
+    margin-bottom: 0.5rem;
+    font-size: 1.125rem;
+}
+
+.benefits-card {
+    background: var(--background);
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.benefits-card h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+}
+
+.benefits-list {
+    list-style: none;
+}
+
+.benefits-list li {
+    padding: 0.5rem 0;
+    font-size: 1rem;
+}
+
+.tiers-info {
+    background: var(--background);
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+}
+
+.tiers-info h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.tier-card {
+    background: white;
+    padding: var(--spacing-md);
+    border-radius: 0.75rem;
+    margin-bottom: var(--spacing-md);
+    border-left: 4px solid var(--border-color);
+}
+
+.tier-card.active {
+    border-left-color: var(--gold-color);
+    background: #FEF3C7;
+}
+
+.tier-card h4 {
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-primary);
+}
+
+.tier-card p {
+    margin-bottom: 0.25rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+/* 积分余额卡片 */
+.points-balance-card {
+    background: linear-gradient(135deg, #DBEAFE, #BFDBFE);
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.points-balance-card h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.points-balance {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--spacing-sm);
+}
+
+.points-amount {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.points-value {
+    font-size: 1.125rem;
+    color: var(--text-secondary);
+}
+
+.points-info {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+/* 积分兑换 */
+.points-redeem {
+    background: var(--background);
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.points-redeem h3 {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.redeem-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.redeem-btn {
+    padding: 1rem;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.redeem-btn:hover {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.note {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+/* 积分历史表格 */
+.points-history {
+    background: var(--background);
+    padding: var(--spacing-lg);
+    border-radius: 1rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.points-history h3 {
+    margin-bottom: var(--spacing-md);
+}
+
+.points-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.points-table thead {
+    background: var(--primary-color);
+    color: white;
+}
+
+.points-table th,
+.points-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.points-table th {
+    font-weight: 600;
+}
+
+.points-table td.positive {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.points-table td.negative {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+.points-table small {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.points-note {
+    background: #FEF3C7;
+    padding: var(--spacing-md);
+    border-radius: 0.75rem;
+    text-align: center;
+}
+
+.points-note p {
+    margin-bottom: var(--spacing-sm);
+}
+
+/* 表单样式 */
+.profile-form {
+    max-width: 800px;
+}
+
+.form-section {
+    margin-bottom: var(--spacing-xl);
+}
+
+.form-section h3 {
+    font-size: 1.25rem;
+    margin-bottom: var(--spacing-md);
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: var(--spacing-xs);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-md);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-weight: normal;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: auto;
+    cursor: pointer;
+}
+
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+/* 响应式设计 */
+@media (max-width: 1024px) {
+    .account-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .account-sidebar {
+        position: static;
+    }
+    
+    .account-menu {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .order-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+    }
+    
+    .redeem-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+

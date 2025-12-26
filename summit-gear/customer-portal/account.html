@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/account.css">
+    <style>
+        /* Review Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        .review-modal-content {
+            background: white;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            border-bottom: 1px solid #E5E7EB;
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 65vh;
+            overflow-y: auto;
+        }
+        
+        /* Product Review Items */
+        .review-product-item {
+            border: 1px solid #E5E7EB;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            background: #F9FAFB;
+        }
+        .review-product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .review-product-info h4 {
+            margin: 0 0 0.25rem 0;
+            color: #1F2937;
+        }
+        .review-product-info p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: #6B7280;
+        }
+        .review-status-badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .review-status-badge.reviewed {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .review-status-badge.not-reviewed {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        /* Star Rating */
+        .star-rating-input {
+            display: flex;
+            gap: 0.25rem;
+            margin: 0.75rem 0;
+        }
+        .star-rating-input .star {
+            font-size: 1.75rem;
+            cursor: pointer;
+            color: #D1D5DB;
+            transition: color 0.15s, transform 0.15s;
+        }
+        .star-rating-input .star:hover,
+        .star-rating-input .star.active {
+            color: #FBBF24;
+            transform: scale(1.1);
+        }
+        .star-rating-input .star.hovered {
+            color: #FCD34D;
+        }
+        
+        /* Review Form */
+        .review-form {
+            margin-top: 0.75rem;
+        }
+        .review-form label {
+            display: block;
+            margin-bottom: 0.375rem;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+        .review-form input[type="text"],
+        .review-form textarea {
+            width: 100%;
+            padding: 0.625rem;
+            border: 1px solid #D1D5DB;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .review-form input[type="text"]:focus,
+        .review-form textarea:focus {
+            outline: none;
+            border-color: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+        .review-form textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        /* Buttons */
+        .btn-submit-review {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-submit-review:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-submit-review:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-view-review {
+            background: #E5E7EB;
+            color: #374151;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: background 0.2s;
+        }
+        .btn-view-review:hover {
+            background: #D1D5DB;
+        }
+        
+        /* Existing Review Display */
+        .existing-review {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 0.75rem;
+        }
+        .existing-review .review-rating {
+            color: #FBBF24;
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+        .existing-review .review-title {
+            font-weight: 600;
+            color: #1F2937;
+            margin-bottom: 0.5rem;
+        }
+        .existing-review .review-content {
+            color: #4B5563;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html">🏪 Stores</a>
+                <a href="account.html" class="active">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">0</span></a>
+            </div>
+            <div class="user-info">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- 未登录提示 -->
+        <div id="loginRequired" style="display: none;">
+            <div class="page-header">
+                <h1>👤 My Account</h1>
+            </div>
+            <div class="login-prompt" style="text-align: center; padding: 3rem;">
+                <h2>🔒 Please Login to View Your Account</h2>
+                <p style="margin: 1rem 0; color: #6B7280;">You need to be logged in to access your account information.</p>
+                <div style="margin-top: 2rem;">
+                    <a href="login.html" class="btn btn-primary" style="margin-right: 1rem;">🔑 Login</a>
+                    <a href="register.html" class="btn btn-secondary">📝 Register</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 已登录内容 -->
+        <div id="accountContent" style="display: none;">
+            <div class="page-header">
+                <h1>👤 My Account - <span id="accountUserName">User</span></h1>
+            </div>
+
+            <div class="account-layout">
+                <!-- 侧边栏菜单 -->
+                <aside class="account-sidebar">
+                    <h3>📋 Menu</h3>
+                    <nav class="account-menu">
+                        <a href="#overview" class="active" onclick="showSection('overview')">Overview</a>
+                        <a href="#orders" onclick="showSection('orders')">Order History</a>
+                        <a href="#membership" onclick="showSection('membership')">Membership</a>
+                        <a href="#points" onclick="showSection('points')">Points Management</a>
+                        <a href="#profile" onclick="showSection('profile')">Profile</a>
+                    </nav>
+                </aside>
+
+                <!-- 主要内容区 -->
+                <div class="account-content">
+                    <!-- 账户概览 -->
+                    <section id="overview" class="content-section active">
+                        <h2>📊 Account Overview</h2>
+                        <p class="welcome-text" id="welcomeText">Welcome back! 👋</p>
+                        <div class="stats-grid" id="statsGrid">
+                            <p>Loading...</p>
+                        </div>
+                        <div class="info-cards" id="infoCards">
+                            <!-- Dynamic content -->
+                        </div>
+                    </section>
+
+                    <!-- Order History -->
+                    <section id="orders" class="content-section">
+                        <h2>📦 Order History</h2>
+                        
+                        <div class="filter-bar">
+                            <select id="orderStatusFilter" onchange="filterOrders()">
+                                <option value="all">All Orders</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Cancelled">Cancelled</option>
+                            </select>
+                            <input type="text" id="orderSearchInput" placeholder="Search orders..." oninput="filterOrders()">
+                        </div>
+
+                        <div class="orders-list" id="ordersList">
+                            <p>Loading orders...</p>
+                        </div>
+
+                        <div id="noOrders" style="display: none; text-align: center; padding: 3rem; background: #F9FAFB; border-radius: 1rem;">
+                            <h3>📭 No Orders Yet</h3>
+                            <p style="color: #6B7280; margin: 1rem 0;">You haven't placed any orders yet.</p>
+                            <a href="products.html" class="btn btn-primary">🛍️ Start Shopping</a>
+                        </div>
+                    </section>
+
+                    <!-- 会员信息 -->
+                    <section id="membership" class="content-section">
+                        <h2>🎖️ Membership Details</h2>
+                        <div class="membership-card" id="membershipCard">
+                            <!-- Dynamic content -->
+                        </div>
+                        <div class="benefits-card" id="benefitsCard">
+                            <!-- Dynamic content -->
+                        </div>
+
+                        <div class="tiers-info">
+                            <h3>📊 Membership Tiers</h3>
+                            <div class="tier-card">
+                                <h4>🥉 Bronze</h4>
+                                <p><strong>Requirement:</strong> Register account</p>
+                                <p><strong>Discount:</strong> 0% OFF</p>
+                                <p><strong>Points:</strong> 1 Point per £1</p>
+                            </div>
+                            <div class="tier-card">
+                                <h4>🥈 Silver</h4>
+                                <p><strong>Requirement:</strong> Spend £1,000+</p>
+                                <p><strong>Discount:</strong> 5% OFF</p>
+                                <p><strong>Points:</strong> 1.5 Points per £1</p>
+                            </div>
+                            <div class="tier-card">
+                                <h4>🥇 Gold</h4>
+                                <p><strong>Requirement:</strong> Spend £5,000+</p>
+                                <p><strong>Discount:</strong> 10% OFF</p>
+                                <p><strong>Points:</strong> 2 Points per £1</p>
+                            </div>
+                            <div class="tier-card">
+                                <h4>💎 Platinum</h4>
+                                <p><strong>Requirement:</strong> Spend £10,000+</p>
+                                <p><strong>Discount:</strong> 15% OFF</p>
+                                <p><strong>Points:</strong> 3 Points per £1</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 积分管理 -->
+                    <section id="points" class="content-section">
+                        <h2>💰 Points Management</h2>
+                        <div class="points-overview" id="pointsOverview">
+                            <!-- Dynamic content -->
+                        </div>
+                        <div class="points-info">
+                            <h3>💡 How Points Work</h3>
+                            <ul>
+                                <li>Earn points with every purchase</li>
+                                <li>100 Points = £1.00 discount</li>
+                                <li>Points never expire for active members</li>
+                                <li>Use points at checkout for instant savings</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <!-- 个人资料 -->
+                    <section id="profile" class="content-section">
+                        <h2>👤 Profile Settings</h2>
+                        <div class="profile-form" id="profileForm">
+                            <!-- Dynamic content -->
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 评价模态框 -->
+    <div id="reviewModal" class="modal" style="display: none;">
+        <div class="modal-content review-modal-content">
+            <div class="modal-header">
+                <h2>⭐ Write Product Reviews</h2>
+                <button class="close-btn" onclick="closeReviewModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="reviewModalBody">
+                <p>Loading order items...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退货申请模态框 -->
+    <div id="returnModal" class="modal" style="display: none;">
+        <div class="modal-content review-modal-content" style="max-width: 500px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <h2>↩️ Request Return</h2>
+                <button class="close-btn" onclick="closeReturnModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 1.5rem;">
+                <form id="returnForm" onsubmit="submitReturnRequest(event)">
+                    <input type="hidden" id="returnOrderId">
+                    <div style="margin-bottom: 1rem;">
+                        <p><strong>Order:</strong> <span id="returnOrderNumber"></span></p>
+                        <p><strong>Amount:</strong> £<span id="returnOrderAmount"></span></p>
+                    </div>
+                    <div style="margin-bottom: 1rem;">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Reason for Return *</label>
+                        <select id="returnReason" required style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem;">
+                            <option value="">-- Select Reason --</option>
+                            <option value="Defective">Defective Product</option>
+                            <option value="Wrong Item">Wrong Item Received</option>
+                            <option value="Not as Described">Not as Described</option>
+                            <option value="Changed Mind">Changed My Mind</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Additional Details</label>
+                        <textarea id="returnDescription" rows="3" placeholder="Please describe the issue..." style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.5rem; resize: vertical;"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button type="button" class="btn" style="background: #6b7280; color: white;" onclick="closeReturnModal()">Cancel</button>
+                        <button type="submit" class="btn" style="background: #ef4444; color: white;">Submit Return Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <p>© 2025 Summit Gear & Adventures. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/shared.js?v=12"></script>
+    <script>
+        // =====================================================
+        // Account Page - Database Connected Version
+        // =====================================================
+        console.log('✅ Account page loaded - Database Connected');
+        
+        let allOrders = [];
+        let filteredOrders = [];
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            await initAccountPage();
+            
+            // Handle hash navigation
+            if (window.location.hash) {
+                const section = window.location.hash.replace('#', '');
+                if (['overview', 'orders', 'membership', 'points', 'profile'].includes(section)) {
+                    showSection(section);
+                }
+            }
+        });
+
+        async function initAccountPage() {
+            const customer = getCurrentCustomer();
+
+            if (!isLoggedIn() || !customer) {
+                document.getElementById('loginRequired').style.display = 'block';
+                document.getElementById('accountContent').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('loginRequired').style.display = 'none';
+            document.getElementById('accountContent').style.display = 'block';
+
+            // Set user name
+            document.getElementById('accountUserName').textContent = customer.name;
+            document.getElementById('welcomeText').textContent = `Welcome back, ${customer.name.split(' ')[0]}! 👋`;
+
+            // Load sections
+            loadOverviewStats();
+            await loadOrderHistory();
+            loadMembershipInfo();
+            loadPointsInfo();
+            loadProfileForm();
+        }
+
+        // =====================================================
+        // Overview Section
+        // =====================================================
+        function loadOverviewStats() {
+            const customer = getCurrentCustomer();
+            const emoji = getMembershipEmoji(customer.membership_type);
+            const discount = getMembershipDiscount(customer.membership_type);
+            const points = customer.total_points || 0;
+            const totalSpent = parseFloat(customer.total_spent) || 0;
+
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card ${(customer.membership_type || 'Bronze').toLowerCase()}-card">
+                    <div class="stat-icon">${emoji}</div>
+                    <div class="stat-info">
+                        <h3>${customer.membership_type || 'Bronze'} Member</h3>
+                        <p>${discount}% Discount</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <h3>${points.toLocaleString()} Points</h3>
+                        <p>Worth £${(points / 100).toFixed(2)}</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📦</div>
+                    <div class="stat-info">
+                        <h3>${allOrders.length} Orders</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">🛍️</div>
+                    <div class="stat-info">
+                        <h3>£${totalSpent.toFixed(2)}</h3>
+                        <p>Total Spent</p>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('infoCards').innerHTML = `
+                <div class="info-card">
+                    <h4>🎉 Membership Info</h4>
+                    <p><strong>Member Level:</strong> ${emoji} ${customer.membership_type || 'Bronze'}</p>
+                    <p><strong>Member Since:</strong> ${formatDate(customer.registration_date)}</p>
+                    <p><strong>Total Orders:</strong> ${allOrders.length}</p>
+                </div>
+
+                <div class="info-card success-card">
+                    <h4>🎯 Progress to Next Level</h4>
+                    ${getNextLevelProgress(customer)}
+                </div>
+            `;
+        }
+
+        function getNextLevelProgress(customer) {
+            const totalSpent = parseFloat(customer.total_spent) || 0;
+            const membershipType = customer.membership_type || 'Bronze';
+
+            const thresholds = {
+                'Bronze': { next: 'Silver', amount: 1000 },
+                'Silver': { next: 'Gold', amount: 5000 },
+                'Gold': { next: 'Platinum', amount: 10000 },
+                'Platinum': { next: null, amount: null }
+            };
+
+            const current = thresholds[membershipType];
+            
+            if (!current || !current.next) {
+                return `
+                    <p>🎊 Congratulations! You've reached the highest level!</p>
+                    <p>Enjoy all Platinum benefits including 15% discount.</p>
+                `;
+            }
+
+            const remaining = Math.max(0, current.amount - totalSpent);
+            const progress = Math.min((totalSpent / current.amount) * 100, 100);
+
+            return `
+                <p>Spend <strong>£${remaining.toFixed(2)}</strong> more to reach ${getMembershipEmoji(current.next)} ${current.next}</p>
+                <div class="progress-bar" style="background: #E5E7EB; border-radius: 0.5rem; height: 1rem; margin: 0.5rem 0;">
+                    <div style="background: #10B981; height: 100%; border-radius: 0.5rem; width: ${progress}%;"></div>
+                </div>
+                <p style="font-size: 0.9rem; color: #6B7280;">Progress: £${totalSpent.toFixed(2)} / £${current.amount}</p>
+            `;
+        }
+
+        // =====================================================
+        // Order History Section
+        // =====================================================
+        async function loadOrderHistory() {
+            try {
+                allOrders = await getCustomerOrders();
+                filterOrders();
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                document.getElementById('ordersList').innerHTML = '<p>Error loading orders</p>';
+            }
+        }
+
+        function filterOrders() {
+            const statusFilter = document.getElementById('orderStatusFilter').value;
+            const searchTerm = document.getElementById('orderSearchInput').value.toLowerCase();
+
+            filteredOrders = allOrders.filter(order => {
+                // Status filter
+                if (statusFilter !== 'all' && order.status !== statusFilter) return false;
+
+                // Search filter
+                if (searchTerm) {
+                    const matchId = order.order_number.toLowerCase().includes(searchTerm);
+                    if (!matchId) return false;
+                }
+
+                return true;
+            });
+
+            renderOrders();
+        }
+
+        function renderOrders() {
+            const ordersList = document.getElementById('ordersList');
+            const noOrders = document.getElementById('noOrders');
+
+            if (filteredOrders.length === 0) {
+                ordersList.innerHTML = '';
+                ordersList.style.display = 'none';
+                noOrders.style.display = 'block';
+                return;
+            }
+
+            ordersList.style.display = 'block';
+            noOrders.style.display = 'none';
+
+            ordersList.innerHTML = filteredOrders.map(order => {
+                const statusClass = (order.status || '').toLowerCase().replace(' ', '-');
+                const statusEmoji = {
+                    'Pending': '⏳',
+                    'Completed': '✅',
+                    'Cancelled': '❌',
+                    'Returned': '↩️'
+                };
+
+                return `
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div>
+                                <h3>Order #${order.order_number}</h3>
+                                <p class="order-date">${formatDate(order.order_date)}</p>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusEmoji[order.status] || '📦'} ${order.status}</span>
+                        </div>
+                        <div class="order-info">
+                            <p><strong>Total:</strong> £${parseFloat(order.final_amount).toFixed(2)} | <strong>Points Earned:</strong> +${order.points_earned || 0}</p>
+                            <p><strong>Payment:</strong> ${order.payment_method} | <strong>Branch:</strong> ${order.branch_name || 'N/A'}</p>
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-actions">
+                                <button class="btn btn-small" onclick="viewOrderDetails(${order.order_id})">👁️ View Details</button>
+                                ${order.status === 'Completed' ? 
+                                    `<button class="btn btn-small btn-warning" onclick="openReviewModal(${order.order_id})">⭐ Write Review</button>
+                                     <button class="btn btn-small" style="background:#ef4444;color:white;" onclick="openReturnModal(${order.order_id}, '${order.order_number}', ${order.final_amount})">↩️ Request Return</button>` : ''}
+                                ${order.status === 'Returned' ? `<span style="color:#6b7280;">↩️ Return Processed</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function viewOrderDetails(orderId) {
+            try {
+                const order = await getOrderDetails(orderId);
+                if (order) {
+                    let itemsText = 'Loading items...';
+                    if (order.items && order.items.length > 0) {
+                        itemsText = order.items.map(i => `- ${i.product_name} x${i.quantity}: £${parseFloat(i.total_price).toFixed(2)}`).join('\n');
+                    }
+                    
+                    alert(`Order #${order.order_number}\n\nDate: ${formatDate(order.order_date)}\nStatus: ${order.status}\nTotal: £${parseFloat(order.final_amount).toFixed(2)}\nPoints Earned: +${order.points_earned || 0}\n\nItems:\n${itemsText}`);
+                }
+            } catch (error) {
+                console.error('Error loading order details:', error);
+                showNotification('Error loading order details', 'error');
+            }
+        }
+
+        // =====================================================
+        // Membership Section
+        // =====================================================
+        function loadMembershipInfo() {
+            const customer = getCurrentCustomer();
+            const emoji = getMembershipEmoji(customer.membership_type);
+            const discount = getMembershipDiscount(customer.membership_type);
+            const totalSpent = parseFloat(customer.total_spent) || 0;
+
+            document.getElementById('membershipCard').innerHTML = `
+                <div class="membership-header ${(customer.membership_type || 'Bronze').toLowerCase()}">
+                    <h3>${emoji} ${customer.membership_type || 'Bronze'} Member</h3>
+                </div>
+                <div class="membership-details">
+                    <p><strong>Member Since:</strong> ${formatDate(customer.registration_date)}</p>
+                    <p><strong>Current Discount:</strong> ${discount}% off all products</p>
+                    <p><strong>Total Spending:</strong> £${totalSpent.toFixed(2)}</p>
+                    <p><strong>Points Rate:</strong> ${customer.point_rate || 1}x points per £1</p>
+                </div>
+            `;
+
+            const benefits = getBenefitsByTier(customer.membership_type);
+            document.getElementById('benefitsCard').innerHTML = `
+                <h3>🎁 Your Exclusive Benefits</h3>
+                <ul class="benefits-list">
+                    ${benefits.map(b => `<li>✅ ${b}</li>`).join('')}
+                </ul>
+            `;
+        }
+
+        function getBenefitsByTier(tier) {
+            const allBenefits = {
+                'Bronze': [
+                    '0% off all products (base price)',
+                    '1 point per £1 spent',
+                    'Access to member-only deals',
+                    'Email notifications for sales'
+                ],
+                'Silver': [
+                    '5% off all products',
+                    '1.5 points per £1 spent',
+                    'Early access to new products',
+                    'Priority customer support'
+                ],
+                'Gold': [
+                    '10% off all products',
+                    '2 points per £1 spent',
+                    'First access to limited editions',
+                    'Birthday reward (500 points)',
+                    'Free gift wrapping'
+                ],
+                'Platinum': [
+                    '15% off all products',
+                    '3 points per £1 spent',
+                    'Exclusive Platinum-only products',
+                    'Birthday reward (1000 points)',
+                    'Free shipping on all orders',
+                    'Invitation to VIP events'
+                ]
+            };
+            return allBenefits[tier] || allBenefits['Bronze'];
+        }
+
+        // =====================================================
+        // Points Section
+        // =====================================================
+        function loadPointsInfo() {
+            const customer = getCurrentCustomer();
+            const points = customer.total_points || 0;
+            const pointsValue = (points / 100).toFixed(2);
+            const pointRate = parseFloat(customer.point_rate) || 1;
+
+            document.getElementById('pointsOverview').innerHTML = `
+                <div class="points-card">
+                    <div class="points-balance">
+                        <h3>💰 Current Balance</h3>
+                        <div class="points-number" style="font-size: 3rem; color: #10B981; font-weight: bold;">${points.toLocaleString()}</div>
+                        <p>Points (Worth £${pointsValue})</p>
+                    </div>
+                </div>
+                
+                <div class="points-stats" style="margin-top: 1rem;">
+                    <div class="points-stat" style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                        <span class="label">Points Multiplier</span>
+                        <span class="value" style="float: right; font-weight: bold;">${pointRate}x</span>
+                    </div>
+                    <div class="points-stat" style="background: #f9fafb; padding: 1rem; border-radius: 0.5rem;">
+                        <span class="label">Membership Level</span>
+                        <span class="value" style="float: right; font-weight: bold;">${getMembershipEmoji(customer.membership_type)} ${customer.membership_type || 'Bronze'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // =====================================================
+        // Profile Section
+        // =====================================================
+        function loadProfileForm() {
+            const customer = getCurrentCustomer();
+
+            document.getElementById('profileForm').innerHTML = `
+                <form onsubmit="updateProfile(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="profileName" value="${customer.name || ''}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" id="profileEmail" value="${customer.email || ''}" required disabled>
+                        <small style="color: #6B7280;">Email cannot be changed</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="profilePhone" value="${customer.phone || ''}" placeholder="e.g., 07123456789">
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="profileAddress" value="${customer.address || ''}" placeholder="Enter your address">
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" id="profileCity" value="${customer.city || ''}" placeholder="Enter your city">
+                    </div>
+                    <div class="form-group">
+                        <label>Postcode</label>
+                        <input type="text" id="profilePostcode" value="${customer.postcode || ''}" placeholder="Enter your postcode">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                    </div>
+                </form>
+            `;
+        }
+
+        async function updateProfile(event) {
+            event.preventDefault();
+            
+            const customer = getCurrentCustomer();
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            
+            // Get form values
+            const updatedData = {
+                customer_id: customer.customer_id,
+                name: document.getElementById('profileName').value.trim(),
+                phone: document.getElementById('profilePhone').value.trim(),
+                address: document.getElementById('profileAddress').value.trim(),
+                city: document.getElementById('profileCity').value.trim(),
+                postcode: document.getElementById('profilePostcode').value.trim()
+            };
+
+            // Disable button while saving
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Saving...';
+            
+            try {
+                // Call API to update profile
+                const response = await fetch('/summit-gear/api/customers.php?action=update', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updatedData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update localStorage with new data
+                    const updatedCustomer = result.data;
+                    localStorage.setItem('currentCustomer', JSON.stringify(updatedCustomer));
+            
+            // Update page display
+                    document.getElementById('accountUserName').textContent = updatedCustomer.name;
+            
+                    showNotification('✅ Profile updated successfully!', 'success');
+                } else {
+                    showNotification('❌ ' + (result.message || 'Failed to update profile'), 'error');
+                }
+            } catch (error) {
+                console.error('Update profile error:', error);
+                showNotification('❌ Connection error. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 Save Changes';
+            }
+        }
+
+        // =====================================================
+        // Section Navigation
+        // =====================================================
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update menu active state
+            document.querySelectorAll('.account-menu a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + sectionId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // =====================================================
+        // Review System
+        // =====================================================
+        let currentReviewOrderId = null;
+        let orderProductsReviews = {};  // 存储每个商品的评价状态
+        
+        async function openReviewModal(orderId) {
+            currentReviewOrderId = orderId;
+            const modal = document.getElementById('reviewModal');
+            const modalBody = document.getElementById('reviewModalBody');
+            
+            modal.style.display = 'flex';
+            modalBody.innerHTML = '<p style="text-align: center; padding: 2rem;">⏳ Loading order items...</p>';
+            
+            try {
+                // 获取订单详情（包含商品列表）
+                const order = await getOrderDetails(orderId);
+                
+                if (!order || !order.items || order.items.length === 0) {
+                    modalBody.innerHTML = '<p style="text-align: center; padding: 2rem;">No items found in this order.</p>';
+                    return;
+                }
+                
+                const customer = getCurrentCustomer();
+                
+                // 获取用户对这些商品的评价
+                const reviewsResponse = await fetch(`/summit-gear/api/reviews.php?customer_id=${customer.customer_id}`);
+                const reviewsData = await reviewsResponse.json();
+                const existingReviews = reviewsData.success ? reviewsData.data : [];
+                
+                // 按product_id建立评价映射
+                const reviewsByProductId = {};
+                existingReviews.forEach(review => {
+                    reviewsByProductId[review.product_id] = review;
+                });
+                
+                // 渲染每个商品
+                let html = `<p style="margin-bottom: 1rem; color: #6B7280;">Order #${order.order_number} - ${order.items.length} item(s)</p>`;
+                
+                order.items.forEach(item => {
+                    const existingReview = reviewsByProductId[item.product_id];
+                    const isReviewed = !!existingReview;
+                    
+                    html += `
+                        <div class="review-product-item" id="product-review-${item.product_id}">
+                            <div class="review-product-header">
+                                <div class="review-product-info">
+                                    <h4>${item.product_name}</h4>
+                                    <p>SKU: ${item.sku} | Qty: ${item.quantity} | £${parseFloat(item.total_price).toFixed(2)}</p>
+                                </div>
+                                <span class="review-status-badge ${isReviewed ? 'reviewed' : 'not-reviewed'}">
+                                    ${isReviewed ? '✅ Reviewed' : '📝 Not Reviewed'}
+                                </span>
+                            </div>
+                            
+                            ${isReviewed ? renderExistingReview(existingReview) : renderReviewForm(item)}
+                        </div>
+                    `;
+                });
+                
+                modalBody.innerHTML = html;
+                
+                // 初始化星级评分事件
+                initStarRatingEvents();
+                
+            } catch (error) {
+                console.error('Error loading order for review:', error);
+                modalBody.innerHTML = '<p style="text-align: center; padding: 2rem; color: #DC2626;">❌ Failed to load order. Please try again.</p>';
+            }
+        }
+        
+        function renderExistingReview(review) {
+            const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            return `
+                <div class="existing-review">
+                    <div class="review-rating">${stars}</div>
+                    <div class="review-title">${escapeHtml(review.title)}</div>
+                    <div class="review-content">${escapeHtml(review.content)}</div>
+                    <p style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.5rem;">
+                        Reviewed on ${formatDate(review.created_at)}
+                    </p>
+                </div>
+            `;
+        }
+        
+        function renderReviewForm(item) {
+            return `
+                <div class="review-form" id="form-${item.product_id}">
+                    <label>Your Rating *</label>
+                    <div class="star-rating-input" data-product-id="${item.product_id}">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                    <input type="hidden" id="rating-${item.product_id}" value="0">
+                    
+                    <label>Review Title *</label>
+                    <input type="text" id="title-${item.product_id}" placeholder="Summarize your experience" maxlength="100">
+                    
+                    <label>Your Review *</label>
+                    <textarea id="content-${item.product_id}" placeholder="Tell others what you thought about this product..." maxlength="1000"></textarea>
+                    
+                    <button class="btn-submit-review" onclick="submitProductReview(${item.product_id}, '${escapeHtml(item.product_name)}')">
+                        ⭐ Submit Review
+                    </button>
+                </div>
+            `;
+        }
+        
+        function initStarRatingEvents() {
+            document.querySelectorAll('.star-rating-input').forEach(container => {
+                const productId = container.dataset.productId;
+                const stars = container.querySelectorAll('.star');
+                
+                stars.forEach(star => {
+                    star.addEventListener('mouseenter', function() {
+                        const value = parseInt(this.dataset.value);
+                        highlightStars(container, value);
+                    });
+                    
+                    star.addEventListener('mouseleave', function() {
+                        const currentRating = parseInt(document.getElementById(`rating-${productId}`).value) || 0;
+                        highlightStars(container, currentRating);
+                    });
+                    
+                    star.addEventListener('click', function() {
+                        const value = parseInt(this.dataset.value);
+                        document.getElementById(`rating-${productId}`).value = value;
+                        setActiveStars(container, value);
+                    });
+                });
+            });
+        }
+        
+        function highlightStars(container, value) {
+            container.querySelectorAll('.star').forEach(star => {
+                const starValue = parseInt(star.dataset.value);
+                star.classList.toggle('hovered', starValue <= value);
+            });
+        }
+        
+        function setActiveStars(container, value) {
+            container.querySelectorAll('.star').forEach(star => {
+                const starValue = parseInt(star.dataset.value);
+                star.classList.remove('hovered');
+                star.classList.toggle('active', starValue <= value);
+            });
+        }
+        
+        async function submitProductReview(productId, productName) {
+            const customer = getCurrentCustomer();
+            const rating = parseInt(document.getElementById(`rating-${productId}`).value);
+            const title = document.getElementById(`title-${productId}`).value.trim();
+            const content = document.getElementById(`content-${productId}`).value.trim();
+            
+            // 验证
+            if (!rating || rating < 1 || rating > 5) {
+                showNotification('Please select a rating (1-5 stars)', 'error');
+                return;
+            }
+            
+            if (!title) {
+                showNotification('Please enter a review title', 'error');
+                return;
+            }
+            
+            if (!content) {
+                showNotification('Please write your review', 'error');
+                return;
+            }
+            
+            const submitBtn = document.querySelector(`#form-${productId} .btn-submit-review`);
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Submitting...';
+            
+            try {
+                const response = await fetch('/summit-gear/api/reviews.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        customer_id: customer.customer_id,
+                        rating: rating,
+                        title: title,
+                        content: content
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification(`✅ Review for "${productName}" submitted successfully!`, 'success');
+                    
+                    // 更新UI显示已评价
+                    const productDiv = document.getElementById(`product-review-${productId}`);
+                    const badge = productDiv.querySelector('.review-status-badge');
+                    badge.className = 'review-status-badge reviewed';
+                    badge.innerHTML = '✅ Reviewed';
+                    
+                    // 替换表单为已评价显示
+                    const formDiv = document.getElementById(`form-${productId}`);
+                    formDiv.innerHTML = `
+                        <div class="existing-review">
+                            <div class="review-rating">${'★'.repeat(rating)}${'☆'.repeat(5-rating)}</div>
+                            <div class="review-title">${escapeHtml(title)}</div>
+                            <div class="review-content">${escapeHtml(content)}</div>
+                            <p style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.5rem;">
+                                Just reviewed
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    showNotification('❌ ' + (result.message || 'Failed to submit review'), 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '⭐ Submit Review';
+                }
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                showNotification('❌ Connection error. Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '⭐ Submit Review';
+            }
+        }
+        
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            currentReviewOrderId = null;
+        }
+        
+        // =====================================================
+        // Return Request Functions
+        // =====================================================
+        function openReturnModal(orderId, orderNumber, amount) {
+            document.getElementById('returnOrderId').value = orderId;
+            document.getElementById('returnOrderNumber').textContent = orderNumber;
+            document.getElementById('returnOrderAmount').textContent = parseFloat(amount).toFixed(2);
+            document.getElementById('returnReason').value = '';
+            document.getElementById('returnDescription').value = '';
+            document.getElementById('returnModal').style.display = 'flex';
+        }
+        
+        function closeReturnModal() {
+            document.getElementById('returnModal').style.display = 'none';
+        }
+        
+        async function submitReturnRequest(e) {
+            e.preventDefault();
+            
+            const orderId = document.getElementById('returnOrderId').value;
+            const reason = document.getElementById('returnReason').value;
+            const description = document.getElementById('returnDescription').value;
+            const customer = getCurrentCustomer();
+            
+            if (!reason) {
+                alert('Please select a reason for return');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/summit-gear/api/returns.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        customer_id: customer.customer_id,
+                        reason: reason,
+                        description: description
+                    })
+                });
+                
+                const result = await res.json();
+                
+                if (result.success) {
+                    alert('✅ Return request submitted successfully!\n\nYour request will be reviewed by our staff. We will notify you once it has been processed.');
+                    closeReturnModal();
+                    // Refresh orders to show pending return status
+                    await loadOrders();
+                } else {
+                    alert('❌ Failed to submit return request: ' + (result.message || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Return request error:', error);
+                alert('❌ Error submitting return request. Please try again.');
+            }
+        }
+        
+        // 关闭模态框（点击外部）
+        document.getElementById('reviewModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeReviewModal();
+            }
+        });
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

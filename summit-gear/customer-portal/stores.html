@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Locations - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/stores.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>🏔️ Summit Gear & Adventures</h1>
+                <p class="tagline">Gear Up, Explore Beyond</p>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">🏠 Home</a>
+                <a href="products.html">📦 Products</a>
+                <a href="stores.html" class="active">🏪 Stores</a>
+                <a href="account.html">👤 My Account</a>
+                <a href="cart.html" class="cart-link">🛒 Cart <span class="cart-count">0</span></a>
+            </div>
+            <div class="user-info">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="page-header">
+            <h1>🏪 Store Locations</h1>
+            <p>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Find our stores across Scotland</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-section">
+            <div class="search-box-large">
+                <input type="text" placeholder="🔍 Search by city or store name..." id="storeSearch">
+                <button class="btn btn-primary" onclick="filterStores()">Search</button>
+            </div>
+        </div>
+
+        <!-- Store List - 动态加载 -->
+        <div class="stores-list" id="storesList">
+            <div class="loading-placeholder" style="text-align: center; padding: 3rem;">
+                <p style="font-size: 2rem;">⏳</p>
+                <p>Loading store information...</p>
+            </div>
+        </div>
+
+        <!-- Store Summary - 动态加载 -->
+        <div class="store-summary" id="storeSummary">
+            <h2>🏴󠁧󠁢󠁳󠁣󠁴󠁿 Our Scotland Network</h2>
+            <div class="summary-stats">
+                <div class="stat-item">
+                    <strong id="storeCount">-</strong> Stores
+                </div>
+                <div class="stat-item">
+                    <strong id="staffCount">-</strong> Total Staff
+                </div>
+                <div class="stat-item">
+                    <strong>7 Days</strong> Open Weekly
+                </div>
+                <div class="stat-item">
+                    <strong id="cityCount">-</strong> Scottish Cities
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 Summit Gear & Adventures. All rights reserved.</p>
+            <p>📍 Serving Scotland from Edinburgh to Inverness</p>
+        </div>
+    </footer>
+
+    <script src="js/shared.js?v=8"></script>
+    <script>
+        // =====================================================
+        // 门店页面 - 从数据库动态加载
+        // =====================================================
+        
+        let allStores = [];
+        
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadStoresFromDB();
+            
+            // Setup search
+            document.getElementById('storeSearch').addEventListener('keyup', function(e) {
+                if (e.key === 'Enter') filterStores();
+            });
+        });
+        
+        async function loadStoresFromDB() {
+            try {
+                const response = await fetch('/summit-gear/api/branches.php');
+                const stores = await response.json();
+                
+                if (Array.isArray(stores) && stores.length > 0) {
+                    allStores = stores;
+                    renderStores(stores);
+                    updateSummary(stores);
+                    console.log('✅ Loaded', stores.length, 'stores from database');
+                } else {
+                    document.getElementById('storesList').innerHTML = `
+                        <div style="text-align: center; padding: 3rem;">
+                            <p style="font-size: 3rem;">😕</p>
+                            <p>No stores found in database.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading stores:', error);
+                document.getElementById('storesList').innerHTML = `
+                    <div style="text-align: center; padding: 3rem;">
+                        <p style="font-size: 3rem;">❌</p>
+                        <p>Error loading store data.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderStores(stores) {
+            const list = document.getElementById('storesList');
+            if (!list) return;
+            
+            // Sort by staff count descending to show flagship first
+            const sortedStores = [...stores].sort((a, b) => b.staff_count - a.staff_count);
+            
+            list.innerHTML = sortedStores.map((store, index) => {
+                const isFeatured = index === 0;
+                
+                return `
+                    <div class="store-card ${isFeatured ? 'featured' : ''}">
+                        <div class="store-header">
+                            <h2>📍 ${store.branch_name}</h2>
+                            ${isFeatured ? '<span class="badge">⭐ Flagship Store</span>' : ''}
+                        </div>
+                        
+                        <div class="store-info">
+                            <div class="info-section">
+                                <h3>Contact Information</h3>
+                                <p><strong>Address:</strong> ${store.address}</p>
+                                <p><strong>Phone:</strong> 📞 ${store.phone}</p>
+                                <p><strong>Email:</strong> 📧 ${store.email}</p>
+                            </div>
+
+                            <div class="info-section">
+                                <h3>Opening Hours</h3>
+                                <table class="hours-table">
+                                    <tr>
+                                        <td>Monday - Friday:</td>
+                                        <td><strong>9:00 AM - 7:00 PM</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Saturday:</td>
+                                        <td><strong>9:00 AM - 6:00 PM</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sunday:</td>
+                                        <td><strong>10:00 AM - 5:00 PM</strong></td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <div class="info-section">
+                                <h3>Store Manager</h3>
+                                <p><strong>${store.manager_name || 'Not Assigned'}</strong></p>
+                                <p>Staff: ${store.staff_count} employees</p>
+                                <p>Opened: ${formatDate(store.opening_date)}</p>
+                            </div>
+                        </div>
+
+                        <div class="store-actions">
+                            <button class="btn btn-primary" onclick="getDirections('${store.address}')">🗺️ Get Directions</button>
+                            <button class="btn btn-secondary" onclick="callStore('${store.phone}')">📞 Call</button>
+                            <button class="btn btn-secondary" onclick="emailStore('${store.email}')">📧 Email</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function updateSummary(stores) {
+            document.getElementById('storeCount').textContent = stores.length;
+            document.getElementById('staffCount').textContent = stores.reduce((sum, s) => sum + s.staff_count, 0);
+            document.getElementById('cityCount').textContent = new Set(stores.map(s => s.city)).size;
+        }
+        
+        function filterStores() {
+            const searchTerm = document.getElementById('storeSearch').value.toLowerCase();
+            
+            if (!searchTerm) {
+                renderStores(allStores);
+                return;
+            }
+            
+            const filtered = allStores.filter(store => 
+                store.branch_name.toLowerCase().includes(searchTerm) ||
+                store.city.toLowerCase().includes(searchTerm) ||
+                store.address.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filtered.length > 0) {
+                renderStores(filtered);
+            } else {
+                document.getElementById('storesList').innerHTML = `
+                    <div style="text-align: center; padding: 3rem;">
+                        <p style="font-size: 3rem;">🔍</p>
+                        <p>No stores found matching "${searchTerm}"</p>
+                        <button class="btn btn-primary" onclick="clearSearch()">Show All Stores</button>
+                    </div>
+                `;
+            }
+        }
+        
+        function clearSearch() {
+            document.getElementById('storeSearch').value = '';
+            renderStores(allStores);
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Unknown';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long' });
+        }
+        
+        function getDirections(address) {
+            const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+            window.open(url, '_blank');
+        }
+        
+        function callStore(phone) {
+            window.location.href = `tel:${phone.replace(/[^0-9+]/g, '')}`;
+        }
+        
+        function emailStore(email) {
+            window.location.href = `mailto:${email}`;
+        }
+    </script>
+</body>
+</html>

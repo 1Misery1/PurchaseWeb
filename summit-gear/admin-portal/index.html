@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Summit Gear & Adventures</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 { font-size: 2rem; color: #1f2937; margin-bottom: 0.5rem; }
+        .header p { color: #6b7280; }
+        
+        .admin-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-top: 1rem;
+        }
+
+        .admin-info .name { font-weight: 600; color: #1f2937; }
+        .admin-info .role { color: #7c3aed; font-size: 0.9rem; }
+        
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        
+        .btn-logout:hover { background: #dc2626; }
+
+        .roles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .role-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 3px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .role-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .role-card.manager { border-color: #f59e0b; }
+        .role-card.manager:hover { background: #fffbeb; }
+
+        .role-card.business { border-color: #3b82f6; }
+        .role-card.business:hover { background: #eff6ff; }
+
+        .role-card.inventory { border-color: #10b981; }
+        .role-card.inventory:hover { background: #ecfdf5; }
+        
+        .role-card.hr { border-color: #ec4899; }
+        .role-card.hr:hover { background: #fdf2f8; }
+
+        .role-card .icon { font-size: 3rem; margin-bottom: 1rem; }
+        .role-card h2 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #1f2937; }
+        .role-card p { color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem; }
+
+        .role-card .features {
+            list-style: none;
+            font-size: 0.85rem;
+            color: #374151;
+        }
+        
+        .role-card .features li {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .role-card .features li:last-child { border-bottom: none; }
+
+        .role-card .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+        
+        .role-card.manager .badge { background: #fef3c7; color: #92400e; }
+        .role-card.business .badge { background: #dbeafe; color: #1e40af; }
+        .role-card.inventory .badge { background: #d1fae5; color: #065f46; }
+        .role-card.hr .badge { background: #fce7f3; color: #9d174d; }
+        
+        .disabled-card {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .disabled-card::after {
+            content: '🔒 No Access';
+            display: block;
+            text-align: center;
+            margin-top: 1rem;
+            color: #ef4444;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏔️ Summit Gear Admin Portal</h1>
+        <p>Select your management dashboard</p>
+        <div class="admin-info">
+            <div>
+                <div class="name" id="adminName">Loading...</div>
+                <div class="role" id="adminRole">-</div>
+            </div>
+            <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+        </div>
+        </div>
+
+    <div class="roles-grid" id="rolesGrid">
+        <!-- Roles will be rendered by JS -->
+            </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+        
+        // Role configurations
+        const roles = [
+            {
+                id: 'manager',
+                title: 'Store Manager',
+                icon: '👑',
+                description: 'Full access to all store operations',
+                features: ['📊 Dashboard Overview', '📋 Order Management', '👥 Customer Data', '📦 Inventory Control', '👔 Staff Management'],
+                badge: 'All Permissions',
+                link: 'store-manager.html',
+                positions: ['Store Manager']
+            },
+            {
+                id: 'business',
+                title: 'Business Admin',
+                icon: '💼',
+                description: 'Sales, orders, and customer management',
+                features: ['📊 Sales Reports', '📋 Order Processing', '👥 Customer Management', '📈 Revenue Analytics'],
+                badge: 'Sales & Customers',
+                link: 'business-admin.html',
+                positions: ['Store Manager', 'Business Admin']
+            },
+            {
+                id: 'inventory',
+                title: 'Inventory Admin',
+                icon: '📦',
+                description: 'Product and stock management',
+                features: ['📦 Product Catalog', '📊 Stock Levels', '⚠️ Low Stock Alerts', '🚚 Purchase Orders'],
+                badge: 'Inventory & Orders',
+                link: 'inventory-admin.html',
+                positions: ['Store Manager', 'Inventory Admin']
+            },
+            {
+                id: 'hr',
+                title: 'HR Admin',
+                icon: '👥',
+                description: 'Employee management and scheduling',
+                features: ['👔 Employee Directory', '📅 Schedules', '💰 Salary Info', '📊 Performance'],
+                badge: 'Staff & HR',
+                link: 'hr-admin.html',
+                positions: ['Store Manager', 'HR Admin']
+            }
+        ];
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check login
+            const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+            const admin = JSON.parse(localStorage.getItem('currentAdmin') || 'null');
+            
+            if (!isLoggedIn || !admin) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Display admin info
+            document.getElementById('adminName').textContent = admin.name;
+            document.getElementById('adminRole').textContent = admin.position + ' • ' + admin.branch_name;
+            
+            // Render role cards
+            renderRoles(admin.position);
+        });
+        
+        function renderRoles(userPosition) {
+            const grid = document.getElementById('rolesGrid');
+            
+            grid.innerHTML = roles.map(role => {
+                const hasAccess = role.positions.includes(userPosition);
+                
+                return `
+                    <a href="${hasAccess ? role.link : '#'}" class="role-card ${role.id} ${hasAccess ? '' : 'disabled-card'}">
+                        <div class="icon">${role.icon}</div>
+                        <h2>${role.title}</h2>
+                        <p>${role.description}</p>
+                        <ul class="features">
+                            ${role.features.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                        <span class="badge">${role.badge}</span>
+                </a>
+                `;
+            }).join('');
+        }
+        
+        function logout() {
+            if (confirm('Logout from Admin Portal?')) {
+                localStorage.removeItem('adminLoggedIn');
+                localStorage.removeItem('currentAdmin');
+                window.location.href = '../index.html';
+            }
+        }
+    </script>
+</body>
+</html>

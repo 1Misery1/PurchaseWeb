@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Admin - Summit Gear</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root { --primary: #ec4899; --primary-dark: #db2777; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f3f4f6; }
+        
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1.25rem; }
+        .header-right { display: flex; gap: 1rem; align-items: center; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .btn-back { background: rgba(255,255,255,0.2); color: white; }
+        .btn-logout { background: #dc2626; color: white; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-card { background: white; padding: 1.25rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid var(--primary); }
+        .stat-card .label { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; }
+        .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #1f2937; }
+        .stat-card .sub { font-size: 0.75rem; color: #6b7280; }
+        
+        .content-card { background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 2px solid #f3f4f6; }
+        .section-header h2 { font-size: 1.1rem; color: #1f2937; }
+        
+        .filters { display: flex; gap: 1rem; padding: 1rem 1.5rem; background: #f9fafb; flex-wrap: wrap; }
+        .filters select, .filters input { padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; }
+        .filters input { flex: 1; min-width: 200px; }
+        
+        .table-container { padding: 0 1.5rem 1.5rem; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: #f9fafb; }
+        th { padding: 0.75rem 1rem; text-align: left; font-weight: 600; color: #374151; font-size: 0.75rem; text-transform: uppercase; }
+        td { padding: 0.875rem 1rem; border-top: 1px solid #e5e7eb; font-size: 0.9rem; vertical-align: middle; }
+        tbody tr:hover { background: #fdf2f8; }
+        
+        .badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #fce7f3; color: #9d174d; }
+        
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.8rem; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: #e5e7eb; color: #374151; }
+        
+        .loading { text-align: center; padding: 3rem; color: #6b7280; }
+        .alert { padding: 1rem; border-radius: 0.5rem; margin: 1rem 1.5rem; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: #6b7280; }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: 1rem; padding: 1.5rem; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+        .modal-header h3 { font-size: 1.1rem; }
+        .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #6b7280; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.625rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.9rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        .employee-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; }
+        .employee-info { display: flex; align-items: center; gap: 0.75rem; }
+        
+        .position-tag { display: inline-flex; align-items: center; gap: 0.25rem; }
+        .position-icon { font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>👥 HR Admin Dashboard</h1>
+        <div class="header-right">
+            <span id="adminName">Loading...</span>
+            <button class="btn btn-back" onclick="location.href='index.html'">← Back</button>
+            <button class="btn btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card"><div class="label">👔 Total Employees</div><div class="value" id="totalEmployees">0</div><div class="sub">Active staff</div></div>
+            <div class="stat-card"><div class="label">🏪 Branches</div><div class="value" id="totalBranches">0</div><div class="sub">Locations</div></div>
+            <div class="stat-card"><div class="label">💰 Monthly Payroll</div><div class="value" id="monthlyPayroll">£0</div><div class="sub">Estimated</div></div>
+            <div class="stat-card"><div class="label">📅 New Hires (30d)</div><div class="value" id="newHires">0</div><div class="sub">Recent</div></div>
+        </div>
+
+        <div class="content-card">
+            <div class="section-header">
+                <h2>👔 Employee Management</h2>
+                <div style="display:flex; gap:0.5rem;">
+                    <button class="btn btn-secondary" onclick="loadEmployees()">🔄 Refresh</button>
+                    <button class="btn btn-primary" onclick="openEmployeeModal()">+ Add Employee</button>
+                </div>
+            </div>
+            
+            <div class="filters">
+                <select id="branchFilter" onchange="filterEmployees()">
+                    <option value="">All Branches</option>
+                </select>
+                <select id="positionFilter" onchange="filterEmployees()">
+                    <option value="">All Positions</option>
+                    <option value="Store Manager">👑 Store Manager</option>
+                    <option value="Business Admin">💼 Business Admin</option>
+                    <option value="Inventory Admin">📦 Inventory Admin</option>
+                    <option value="HR Admin">👥 HR Admin</option>
+                    <option value="Staff">🛒 Staff</option>
+                </select>
+                <select id="statusFilter" onchange="filterEmployees()">
+                    <option value="">All Status</option>
+                    <option value="active">✅ Active</option>
+                    <option value="inactive">❌ Inactive</option>
+                </select>
+                <input type="text" id="employeeSearch" placeholder="Search by name or email..." onkeyup="filterEmployees()">
+            </div>
+            
+            <div class="table-container" id="employeesTable">
+                <p class="loading">Loading employees...</p>
+            </div>
+        </div>
+
+        <!-- Staff Performance Section -->
+        <div class="content-card" style="margin-top: 1.5rem;">
+            <div class="section-header">
+                <h2>📊 Staff Sales Performance</h2>
+                <div style="display:flex; gap:0.5rem; align-items: center;">
+                    <select id="performancePeriod" onchange="loadStaffPerformance()" style="padding: 0.5rem 1rem; border: 1px solid #e5e7eb; border-radius: 0.5rem;">
+                        <option value="all">All Time</option>
+                        <option value="month">This Month</option>
+                        <option value="week">This Week</option>
+                    </select>
+                    <button class="btn btn-secondary" onclick="loadStaffPerformance()">🔄 Refresh</button>
+                </div>
+            </div>
+            
+            <div class="table-container" id="performanceTable">
+                <p class="loading">Loading performance data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Modal -->
+    <div class="modal" id="employeeModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employeeModalTitle">Add New Employee</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="employeeForm" onsubmit="saveEmployee(event)">
+                <input type="hidden" id="employeeId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="empName" required placeholder="e.g., John Smith">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="empEmail" required placeholder="e.g., j.smith@summitgear.co.uk">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Phone *</label>
+                        <input type="tel" id="empPhone" required placeholder="e.g., 07700-100001">
+                    </div>
+                    <div class="form-group">
+                        <label>Position *</label>
+                        <select id="empPosition" required>
+                            <option value="">-- Select Position --</option>
+                            <option value="Store Manager">Store Manager (Admin)</option>
+                            <option value="Business Admin">Business Admin</option>
+                            <option value="Inventory Admin">Inventory Admin</option>
+                            <option value="HR Admin">HR Admin</option>
+                            <option value="Staff">Staff</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Branch *</label>
+                        <select id="empBranch" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hire Date *</label>
+                        <input type="date" id="empHireDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Annual Salary (£) *</label>
+                        <input type="number" id="empSalary" required min="15000" step="1000" placeholder="e.g., 28000">
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="empStatus">
+                            <option value="1">Active</option>
+                            <option value="0">Inactive (Terminated)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display:flex; gap:0.5rem; justify-content:flex-end; margin-top:1.5rem; padding-top:1rem; border-top:1px solid #e5e7eb;">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">💾 Save Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+        let allEmployees = [];
+        let branches = [];
+        let currentAdmin = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            currentAdmin = JSON.parse(localStorage.getItem('currentAdmin') || 'null');
+            if (!currentAdmin || localStorage.getItem('adminLoggedIn') !== 'true') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('adminName').textContent = currentAdmin.name;
+            loadBranches();
+            loadEmployees();  // This will call loadStaffPerformance() after employees are loaded
+        });
+
+        function logout() { if(confirm('Logout?')) { localStorage.clear(); window.location.href = '../index.html'; } }
+        function closeModal() { document.getElementById('employeeModal').classList.remove('active'); }
+
+        async function loadBranches() {
+            try {
+                const res = await fetch(`${API_BASE}/branches.php`);
+                const data = await res.json();
+                
+                // Handle both array response and {success, data} response formats
+                if (Array.isArray(data)) {
+                    branches = data;
+                } else if (data.success && data.data) {
+                    branches = data.data;
+                } else {
+                    branches = [];
+                }
+                
+                document.getElementById('totalBranches').textContent = branches.length;
+                
+                // Populate filters and form
+                const branchOptions = branches.map(b => `<option value="${b.branch_id}">${b.branch_name}</option>`).join('');
+                document.getElementById('branchFilter').innerHTML = '<option value="">All Branches</option>' + branchOptions;
+                document.getElementById('empBranch').innerHTML = '<option value="">-- Select Branch --</option>' + branchOptions;
+                
+            } catch(e) { console.error('Failed to load branches:', e); }
+        }
+
+        async function loadEmployees() {
+            const container = document.getElementById('employeesTable');
+            container.innerHTML = '<p class="loading">Loading employees...</p>';
+            
+            try {
+                // Non-Store Manager admins can only see their own branch
+                let url = `${API_BASE}/admin.php?action=employees`;
+                if (currentAdmin && currentAdmin.position !== 'Store Manager') {
+                    url += `&branch_id=${currentAdmin.branch_id}`;
+                }
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (data.success) {
+                    allEmployees = data.data;
+                    
+                    // Calculate stats
+                    const activeEmployees = allEmployees.filter(e => e.is_active);
+                    const totalSalary = activeEmployees.reduce((sum, e) => sum + parseFloat(e.salary), 0);
+                    const thirtyDaysAgo = new Date();
+                    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                    const newHires = allEmployees.filter(e => new Date(e.hire_date) >= thirtyDaysAgo).length;
+                    
+                    document.getElementById('totalEmployees').textContent = activeEmployees.length;
+                    document.getElementById('monthlyPayroll').textContent = '£' + Math.round(totalSalary / 12).toLocaleString();
+                    document.getElementById('newHires').textContent = newHires;
+                    
+                    renderEmployees(allEmployees);
+                    
+                    // Load staff performance after employees are loaded
+                    loadStaffPerformance();
+                }
+            } catch(e) { 
+                container.innerHTML = '<div class="alert alert-warning">Failed to load employees</div>'; 
+            }
+        }
+
+        function filterEmployees() {
+            const branch = document.getElementById('branchFilter').value;
+            const position = document.getElementById('positionFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('employeeSearch').value.toLowerCase();
+            
+            let filtered = allEmployees;
+            
+            if (branch) filtered = filtered.filter(e => e.branch_id == branch);
+            if (position) filtered = filtered.filter(e => e.position === position);
+            if (status === 'active') filtered = filtered.filter(e => e.is_active);
+            if (status === 'inactive') filtered = filtered.filter(e => !e.is_active);
+            if (search) filtered = filtered.filter(e => 
+                e.name.toLowerCase().includes(search) || 
+                e.email.toLowerCase().includes(search)
+            );
+            
+            renderEmployees(filtered);
+        }
+
+        function renderEmployees(employees) {
+            const container = document.getElementById('employeesTable');
+            
+            if (!employees.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No employees found</p></div>';
+                return;
+            }
+            
+            const positionIcon = p => {
+                const icons = {
+                    'Store Manager': '👑',
+                    'Business Admin': '💼',
+                    'Inventory Admin': '📦',
+                    'HR Admin': '👥',
+                    'Staff': '🛒'
+                };
+                return icons[p] || '👔';
+            };
+            
+            const getInitials = name => name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Contact</th>
+                            <th>Position</th>
+                            <th>Branch</th>
+                            <th>Hire Date</th>
+                            <th>Salary</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${employees.map(e => `
+                            <tr style="${!e.is_active ? 'opacity:0.6;' : ''}">
+                                <td>
+                                    <div class="employee-info">
+                                        <div class="employee-avatar">${getInitials(e.name)}</div>
+                                        <div>
+                                            <strong>${e.name}</strong>
+                                            <div style="font-size:0.75rem; color:#6b7280;">ID: ${e.employee_id}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>${e.email}</div>
+                                    <div style="font-size:0.8rem; color:#6b7280;">${e.phone || '-'}</div>
+                                </td>
+                                <td>
+                                    <span class="position-tag">
+                                        <span class="position-icon">${positionIcon(e.position)}</span>
+                                        <span class="badge badge-purple">${e.position}</span>
+                                    </span>
+                                </td>
+                                <td>${e.branch_name}</td>
+                                <td>${new Date(e.hire_date).toLocaleDateString('en-GB')}</td>
+                                <td><strong>£${parseFloat(e.salary).toLocaleString()}</strong>/yr</td>
+                                <td>
+                                    <span class="badge badge-${e.is_active ? 'success' : 'danger'}">
+                                        ${e.is_active ? '✅ Active' : '❌ Inactive'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-secondary" onclick="editEmployee(${e.employee_id})">✏️ Edit</button>
+                                    ${e.is_active ? 
+                                        `<button class="btn btn-sm btn-danger" onclick="terminateEmployee(${e.employee_id}, '${e.name}')">🚫 Terminate</button>` :
+                                        `<button class="btn btn-sm btn-success" onclick="reactivateEmployee(${e.employee_id}, '${e.name}')">✅ Reactivate</button>`
+                                    }
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function openEmployeeModal(employee = null) {
+            document.getElementById('employeeModalTitle').textContent = employee ? 'Edit Employee' : 'Add New Employee';
+            document.getElementById('employeeId').value = employee?.employee_id || '';
+            document.getElementById('empName').value = employee?.name || '';
+            document.getElementById('empEmail').value = employee?.email || '';
+            document.getElementById('empPhone').value = employee?.phone || '';
+            document.getElementById('empPosition').value = employee?.position || '';
+            document.getElementById('empBranch').value = employee?.branch_id || '';
+            document.getElementById('empHireDate').value = employee?.hire_date || new Date().toISOString().split('T')[0];
+            document.getElementById('empSalary').value = employee?.salary || '';
+            document.getElementById('empStatus').value = employee?.is_active ? '1' : '0';
+            
+            document.getElementById('employeeModal').classList.add('active');
+        }
+
+        async function editEmployee(id) {
+            const employee = allEmployees.find(e => e.employee_id == id);
+            if (employee) openEmployeeModal(employee);
+        }
+
+        async function saveEmployee(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('employeeId').value;
+            const data = {
+                name: document.getElementById('empName').value,
+                email: document.getElementById('empEmail').value,
+                phone: document.getElementById('empPhone').value,
+                position: document.getElementById('empPosition').value,
+                branch_id: document.getElementById('empBranch').value,
+                hire_date: document.getElementById('empHireDate').value,
+                salary: document.getElementById('empSalary').value,
+                is_active: document.getElementById('empStatus').value === '1'
+            };
+            
+            if (id) data.employee_id = id;
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/employees.php`, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    closeModal();
+                    loadEmployees();
+                    alert(id ? '✅ Employee updated!' : '✅ Employee added!');
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to save'));
+                }
+            } catch(e) { 
+                alert('Failed to save employee. API endpoint may not exist yet.'); 
+            }
+        }
+
+        async function terminateEmployee(id, name) {
+            if (!confirm(`Terminate ${name}? They will be marked as inactive.`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/employees.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employee_id: id, is_active: false })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    loadEmployees();
+                    alert(`${name} has been terminated.`);
+                } else {
+                    alert('Error: ' + (result.message || 'Failed'));
+                }
+            } catch(e) { 
+                // Fallback: just reload to show the attempt
+                alert('API endpoint not available. Employee termination requires backend support.');
+            }
+        }
+
+        async function reactivateEmployee(id, name) {
+            if (!confirm(`Reactivate ${name}?`)) return;
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/employees.php`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ employee_id: id, is_active: true })
+                });
+                const result = await res.json();
+                
+                if (result.success) {
+                    loadEmployees();
+                    alert(`${name} has been reactivated.`);
+                }
+            } catch(e) { 
+                alert('API endpoint not available.');
+            }
+        }
+
+        // =====================================================
+        // Staff Performance Section
+        // =====================================================
+        async function loadStaffPerformance() {
+            const container = document.getElementById('performanceTable');
+            container.innerHTML = '<p class="loading">Loading performance data...</p>';
+            
+            try {
+                // Get staff members from this branch (only Staff position)
+                const staffMembers = allEmployees.filter(e => e.position === 'Staff' && e.is_active);
+                
+                if (staffMembers.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="icon">📊</div><p>No staff members found</p></div>';
+                    return;
+                }
+                
+                // Get performance stats for each staff member
+                const performanceData = await Promise.all(
+                    staffMembers.map(async (staff) => {
+                        try {
+                            const res = await fetch(`${API_BASE}/employees.php?action=stats&employee_id=${staff.employee_id}`);
+                            const data = await res.json();
+                            
+                            if (data.success && data.data) {
+                                // Map the API response to our expected format
+                                const apiData = data.data;
+                                const monthData = apiData.this_month || apiData.today || {};
+                                const transactions = apiData.recent_transactions || [];
+                                
+                                // Count unique customers from transactions
+                                const uniqueCustomers = new Set(transactions.map(t => t.customer_name)).size;
+                                
+                                return {
+                                    ...staff,
+                                    stats: {
+                                        total_sales: monthData.sales || 0,
+                                        total_orders: monthData.orders || 0,
+                                        customers_served: uniqueCustomers
+                                    }
+                                };
+                            }
+                            return {
+                                ...staff,
+                                stats: { total_sales: 0, total_orders: 0, customers_served: 0 }
+                            };
+                        } catch(e) {
+                            return {
+                                ...staff,
+                                stats: { total_sales: 0, total_orders: 0, customers_served: 0 }
+                            };
+                        }
+                    })
+                );
+                
+                // Sort by total sales (highest first)
+                performanceData.sort((a, b) => parseFloat(b.stats.total_sales || 0) - parseFloat(a.stats.total_sales || 0));
+                
+                renderPerformanceTable(performanceData);
+                
+            } catch(e) {
+                console.error('Failed to load performance:', e);
+                container.innerHTML = '<div class="alert alert-warning">Failed to load performance data</div>';
+            }
+        }
+        
+        function renderPerformanceTable(data) {
+            const container = document.getElementById('performanceTable');
+            
+            // Calculate totals for summary
+            const totalSales = data.reduce((sum, d) => sum + parseFloat(d.stats.total_sales || 0), 0);
+            const totalOrders = data.reduce((sum, d) => sum + parseInt(d.stats.total_orders || 0), 0);
+            const totalCustomers = data.reduce((sum, d) => sum + parseInt(d.stats.customers_served || 0), 0);
+            
+            const getInitials = name => name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+            const getRankBadge = (index) => {
+                if (index === 0) return '<span style="font-size:1.2rem;">🥇</span>';
+                if (index === 1) return '<span style="font-size:1.2rem;">🥈</span>';
+                if (index === 2) return '<span style="font-size:1.2rem;">🥉</span>';
+                return `<span style="color:#6b7280; font-weight:600;">#${index + 1}</span>`;
+            };
+            
+            container.innerHTML = `
+                <!-- Performance Summary -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1rem; background: #fdf2f8; border-radius: 0.5rem; margin-bottom: 1rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">£${totalSales.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div style="font-size: 0.8rem; color: #6b7280;">Total Team Sales</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${totalOrders}</div>
+                        <div style="font-size: 0.8rem; color: #6b7280;">Total Orders</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">${totalCustomers}</div>
+                        <div style="font-size: 0.8rem; color: #6b7280;">Customers Served</div>
+                    </div>
+                </div>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Staff Member</th>
+                            <th>Total Sales</th>
+                            <th>Orders Completed</th>
+                            <th>Customers Served</th>
+                            <th>Avg. Order Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map((d, index) => {
+                            const sales = parseFloat(d.stats.total_sales || 0);
+                            const orders = parseInt(d.stats.total_orders || 0);
+                            const customers = parseInt(d.stats.customers_served || 0);
+                            const avgOrder = orders > 0 ? (sales / orders) : 0;
+                            
+                            return `
+                                <tr>
+                                    <td style="text-align: center;">${getRankBadge(index)}</td>
+                                    <td>
+                                        <div class="employee-info">
+                                            <div class="employee-avatar">${getInitials(d.name)}</div>
+                                            <div>
+                                                <strong>${d.name}</strong>
+                                                <div style="font-size:0.75rem; color:#6b7280;">ID: ${d.employee_id}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><strong style="color: var(--success);">£${sales.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                                    <td><span class="badge badge-info">${orders} orders</span></td>
+                                    <td><span class="badge badge-purple">${customers} customers</span></td>
+                                    <td>£${avgOrder.toLocaleString('en-GB', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                
+                ${data.length === 0 ? '<div class="empty-state"><div class="icon">📊</div><p>No performance data available</p></div>' : ''}
+            `;
+        }
+    </script>
+</body>
+</html>

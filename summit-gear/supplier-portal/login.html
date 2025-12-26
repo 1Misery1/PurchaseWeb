@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supplier Login - Summit Gear & Adventures</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 2rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #1e3a5f, #2563eb);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+
+        .login-header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .login-body {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-login:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .info-box h4 {
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box p {
+            color: #1e40af;
+            font-size: 0.85rem;
+            margin: 0.25rem 0;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+
+        .back-link a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+        }
+
+        .back-link a:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🏔️ Summit Gear</h1>
+                <p>Supplier Portal Login</p>
+            </div>
+
+            <div class="login-body">
+                <div class="error-message" id="errorMessage"></div>
+
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="email">📧 Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="supplier@example.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">🔑 Password</label>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <button type="submit" class="btn-login" id="loginBtn">
+                        🔐 Login to Portal
+                    </button>
+                </form>
+
+                <div class="info-box">
+                    <h4>📋 Registered Suppliers</h4>
+                    <p style="font-size: 0.85rem; margin-bottom: 0.5rem;"><strong>North Face UK:</strong> j.mitchell@northface.co.uk</p>
+                    <p style="font-size: 0.85rem; margin-bottom: 0.5rem;"><strong>Black Diamond:</strong> s.connor@blackdiamond.co.uk</p>
+                    <p style="font-size: 0.85rem; margin-bottom: 0.5rem;"><strong>MSR Outdoor:</strong> m.chen@msr.co.uk</p>
+                    <p style="font-size: 0.85rem; margin-top: 0.75rem; color: #64748b;">Password: hash123</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="../index.html">← Back to Main Site</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/summit-gear/api';
+
+        // Clear any existing login data when visiting login page
+        // This ensures users must log in fresh
+        document.addEventListener('DOMContentLoaded', function() {
+            // Clear old login data
+            localStorage.removeItem('currentSupplier');
+            localStorage.removeItem('supplierId');
+            console.log('Login page loaded - cleared previous session');
+        });
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            errorMessage.classList.remove('show');
+            loginBtn.disabled = true;
+            loginBtn.textContent = '⏳ Logging in...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/suppliers.php?action=login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    const supplier = result.data;
+                    
+                    // Save login state
+                    localStorage.setItem('currentSupplier', JSON.stringify(supplier));
+                    localStorage.setItem('supplierId', supplier.supplier_id);
+                    
+                    // Redirect to dashboard
+                    window.location.href = 'index.html';
+                } else {
+                    errorMessage.textContent = '❌ ' + (result.message || 'Invalid email or password.');
+                    errorMessage.classList.add('show');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '🔐 Login to Portal';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMessage.textContent = '❌ Connection error. Please try again.';
+                errorMessage.classList.add('show');
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔐 Login to Portal';
+            }
+        }
+    </script>
+</body>
+</html>
+
